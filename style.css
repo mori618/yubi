@@ -409,6 +409,15 @@ body {
   stroke-linejoin: round;
 }
 
+.finger-nail {
+  fill: #fff0eb;
+  stroke: var(--hand-stroke);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+}
+
 .finger-line {
   fill: none;
   stroke: var(--hand-stroke);
@@ -477,6 +486,7 @@ body {
 .card-slot.extinguished .hand-palm,
 .card-slot.extinguished .finger-thumb,
 .card-slot.extinguished .finger-ext,
+.card-slot.extinguished .finger-nail,
 .card-slot.extinguished .hand-sleeve {
   fill: #d3d3d3 !important;
   stroke: #7f7f7f !important;
