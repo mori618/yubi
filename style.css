@@ -4,26 +4,30 @@
 
 :root {
   /* 共通カラー定義 */
-  --bg-color: #121620;
-  --bg-gradient: linear-gradient(135deg, #121620 0%, #1c2230 100%);
-  --panel-bg: rgba(28, 34, 48, 0.75);
-  --panel-border: rgba(255, 255, 255, 0.06);
+  --bg-color: #0c0f19;
+  --bg-gradient: linear-gradient(135deg, #0a0d16 0%, #151928 100%);
+  --panel-bg: rgba(20, 26, 46, 0.6);
+  --panel-border: rgba(255, 255, 255, 0.08);
   --text-primary: #f0f3fa;
   --text-secondary: #8f9cae;
   
-  /* 普通の人の手のカラー定義 */
-  --hand-skin: #ffe2cc;
-  --hand-stroke: #5c3c2a;
-  
-  /* 袖口（リストバンド）カラー */
-  --p1-sleeve: #2f80ed; /* 青 */
-  --p2-sleeve: #eb5757; /* 赤 */
+  /* プレイヤー1 (ブルーネオン) */
+  --p1-primary: #00f0ff;
+  --p1-secondary: #0055ff;
+  --p1-glow: rgba(0, 240, 255, 0.4);
+  --p1-bg: rgba(0, 240, 255, 0.05);
+
+  /* プレイヤー2 / CPU (マゼンタ・パープルネオン) */
+  --p2-primary: #ff007f;
+  --p2-secondary: #8c00ff;
+  --p2-glow: rgba(255, 0, 127, 0.4);
+  --p2-bg: rgba(255, 0, 127, 0.05);
 
   /* システム・警告 */
-  --color-danger: #eb5757;
-  --color-success: #2ecc71;
-  --color-warning: #f1c40f;
-  --glow-danger: rgba(235, 87, 87, 0.2);
+  --color-danger: #ff3b30;
+  --color-success: #34c759;
+  --color-warning: #ffcc00;
+  --glow-danger: rgba(255, 59, 48, 0.4);
 }
 
 /* 基本リセット & 共通スタイル */
@@ -66,10 +70,10 @@ body {
   font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: 4px;
-  background: linear-gradient(90deg, var(--p1-sleeve) 0%, var(--p2-sleeve) 100%);
+  background: linear-gradient(90deg, var(--p1-primary) 0%, var(--p2-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 8px rgba(47, 128, 237, 0.2));
+  filter: drop-shadow(0 2px 8px rgba(0, 240, 255, 0.2));
 }
 
 .game-subtitle {
@@ -398,47 +402,62 @@ body {
   animation: hand-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-/* 手のパーツ・ライン共通（普通の人の手） */
+/* 手のパーツ・ライン共通（サイバーネオン） */
 .hand-palm,
+.finger-ext,
 .finger-thumb,
-.finger-ext {
-  fill: var(--hand-skin);
-  stroke: var(--hand-stroke);
-  stroke-width: 3;
+.hand-sleeve {
+  stroke-width: 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: all 0.3s ease;
 }
 
+/* 爪はネオン調のため非表示 */
 .finger-nail {
-  fill: #fff0eb;
-  stroke: var(--hand-stroke);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.85;
+  display: none;
 }
 
+/* 折った指のシワ */
 .finger-line {
   fill: none;
-  stroke: var(--hand-stroke);
   stroke-width: 2.2;
   stroke-linecap: round;
-  opacity: 0.25; /* 折った指のシワは薄く表現 */
+  opacity: 0.35;
 }
 
-/* 袖口（リストバンド）のスタイリング */
-.hand-sleeve {
-  stroke: var(--hand-stroke);
-  stroke-width: 3;
-  stroke-linejoin: round;
+/* プレイヤー1の手 (青ネオン) */
+[data-player="p1"] .hand-palm,
+[data-player="p1"] .finger-ext,
+[data-player="p1"] .finger-thumb {
+  fill: rgba(0, 240, 255, 0.02);
+  stroke: var(--p1-primary);
+  filter: drop-shadow(0 0 3px var(--p1-glow));
 }
-
 [data-player="p1"] .hand-sleeve {
-  fill: var(--p1-sleeve);
+  fill: rgba(0, 240, 255, 0.08);
+  stroke: var(--p1-primary);
+  filter: drop-shadow(0 0 3px var(--p1-glow));
+}
+[data-player="p1"] .finger-line {
+  stroke: var(--p1-primary);
 }
 
+/* プレイヤー2の手 (マゼンタネオン) */
+[data-player="p2"] .hand-palm,
+[data-player="p2"] .finger-ext,
+[data-player="p2"] .finger-thumb {
+  fill: rgba(255, 0, 127, 0.02);
+  stroke: var(--p2-primary);
+  filter: drop-shadow(0 0 3px var(--p2-glow));
+}
 [data-player="p2"] .hand-sleeve {
-  fill: var(--p2-sleeve);
+  fill: rgba(255, 0, 127, 0.08);
+  stroke: var(--p2-primary);
+  filter: drop-shadow(0 0 3px var(--p2-glow));
+}
+[data-player="p2"] .finger-line {
+  stroke: var(--p2-primary);
 }
 
 /* 数値表示用 */
@@ -486,14 +505,13 @@ body {
 .card-slot.extinguished .hand-palm,
 .card-slot.extinguished .finger-thumb,
 .card-slot.extinguished .finger-ext,
-.card-slot.extinguished .finger-nail,
 .card-slot.extinguished .hand-sleeve {
-  fill: #d3d3d3 !important;
-  stroke: #7f7f7f !important;
-  opacity: 0.5;
+  fill: rgba(255, 255, 255, 0.01) !important;
+  stroke: #3a4155 !important;
+  filter: none !important;
 }
 .card-slot.extinguished .finger-line {
-  stroke: #7f7f7f !important;
+  stroke: #3a4155 !important;
   opacity: 0.15;
 }
 .card-slot.extinguished .card-value {
@@ -510,37 +528,74 @@ body {
    ドラッグオーバー時のサークルハイライトエフェクト
    ========================================== */
 
-/* 攻撃対象へのドラッグオーバー（赤サークル） */
+/* 攻撃対象へのドラッグオーバー（赤ネオンサークル + パルス） */
 .card-slot.drop-target-attack .card-inner::before {
-  background: rgba(235, 87, 87, 0.18);
-  border: 2px solid rgba(235, 87, 87, 0.35);
-  transform: translate(-50%, -50%) scale(1.1);
+  background: rgba(255, 0, 127, 0.12);
+  border: 2px solid var(--p2-primary);
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 0 15px var(--p2-glow);
   opacity: 1;
 }
+.card-slot.drop-target-attack .hand-svg {
+  animation: neon-pulse-p2 1.2s infinite ease-in-out;
+}
 
-/* 譲渡対象へのドラッグオーバー（緑サークル） */
+/* 譲渡対象へのドラッグオーバー（青ネオンサークル + パルス） */
 .card-slot.drop-target-transfer .card-inner::before {
-  background: rgba(46, 204, 113, 0.18);
-  border: 2px solid rgba(46, 204, 113, 0.35);
-  transform: translate(-50%, -50%) scale(1.1);
+  background: rgba(0, 240, 255, 0.12);
+  border: 2px solid var(--p1-primary);
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 0 15px var(--p1-glow);
   opacity: 1;
+}
+.card-slot.drop-target-transfer .hand-svg {
+  animation: neon-pulse-p1 1.2s infinite ease-in-out;
 }
 
 /* アクション不可へのドラッグオーバー警告（赤の極薄） */
 .card-slot.drop-target-invalid .card-inner::before {
-  background: rgba(235, 87, 87, 0.05);
-  border: 2px dashed rgba(235, 87, 87, 0.2);
+  background: rgba(255, 59, 48, 0.05);
+  border: 2px dashed var(--color-danger);
   transform: translate(-50%, -50%) scale(1.0);
   opacity: 1;
   cursor: no-drop;
 }
+.card-slot.drop-target-invalid .hand-svg {
+  animation: neon-pulse-danger 1.2s infinite ease-in-out;
+}
 
-/* 引き込み対象へのドラッグオーバー（黄サークル） */
+/* 引き込み対象へのドラッグオーバー（黄ネオンサークル + パルス） */
 .card-slot.drop-target-pull .card-inner::before {
-  background: rgba(241, 196, 15, 0.18);
-  border: 2px solid rgba(241, 196, 15, 0.35);
-  transform: translate(-50%, -50%) scale(1.1);
+  background: rgba(255, 204, 0, 0.12);
+  border: 2px solid var(--color-warning);
+  transform: translate(-50%, -50%) scale(1.15);
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
   opacity: 1;
+}
+.card-slot.drop-target-pull .hand-svg {
+  animation: neon-pulse-warning 1.2s infinite ease-in-out;
+}
+
+/* ネオンパルスアニメーションの定義 */
+@keyframes neon-pulse-p1 {
+  0% { filter: drop-shadow(0 0 3px var(--p1-glow)); }
+  50% { filter: drop-shadow(0 0 10px var(--p1-primary)); }
+  100% { filter: drop-shadow(0 0 3px var(--p1-glow)); }
+}
+@keyframes neon-pulse-p2 {
+  0% { filter: drop-shadow(0 0 3px var(--p2-glow)); }
+  50% { filter: drop-shadow(0 0 10px var(--p2-primary)); }
+  100% { filter: drop-shadow(0 0 3px var(--p2-glow)); }
+}
+@keyframes neon-pulse-warning {
+  0% { filter: drop-shadow(0 0 3px rgba(255, 204, 0, 0.4)); }
+  50% { filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.8)); }
+  100% { filter: drop-shadow(0 0 3px rgba(255, 204, 0, 0.4)); }
+}
+@keyframes neon-pulse-danger {
+  0% { filter: drop-shadow(0 0 3px var(--glow-danger)); }
+  50% { filter: drop-shadow(0 0 10px var(--color-danger)); }
+  100% { filter: drop-shadow(0 0 3px var(--glow-danger)); }
 }
 
 /* VSの境界線 */
