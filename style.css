@@ -298,24 +298,44 @@ body {
 }
 
 /* ==========================================
-   普通の人の手（旧カード）のスタイリング
+   サイバーネオンカードのスタイリング
    ========================================== */
 .card-slot {
   width: 120px;
   height: 180px;
   position: relative;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  border-radius: 12px;
   cursor: default;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   user-select: none;
-  overflow: visible; /* 手がはみ出ても表示されるように */
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* プレイヤー別のネオン枠線 */
+[data-player="p1"].card-slot {
+  border-color: rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.05), inset 0 0 8px rgba(0, 240, 255, 0.02);
+}
+[data-player="p2"].card-slot {
+  border-color: rgba(255, 0, 127, 0.25);
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.05), inset 0 0 8px rgba(255, 0, 127, 0.02);
 }
 
 /* ターンプレイヤーかつ数値が1以上の時にドラッグ可能 */
 .active-turn .card-slot:not(.extinguished) {
   cursor: grab;
+}
+.active-turn [data-player="p1"].card-slot:not(.extinguished):hover {
+  border-color: var(--p1-primary);
+  box-shadow: 0 0 15px var(--p1-glow), inset 0 0 10px var(--p1-glow);
+  transform: translateY(-6px);
+}
+.active-turn [data-player="p2"].card-slot:not(.extinguished):hover {
+  border-color: var(--p2-primary);
+  box-shadow: 0 0 15px var(--p2-glow), inset 0 0 10px var(--p2-glow);
+  transform: translateY(-6px);
 }
 
 .card-slot:active:not(.extinguished) {
@@ -328,12 +348,11 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: transparent;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: 15px;
   transition: all 0.3s;
 }
 
@@ -343,8 +362,8 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 110px;
-  height: 110px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
@@ -353,151 +372,38 @@ body {
 }
 
 .card-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: bold;
   color: var(--text-secondary);
-  align-self: center;
-  letter-spacing: 1px;
-  opacity: 0.5;
+  align-self: flex-start;
+  letter-spacing: 1.5px;
+  opacity: 0.75;
   z-index: 2;
+  text-transform: uppercase;
 }
 
-/* 手のグラフィック用ラッパー */
-.hand-graphic-wrapper {
-  width: 100%;
-  height: 120px;
+/* 数値表示用エリア */
+.card-value-display {
+  flex-grow: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-end; /* 底辺で整列 */
-  position: relative;
-  transition: all 0.3s ease;
+  align-items: center;
   z-index: 1;
-}
-
-.hand-svg {
-  width: 90px;
-  height: 110px;
-  display: none; /* デフォルトは非表示 */
-  transform-origin: center bottom;
-}
-
-/* プレイヤー別・左右の手のデフォルト向き（鏡像対称） */
-[data-player="p1"].card-slot[data-card-id="A"] .hand-graphic-wrapper {
-  /* プレイヤー1 左手: 通常 */
-}
-[data-player="p1"].card-slot[data-card-id="B"] .hand-graphic-wrapper {
-  transform: scaleX(-1); /* プレイヤー1 右手: 左右反転 */
-}
-[data-player="p2"].card-slot[data-card-id="A"] .hand-graphic-wrapper {
-  transform: rotate(180deg); /* プレイヤー2 左手: 180度回転 */
-  transform-origin: center 50%;
-}
-[data-player="p2"].card-slot[data-card-id="B"] .hand-graphic-wrapper {
-  transform: rotate(180deg) scaleX(-1); /* プレイヤー2 右手: 180度回転 + 左右反転 */
-  transform-origin: center 50%;
-}
-
-.hand-svg.active-hand {
-  display: block;
-  animation: hand-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-/* 手のパーツ・ライン共通（サイバーネオン） */
-.hand-palm,
-.finger-ext,
-.finger-thumb,
-.hand-sleeve {
-  stroke-width: 3.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: all 0.3s ease;
-}
-
-/* 爪はネオン調のため非表示 */
-.finger-nail {
-  display: none;
-}
-
-/* 折った指のシワ */
-.finger-line {
-  fill: none;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  opacity: 0.35;
-}
-
-/* プレイヤー1の手 (青ネオン) */
-[data-player="p1"] .hand-palm,
-[data-player="p1"] .finger-ext,
-[data-player="p1"] .finger-thumb {
-  fill: rgba(0, 240, 255, 0.02);
-  stroke: var(--p1-primary);
-  filter: drop-shadow(0 0 3px var(--p1-glow));
-}
-[data-player="p1"] .hand-sleeve {
-  fill: rgba(0, 240, 255, 0.08);
-  stroke: var(--p1-primary);
-  filter: drop-shadow(0 0 3px var(--p1-glow));
-}
-[data-player="p1"] .finger-line {
-  stroke: var(--p1-primary);
-}
-
-/* プレイヤー2の手 (マゼンタネオン) */
-[data-player="p2"] .hand-palm,
-[data-player="p2"] .finger-ext,
-[data-player="p2"] .finger-thumb {
-  fill: rgba(255, 0, 127, 0.02);
-  stroke: var(--p2-primary);
-  filter: drop-shadow(0 0 3px var(--p2-glow));
-}
-[data-player="p2"] .hand-sleeve {
-  fill: rgba(255, 0, 127, 0.08);
-  stroke: var(--p2-primary);
-  filter: drop-shadow(0 0 3px var(--p2-glow));
-}
-[data-player="p2"] .finger-line {
-  stroke: var(--p2-primary);
-}
-
-/* 数値表示用 */
-.card-value-wrapper {
-  background: rgba(10, 13, 24, 0.4);
-  backdrop-filter: blur(4px);
-  padding: 2px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  z-index: 2;
 }
 
 .card-value {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.95rem;
+  font-size: 3.8rem;
   font-weight: 700;
   line-height: 1;
+  user-select: none;
 }
 
 [data-player="p1"] .card-value {
-  color: #cde2ff;
+  color: var(--p1-primary);
+  text-shadow: 0 0 10px var(--p1-glow), 0 0 20px var(--p1-glow);
 }
 [data-player="p2"] .card-value {
-  color: #ffcde0;
-}
-
-/* ホバー時の手の浮き上がり（左右反転・回転を保持したまま浮上） */
-[data-player="p1"].card-slot[data-card-id="A"]:hover:not(.extinguished) .hand-graphic-wrapper {
-  transform: translateY(-8px);
-}
-[data-player="p1"].card-slot[data-card-id="B"]:hover:not(.extinguished) .hand-graphic-wrapper {
-  transform: scaleX(-1) translateY(-8px);
-}
-[data-player="p2"].card-slot[data-card-id="A"]:hover:not(.extinguished) .hand-graphic-wrapper {
-  transform: rotate(180deg) translateY(-8px);
-}
-[data-player="p2"].card-slot[data-card-id="B"]:hover:not(.extinguished) .hand-graphic-wrapper {
-  transform: rotate(180deg) scaleX(-1) translateY(-8px);
-}
-
 /* 消滅した手 (0 / グー / 暗転) */
 .card-slot.extinguished {
   opacity: 0.35;
@@ -536,11 +442,11 @@ body {
   box-shadow: 0 0 15px var(--p2-glow);
   opacity: 1;
 }
-.card-slot.drop-target-attack .hand-svg {
-  animation: neon-pulse-p2 1.2s infinite ease-in-out;
+.card-slot.drop-target-attack .card-value {
+  animation: neon-pulse-value-p2 1.2s infinite ease-in-out;
 }
 
-/* 譲渡対象へのドラッグオーバー（青ネオンサークル + パルス） */
+/* 譲渡対象へのドラッグオーバー（青ネオンサークル + 数字パルス） */
 .card-slot.drop-target-transfer .card-inner::before {
   background: rgba(0, 240, 255, 0.12);
   border: 2px solid var(--p1-primary);
@@ -548,8 +454,8 @@ body {
   box-shadow: 0 0 15px var(--p1-glow);
   opacity: 1;
 }
-.card-slot.drop-target-transfer .hand-svg {
-  animation: neon-pulse-p1 1.2s infinite ease-in-out;
+.card-slot.drop-target-transfer .card-value {
+  animation: neon-pulse-value-p1 1.2s infinite ease-in-out;
 }
 
 /* アクション不可へのドラッグオーバー警告（赤の極薄） */
@@ -560,11 +466,11 @@ body {
   opacity: 1;
   cursor: no-drop;
 }
-.card-slot.drop-target-invalid .hand-svg {
-  animation: neon-pulse-danger 1.2s infinite ease-in-out;
+.card-slot.drop-target-invalid .card-value {
+  animation: neon-pulse-value-danger 1.2s infinite ease-in-out;
 }
 
-/* 引き込み対象へのドラッグオーバー（黄ネオンサークル + パルス） */
+/* 引き込み対象へのドラッグオーバー（黄ネオンサークル + 数字パルス） */
 .card-slot.drop-target-pull .card-inner::before {
   background: rgba(255, 204, 0, 0.12);
   border: 2px solid var(--color-warning);
@@ -572,30 +478,30 @@ body {
   box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
   opacity: 1;
 }
-.card-slot.drop-target-pull .hand-svg {
-  animation: neon-pulse-warning 1.2s infinite ease-in-out;
+.card-slot.drop-target-pull .card-value {
+  animation: neon-pulse-value-warning 1.2s infinite ease-in-out;
 }
 
-/* ネオンパルスアニメーションの定義 */
-@keyframes neon-pulse-p1 {
-  0% { filter: drop-shadow(0 0 3px var(--p1-glow)); }
-  50% { filter: drop-shadow(0 0 10px var(--p1-primary)); }
-  100% { filter: drop-shadow(0 0 3px var(--p1-glow)); }
+/* ネオン数値パルスアニメーションの定義 */
+@keyframes neon-pulse-value-p1 {
+  0% { text-shadow: 0 0 10px var(--p1-glow), 0 0 20px var(--p1-glow); }
+  50% { text-shadow: 0 0 20px var(--p1-primary), 0 0 40px var(--p1-primary); }
+  100% { text-shadow: 0 0 10px var(--p1-glow), 0 0 20px var(--p1-glow); }
 }
-@keyframes neon-pulse-p2 {
-  0% { filter: drop-shadow(0 0 3px var(--p2-glow)); }
-  50% { filter: drop-shadow(0 0 10px var(--p2-primary)); }
-  100% { filter: drop-shadow(0 0 3px var(--p2-glow)); }
+@keyframes neon-pulse-value-p2 {
+  0% { text-shadow: 0 0 10px var(--p2-glow), 0 0 20px var(--p2-glow); }
+  50% { text-shadow: 0 0 20px var(--p2-primary), 0 0 40px var(--p2-primary); }
+  100% { text-shadow: 0 0 10px var(--p2-glow), 0 0 20px var(--p2-glow); }
 }
-@keyframes neon-pulse-warning {
-  0% { filter: drop-shadow(0 0 3px rgba(255, 204, 0, 0.4)); }
-  50% { filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.8)); }
-  100% { filter: drop-shadow(0 0 3px rgba(255, 204, 0, 0.4)); }
+@keyframes neon-pulse-value-warning {
+  0% { text-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
+  50% { text-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 0 0 40px rgba(255, 204, 0, 0.8); }
+  100% { text-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
 }
-@keyframes neon-pulse-danger {
-  0% { filter: drop-shadow(0 0 3px var(--glow-danger)); }
-  50% { filter: drop-shadow(0 0 10px var(--color-danger)); }
-  100% { filter: drop-shadow(0 0 3px var(--glow-danger)); }
+@keyframes neon-pulse-value-danger {
+  0% { text-shadow: 0 0 10px var(--glow-danger); }
+  50% { text-shadow: 0 0 20px var(--color-danger), 0 0 40px var(--color-danger); }
+  100% { text-shadow: 0 0 10px var(--glow-danger); }
 }
 
 /* VSの境界線 */

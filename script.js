@@ -454,16 +454,6 @@ function updateUI() {
 
       valElement.textContent = val;
 
-      // 数値に合わせた手のイラストSVGの切り替え
-      const handSvgs = slot.querySelectorAll('.hand-svg');
-      handSvgs.forEach(svg => {
-        if (svg.classList.contains(`hand-${val}`)) {
-          svg.classList.add('active-hand');
-        } else {
-          svg.classList.remove('active-hand');
-        }
-      });
-
       if (val === 0) {
         slot.classList.add('extinguished');
       } else {
