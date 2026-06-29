@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数字遊びカードゲーム - NUMBER CRUSH</title>
+  <!-- Google Fonts からモダンなフォントを読み込み -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container">
+    
+    <!-- ヘッダーエリア -->
+    <header class="game-header">
+      <h1>NUMBER CRUSH</h1>
+      <div class="game-subtitle">指遊び・戦争ゲーム</div>
+    </header>
+
+    <!-- モード選択エリア -->
+    <div id="setup-screen" class="screen active">
+      <div class="glass-panel">
+        <h2>ゲームモードを選択してください</h2>
+        <div class="mode-buttons">
+          <button id="btn-local" class="btn btn-primary">ローカル2人対戦</button>
+          <button id="btn-cpu" class="btn btn-secondary">VS CPU（対戦相手：AI）</button>
+        </div>
+        <div class="rules-summary">
+          <h3>【簡易ルール説明】</h3>
+          <ul>
+            <li>各プレイヤーは「左手」「右手」の2つの手（初期状態は指が1本立っている）を持ちます。</li>
+            <li><strong>攻撃（相手の手へドラッグ）</strong>: 自分の手をドラッグして相手の手に重ねて、立てている指の数を加算します。合計が5本以上になると、5を引いた数が残ります（例：5→0本（グー）、7→2本）。</li>
+            <li><strong>譲渡（自分のもう一方の手へドラッグ）</strong>: 自分の手からもう一方の手へ指の数を移動できます（1→0と1、2→1と1、3→1と2、4→2と2に分配）。</li>
+            <li><strong>引き込み（相手の手を自分の手へドラッグ）</strong>: 相手の手を自分の手に重ねることで、相手の指の数だけ自分の手を加算します（相手の数は変化しません）。</li>
+            <li>先に相手の「両手」を同時に「0（グー）」にしたプレイヤーの勝利です。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- メインゲーム画面 -->
+    <div id="game-screen" class="screen">
+      <!-- ターン表示と操作ガイド -->
+      <div class="status-panel">
+        <div id="turn-indicator" class="turn-indicator">プレイヤー1のターン</div>
+        <div id="game-guide" class="game-guide">手をドラッグして、相手（攻撃）、味方（譲渡）、または相手から自分（引き込み）を行ってください</div>
+      </div>
+
+      <!-- プレイエリア -->
+      <div class="play-area">
+        <!-- プレイヤー2 / CPU（上側） -->
+        <div class="player-section" id="player2-section" data-player="p2">
+          <h3 class="player-name" id="p2-name">プレイヤー2</h3>
+          <div class="cards-container">
+            <!-- プレイヤー2 左手 -->
+            <div class="card-slot" id="p2-card-A" data-player="p2" data-card-id="A">
+              <div class="card-inner">
+                <span class="card-label">左手</span>
+                
+                <!-- 手のグラフィック用ラッパー -->
+                <div class="hand-graphic-wrapper">
+                  <!-- 0本 (✊ グー) -->
+                  <svg class="hand-svg hand-0" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 30,85 30,75 C30,65 35,55 45,55 C48,55 50,58 52,58 C54,58 56,55 60,55 C65,55 68,60 70,60 C72,60 75,55 80,55 C85,55 85,65 82,78 C80,88 78,98 75,110 Z" />
+                    <path class="finger-line" d="M42,56 L42,75 M54,59 L54,78 M66,59 L66,78" />
+                    <path class="finger-thumb" d="M24,80 C24,70 32,66 42,66 C50,66 54,70 54,76 C54,82 46,86 38,86 C30,86 24,82 24,80 Z" />
+                  </svg>
+                  <!-- 1本 (☝️ 人差し指) -->
+                  <svg class="hand-svg hand-1" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 C45,68 48,72 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M50,72 L50,88 M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L32,25 C32,20 40,20 40,25 L40,68" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 2本 (✌️ ピース) -->
+                  <svg class="hand-svg hand-2" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 Q48,70 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,19 35,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L48,22 C50,17 58,20 55,25 L50,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 3本 (3本指) -->
+                  <svg class="hand-svg hand-3" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M62,72 C65,72 68,68 72,68 C78,68 81,75 79,85 L75,110" />
+                    <path class="finger-line" d="M72,68 L72,88" />
+                    <path class="finger-ext" d="M32,75 L28,26 C26,21 34,19 36,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L44,18 C45,13 53,13 52,18 L50,72" />
+                    <path class="finger-ext" d="M50,72 L58,23 C59,18 67,20 64,25 L62,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 4本 (4本指) -->
+                  <svg class="hand-svg hand-4" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M68,75 C72,75 76,82 74,90 L70,110" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,20 34,25 L40,70" />
+                    <path class="finger-ext" d="M40,70 L42,17 C43,12 51,12 50,17 L48,70" />
+                    <path class="finger-ext" d="M48,70 L54,20 C55,15 63,16 61,21 L58,72" />
+                    <path class="finger-ext" d="M58,72 L67,30 C68,25 76,28 73,33 L68,75" />
+                    <path class="finger-thumb" d="M26,86 C24,80 28,76 34,76 C40,76 42,80 38,85" />
+                  </svg>
+                </div>
+
+                <div class="card-value-wrapper">
+                  <span class="card-value">1</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- プレイヤー2 右手 -->
+            <div class="card-slot" id="p2-card-B" data-player="p2" data-card-id="B">
+              <div class="card-inner">
+                <span class="card-label">右手</span>
+                
+                <!-- 手のグラフィック用ラッパー -->
+                <div class="hand-graphic-wrapper">
+                  <!-- 0本 (✊ グー) -->
+                  <svg class="hand-svg hand-0" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 30,85 30,75 C30,65 35,55 45,55 C48,55 50,58 52,58 C54,58 56,55 60,55 C65,55 68,60 70,60 C72,60 75,55 80,55 C85,55 85,65 82,78 C80,88 78,98 75,110 Z" />
+                    <path class="finger-line" d="M42,56 L42,75 M54,59 L54,78 M66,59 L66,78" />
+                    <path class="finger-thumb" d="M24,80 C24,70 32,66 42,66 C50,66 54,70 54,76 C54,82 46,86 38,86 C30,86 24,82 24,80 Z" />
+                  </svg>
+                  <!-- 1本 (☝️ 人差し指) -->
+                  <svg class="hand-svg hand-1" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 C45,68 48,72 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M50,72 L50,88 M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L32,25 C32,20 40,20 40,25 L40,68" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 2本 (✌️ ピース) -->
+                  <svg class="hand-svg hand-2" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 Q48,70 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,19 35,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L48,22 C50,17 58,20 55,25 L50,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 3本 (3本指) -->
+                  <svg class="hand-svg hand-3" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M62,72 C65,72 68,68 72,68 C78,68 81,75 79,85 L75,110" />
+                    <path class="finger-line" d="M72,68 L72,88" />
+                    <path class="finger-ext" d="M32,75 L28,26 C26,21 34,19 36,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L44,18 C45,13 53,13 52,18 L50,72" />
+                    <path class="finger-ext" d="M50,72 L58,23 C59,18 67,20 64,25 L62,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 4本 (4本指) -->
+                  <svg class="hand-svg hand-4" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M68,75 C72,75 76,82 74,90 L70,110" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,20 34,25 L40,70" />
+                    <path class="finger-ext" d="M40,70 L42,17 C43,12 51,12 50,17 L48,70" />
+                    <path class="finger-ext" d="M48,70 L54,20 C55,15 63,16 61,21 L58,72" />
+                    <path class="finger-ext" d="M58,72 L67,30 C68,25 76,28 73,33 L68,75" />
+                    <path class="finger-thumb" d="M26,86 C24,80 28,76 34,76 C40,76 42,80 38,85" />
+                  </svg>
+                </div>
+
+                <div class="card-value-wrapper">
+                  <span class="card-value">1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VS表示・中央ライン -->
+        <div class="vs-divider">
+          <span>VS</span>
+        </div>
+
+        <!-- プレイヤー1（下側） -->
+        <div class="player-section" id="player1-section" data-player="p1">
+          <h3 class="player-name" id="p1-name">プレイヤー1</h3>
+          <div class="cards-container">
+            <!-- プレイヤー1 左手 -->
+            <div class="card-slot" id="p1-card-A" data-player="p1" data-card-id="A">
+              <div class="card-inner">
+                <span class="card-label">左手</span>
+                
+                <!-- 手のグラフィック用ラッパー -->
+                <div class="hand-graphic-wrapper">
+                  <!-- 0本 (✊ グー) -->
+                  <svg class="hand-svg hand-0" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 30,85 30,75 C30,65 35,55 45,55 C48,55 50,58 52,58 C54,58 56,55 60,55 C65,55 68,60 70,60 C72,60 75,55 80,55 C85,55 85,65 82,78 C80,88 78,98 75,110 Z" />
+                    <path class="finger-line" d="M42,56 L42,75 M54,59 L54,78 M66,59 L66,78" />
+                    <path class="finger-thumb" d="M24,80 C24,70 32,66 42,66 C50,66 54,70 54,76 C54,82 46,86 38,86 C30,86 24,82 24,80 Z" />
+                  </svg>
+                  <!-- 1本 (☝️ 人差し指) -->
+                  <svg class="hand-svg hand-1" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 C45,68 48,72 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M50,72 L50,88 M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L32,25 C32,20 40,20 40,25 L40,68" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 2本 (✌️ ピース) -->
+                  <svg class="hand-svg hand-2" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 Q48,70 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,19 35,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L48,22 C50,17 58,20 55,25 L50,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 3本 (3本指) -->
+                  <svg class="hand-svg hand-3" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M62,72 C65,72 68,68 72,68 C78,68 81,75 79,85 L75,110" />
+                    <path class="finger-line" d="M72,68 L72,88" />
+                    <path class="finger-ext" d="M32,75 L28,26 C26,21 34,19 36,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L44,18 C45,13 53,13 52,18 L50,72" />
+                    <path class="finger-ext" d="M50,72 L58,23 C59,18 67,20 64,25 L62,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 4本 (4本指) -->
+                  <svg class="hand-svg hand-4" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M68,75 C72,75 76,82 74,90 L70,110" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,20 34,25 L40,70" />
+                    <path class="finger-ext" d="M40,70 L42,17 C43,12 51,12 50,17 L48,70" />
+                    <path class="finger-ext" d="M48,70 L54,20 C55,15 63,16 61,21 L58,72" />
+                    <path class="finger-ext" d="M58,72 L67,30 C68,25 76,28 73,33 L68,75" />
+                    <path class="finger-thumb" d="M26,86 C24,80 28,76 34,76 C40,76 42,80 38,85" />
+                  </svg>
+                </div>
+
+                <div class="card-value-wrapper">
+                  <span class="card-value">1</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- プレイヤー1 右手 -->
+            <div class="card-slot" id="p1-card-B" data-player="p1" data-card-id="B">
+              <div class="card-inner">
+                <span class="card-label">右手</span>
+                
+                <!-- 手のグラフィック用ラッパー -->
+                <div class="hand-graphic-wrapper">
+                  <!-- 0本 (✊ グー) -->
+                  <svg class="hand-svg hand-0" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 30,85 30,75 C30,65 35,55 45,55 C48,55 50,58 52,58 C54,58 56,55 60,55 C65,55 68,60 70,60 C72,60 75,55 80,55 C85,55 85,65 82,78 C80,88 78,98 75,110 Z" />
+                    <path class="finger-line" d="M42,56 L42,75 M54,59 L54,78 M66,59 L66,78" />
+                    <path class="finger-thumb" d="M24,80 C24,70 32,66 42,66 C50,66 54,70 54,76 C54,82 46,86 38,86 C30,86 24,82 24,80 Z" />
+                  </svg>
+                  <!-- 1本 (☝️ 人差し指) -->
+                  <svg class="hand-svg hand-1" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 C45,68 48,72 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M50,72 L50,88 M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L32,25 C32,20 40,20 40,25 L40,68" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 2本 (✌️ ピース) -->
+                  <svg class="hand-svg hand-2" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 C32,70 34,68 38,68 Q48,70 50,72 C52,72 54,68 58,68 C62,68 64,72 66,72 C68,72 70,68 74,68 C80,68 83,75 81,85 C79,95 77,102 75,110 Z" />
+                    <path class="finger-line" d="M62,72 L62,88 M66,72 L66,88" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,19 35,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L48,22 C50,17 58,20 55,25 L50,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 3本 (3本指) -->
+                  <svg class="hand-svg hand-3" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M62,72 C65,72 68,68 72,68 C78,68 81,75 79,85 L75,110" />
+                    <path class="finger-line" d="M72,68 L72,88" />
+                    <path class="finger-ext" d="M32,75 L28,26 C26,21 34,19 36,24 L42,68" />
+                    <path class="finger-ext" d="M42,68 L44,18 C45,13 53,13 52,18 L50,72" />
+                    <path class="finger-ext" d="M50,72 L58,23 C59,18 67,20 64,25 L62,72" />
+                    <path class="finger-thumb" d="M26,86 C22,86 18,80 22,74 C26,68 34,74 38,78" />
+                  </svg>
+                  <!-- 4本 (4本指) -->
+                  <svg class="hand-svg hand-4" viewBox="0 0 100 120">
+                    <rect class="hand-sleeve" x="35" y="98" width="30" height="13" rx="2" />
+                    <path class="hand-palm" d="M35,110 C32,95 32,85 32,75 M68,75 C72,75 76,82 74,90 L70,110" />
+                    <path class="finger-ext" d="M32,75 L26,27 C24,22 32,20 34,25 L40,70" />
+                    <path class="finger-ext" d="M40,70 L42,17 C43,12 51,12 50,17 L48,70" />
+                    <path class="finger-ext" d="M48,70 L54,20 C55,15 63,16 61,21 L58,72" />
+                    <path class="finger-ext" d="M58,72 L67,30 C68,25 76,28 73,33 L68,75" />
+                    <path class="finger-thumb" d="M26,86 C24,80 28,76 34,76 C40,76 42,80 38,85" />
+                  </svg>
+                </div>
+
+                <div class="card-value-wrapper">
+                  <span class="card-value">1</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 下部コントロール・ログパネル -->
+      <div class="bottom-panel">
+        <div class="log-panel">
+          <h4>アクションログ</h4>
+          <div id="log-list" class="log-list">
+            <div class="log-item system">ゲームが開始されました。</div>
+          </div>
+        </div>
+        <div class="control-buttons">
+          <button id="btn-restart" class="btn btn-danger">タイトルへ戻る</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ゲーム終了画面（モーダル） -->
+    <div id="gameover-screen" class="modal-overlay">
+      <div class="modal-content glass-panel">
+        <h2 id="winner-message">プレイヤー1の勝利！</h2>
+        <p>対戦お疲れ様でした。</p>
+        <button id="btn-rematch" class="btn btn-primary">もう一度遊ぶ</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

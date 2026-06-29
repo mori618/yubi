@@ -1,0 +1,743 @@
+/* ==========================================
+   CSSデザインシステム - NUMBER CRUSH
+   ========================================== */
+
+:root {
+  /* 共通カラー定義 */
+  --bg-color: #121620;
+  --bg-gradient: linear-gradient(135deg, #121620 0%, #1c2230 100%);
+  --panel-bg: rgba(28, 34, 48, 0.75);
+  --panel-border: rgba(255, 255, 255, 0.06);
+  --text-primary: #f0f3fa;
+  --text-secondary: #8f9cae;
+  
+  /* 普通の人の手のカラー定義 */
+  --hand-skin: #ffe2cc;
+  --hand-stroke: #5c3c2a;
+  
+  /* 袖口（リストバンド）カラー */
+  --p1-sleeve: #2f80ed; /* 青 */
+  --p2-sleeve: #eb5757; /* 赤 */
+
+  /* システム・警告 */
+  --color-danger: #eb5757;
+  --color-success: #2ecc71;
+  --color-warning: #f1c40f;
+  --glow-danger: rgba(235, 87, 87, 0.2);
+}
+
+/* 基本リセット & 共通スタイル */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.game-container {
+  width: 100%;
+  max-width: 600px;
+  min-height: 850px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+/* ヘッダー */
+.game-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.game-header h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  background: linear-gradient(90deg, var(--p1-sleeve) 0%, var(--p2-sleeve) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 8px rgba(47, 128, 237, 0.2));
+}
+
+.game-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* ガラスモーフィズムパネル共通 */
+.glass-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* 画面制御 */
+.screen {
+  display: none;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.screen.active {
+  display: flex;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* モード選択画面 */
+#setup-screen {
+  justify-content: center;
+}
+
+#setup-screen h2 {
+  font-size: 1.4rem;
+  text-align: center;
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+
+.mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.rules-summary {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.rules-summary h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.rules-summary ul {
+  list-style-type: none;
+}
+
+.rules-summary li {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 14px;
+}
+
+.rules-summary li::before {
+  content: "•";
+  color: var(--p1-primary);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+/* ボタン基本 */
+.btn {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--p1-secondary) 0%, var(--p1-primary) 100%);
+  color: #000;
+  box-shadow: 0 4px 15px var(--p1-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--p1-glow);
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--p2-secondary) 0%, var(--p2-primary) 100%);
+  color: #fff;
+  box-shadow: 0 4px 15px var(--p2-glow);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--p2-glow);
+  filter: brightness(1.1);
+}
+
+.btn-danger {
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btn-danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+  box-shadow: 0 4px 12px var(--glow-danger);
+}
+
+/* メインゲーム画面 - ステータスパネル */
+.status-panel {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border);
+}
+
+.turn-indicator {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  transition: color 0.3s;
+}
+
+.turn-p1 {
+  color: var(--p1-primary);
+  text-shadow: 0 0 8px var(--p1-glow);
+}
+
+.turn-p2 {
+  color: var(--p2-primary);
+  text-shadow: 0 0 8px var(--p2-glow);
+}
+
+.game-guide {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* プレイエリア */
+.play-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.player-section {
+  padding: 20px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid transparent;
+}
+
+#player1-section.active-turn {
+  background: var(--p1-bg);
+  border-color: rgba(0, 240, 255, 0.15);
+  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+#player2-section.active-turn {
+  background: var(--p2-bg);
+  border-color: rgba(255, 0, 127, 0.15);
+  box-shadow: inset 0 0 15px rgba(255, 0, 127, 0.05);
+}
+
+.player-name {
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+#player1-section .player-name {
+  color: var(--p1-primary);
+}
+
+#player2-section .player-name {
+  color: var(--p2-primary);
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* ==========================================
+   普通の人の手（旧カード）のスタイリング
+   ========================================== */
+.card-slot {
+  width: 120px;
+  height: 180px;
+  position: relative;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: default;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  user-select: none;
+  overflow: visible; /* 手がはみ出ても表示されるように */
+}
+
+/* ターンプレイヤーかつ数値が1以上の時にドラッグ可能 */
+.active-turn .card-slot:not(.extinguished) {
+  cursor: grab;
+}
+
+.card-slot:active:not(.extinguished) {
+  cursor: grabbing;
+}
+
+.card-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  transition: all 0.3s;
+}
+
+/* 重ね合わせたときの背景サークルハイライト */
+.card-inner::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+  z-index: 0;
+}
+
+.card-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  align-self: center;
+  letter-spacing: 1px;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+/* 手のグラフィック用ラッパー */
+.hand-graphic-wrapper {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* 底辺で整列 */
+  position: relative;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.hand-svg {
+  width: 90px;
+  height: 110px;
+  display: none; /* デフォルトは非表示 */
+  transform-origin: center bottom;
+}
+
+/* プレイヤー2側の手の回転（向き合わせる） */
+#player2-section .hand-graphic-wrapper {
+  transform: rotate(180deg);
+  transform-origin: center 50%;
+}
+
+.hand-svg.active-hand {
+  display: block;
+  animation: hand-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 手のパーツ・ライン共通（普通の人の手） */
+.hand-palm {
+  fill: var(--hand-skin);
+  stroke: var(--hand-stroke);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.finger-thumb {
+  fill: var(--hand-skin);
+  stroke: var(--hand-stroke);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.finger-ext {
+  fill: var(--hand-skin);
+  stroke: var(--hand-stroke);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.finger-line {
+  fill: none;
+  stroke: var(--hand-stroke);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0.25; /* 折った指のシワは薄く表現 */
+}
+
+/* 袖口（リストバンド）のスタイリング */
+.hand-sleeve {
+  stroke: var(--hand-stroke);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+[data-player="p1"] .hand-sleeve {
+  fill: var(--p1-sleeve);
+}
+
+[data-player="p2"] .hand-sleeve {
+  fill: var(--p2-sleeve);
+}
+
+/* 数値表示用 */
+.card-value-wrapper {
+  background: rgba(10, 13, 24, 0.4);
+  backdrop-filter: blur(4px);
+  padding: 2px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 2;
+}
+
+.card-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+[data-player="p1"] .card-value {
+  color: #cde2ff;
+}
+[data-player="p2"] .card-value {
+  color: #ffcde0;
+}
+
+/* ホバー時の手の浮き上がり */
+[data-player="p1"] .card-slot:hover:not(.extinguished) .hand-graphic-wrapper {
+  transform: translateY(-8px);
+}
+[data-player="p2"] .card-slot:hover:not(.extinguished) .hand-graphic-wrapper {
+  transform: rotate(180deg) translateY(-8px); /* 180度回転を考慮 */
+}
+
+/* 消滅した手 (0 / グー / 暗転) */
+.card-slot.extinguished {
+  opacity: 0.35;
+}
+.card-slot.extinguished .hand-palm,
+.card-slot.extinguished .finger-thumb,
+.card-slot.extinguished .finger-ext,
+.card-slot.extinguished .hand-sleeve {
+  fill: #d3d3d3 !important;
+  stroke: #7f7f7f !important;
+  opacity: 0.5;
+}
+.card-slot.extinguished .finger-line {
+  stroke: #7f7f7f !important;
+  opacity: 0.15;
+}
+.card-slot.extinguished .card-value {
+  color: var(--text-secondary) !important;
+  text-shadow: none !important;
+}
+
+/* ドラッグ中の影排除と透過 */
+.card-slot.dragging {
+  opacity: 0.25;
+}
+
+/* ==========================================
+   ドラッグオーバー時のサークルハイライトエフェクト
+   ========================================== */
+
+/* 攻撃対象へのドラッグオーバー（赤サークル） */
+.card-slot.drop-target-attack .card-inner::before {
+  background: rgba(235, 87, 87, 0.18);
+  border: 2px solid rgba(235, 87, 87, 0.35);
+  transform: translate(-50%, -50%) scale(1.1);
+  opacity: 1;
+}
+
+/* 譲渡対象へのドラッグオーバー（緑サークル） */
+.card-slot.drop-target-transfer .card-inner::before {
+  background: rgba(46, 204, 113, 0.18);
+  border: 2px solid rgba(46, 204, 113, 0.35);
+  transform: translate(-50%, -50%) scale(1.1);
+  opacity: 1;
+}
+
+/* アクション不可へのドラッグオーバー警告（赤の極薄） */
+.card-slot.drop-target-invalid .card-inner::before {
+  background: rgba(235, 87, 87, 0.05);
+  border: 2px dashed rgba(235, 87, 87, 0.2);
+  transform: translate(-50%, -50%) scale(1.0);
+  opacity: 1;
+  cursor: no-drop;
+}
+
+/* 引き込み対象へのドラッグオーバー（黄サークル） */
+.card-slot.drop-target-pull .card-inner::before {
+  background: rgba(241, 196, 15, 0.18);
+  border: 2px solid rgba(241, 196, 15, 0.35);
+  transform: translate(-50%, -50%) scale(1.1);
+  opacity: 1;
+}
+
+/* VSの境界線 */
+.vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.vs-divider::before,
+.vs-divider::after {
+  content: "";
+  flex-grow: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.vs-divider span {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 16px;
+  letter-spacing: 2px;
+}
+
+/* 下部パネル */
+.bottom-panel {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ログパネル */
+.log-panel {
+  background: rgba(10, 13, 24, 0.8);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 16px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-panel h4 {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+}
+
+.log-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+/* カスタムスクールバー */
+.log-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.log-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.log-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.log-item {
+  color: var(--text-primary);
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+  animation: slideIn 0.2s ease-out forwards;
+}
+
+.log-item.p1 {
+  border-color: var(--p1-primary);
+  color: #cef5ff;
+}
+
+.log-item.p2 {
+  border-color: var(--p2-primary);
+  color: #ffeef5;
+}
+
+.log-item.system {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+}
+
+.control-buttons button {
+  width: 100%;
+}
+
+/* ゲームオーバー モーダル */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(6, 8, 14, 0.85);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.modal-overlay.active {
+  display: flex;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-content h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  margin-bottom: 12px;
+  color: var(--p1-primary);
+}
+
+.modal-content p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.modal-content button {
+  width: 100%;
+}
+
+/* ==========================================
+   アニメーション定義
+   ========================================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* カード更新時のポップアニメーション */
+.card-slot.updated {
+  animation: pop 0.3s ease-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* 手のポップアップ */
+@keyframes hand-pop {
+  0% { transform: scale(0.85); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* メディアクエリ（スマートフォンの縦幅が短い場合に対応） */
+@media (max-height: 800px) {
+  body {
+    padding: 10px;
+  }
+  .game-container {
+    min-height: auto;
+    height: 100%;
+  }
+  .card-slot {
+    width: 100px;
+    height: 140px;
+  }
+  .hand-graphic-wrapper {
+    height: 90px;
+  }
+  .hand-svg {
+    width: 70px;
+    height: 85px;
+  }
+  .card-value {
+    font-size: 0.85rem;
+  }
+  .log-panel {
+    height: 120px;
+  }
+}
