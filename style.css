@@ -150,7 +150,7 @@ body {
 
 .rules-summary li::before {
   content: "•";
-  color: var(--p1-primary);
+  color: var(--p1-sleeve);
   position: absolute;
   left: 0;
   font-weight: bold;
@@ -171,31 +171,31 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--p1-secondary) 0%, var(--p1-primary) 100%);
-  color: #000;
-  box-shadow: 0 4px 15px var(--p1-glow);
+  background: linear-gradient(135deg, #1b62cd 0%, var(--p1-sleeve) 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(47, 128, 237, 0.25);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--p1-glow);
-  filter: brightness(1.1);
+  box-shadow: 0 6px 16px rgba(47, 128, 237, 0.35);
+  filter: brightness(1.08);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, var(--p2-secondary) 0%, var(--p2-primary) 100%);
+  background: linear-gradient(135deg, #cd3254 0%, var(--p2-sleeve) 100%);
   color: #fff;
-  box-shadow: 0 4px 15px var(--p2-glow);
+  box-shadow: 0 4px 12px rgba(235, 87, 87, 0.25);
 }
 
 .btn-secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--p2-glow);
-  filter: brightness(1.1);
+  box-shadow: 0 6px 16px rgba(235, 87, 87, 0.35);
+  filter: brightness(1.08);
 }
 
 .btn-danger {
-  background: rgba(255, 59, 48, 0.1);
+  background: rgba(235, 87, 87, 0.1);
   border: 1px solid var(--color-danger);
   color: var(--color-danger);
 }
