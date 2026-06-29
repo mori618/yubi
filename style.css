@@ -398,13 +398,23 @@ body {
   animation: hand-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-/* 手の指（普通の人の手） */
+/* 手のパーツ・ライン共通（普通の人の手） */
+.hand-palm,
+.finger-thumb,
 .finger-ext {
   fill: var(--hand-skin);
   stroke: var(--hand-stroke);
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.finger-line {
+  fill: none;
+  stroke: var(--hand-stroke);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0.25; /* 折った指のシワは薄く表現 */
 }
 
 /* 袖口（リストバンド）のスタイリング */
@@ -464,11 +474,17 @@ body {
 .card-slot.extinguished {
   opacity: 0.35;
 }
+.card-slot.extinguished .hand-palm,
+.card-slot.extinguished .finger-thumb,
 .card-slot.extinguished .finger-ext,
 .card-slot.extinguished .hand-sleeve {
   fill: #d3d3d3 !important;
   stroke: #7f7f7f !important;
   opacity: 0.5;
+}
+.card-slot.extinguished .finger-line {
+  stroke: #7f7f7f !important;
+  opacity: 0.15;
 }
 .card-slot.extinguished .card-value {
   color: var(--text-secondary) !important;
