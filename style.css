@@ -377,9 +377,19 @@ body {
   transform-origin: center bottom;
 }
 
-/* プレイヤー2側の手の回転（向き合わせる） */
-#player2-section .hand-graphic-wrapper {
-  transform: rotate(180deg);
+/* プレイヤー別・左右の手のデフォルト向き（鏡像対称） */
+[data-player="p1"].card-slot[data-card-id="A"] .hand-graphic-wrapper {
+  /* プレイヤー1 左手: 通常 */
+}
+[data-player="p1"].card-slot[data-card-id="B"] .hand-graphic-wrapper {
+  transform: scaleX(-1); /* プレイヤー1 右手: 左右反転 */
+}
+[data-player="p2"].card-slot[data-card-id="A"] .hand-graphic-wrapper {
+  transform: rotate(180deg); /* プレイヤー2 左手: 180度回転 */
+  transform-origin: center 50%;
+}
+[data-player="p2"].card-slot[data-card-id="B"] .hand-graphic-wrapper {
+  transform: rotate(180deg) scaleX(-1); /* プレイヤー2 右手: 180度回転 + 左右反転 */
   transform-origin: center 50%;
 }
 
@@ -411,14 +421,6 @@ body {
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.finger-line {
-  fill: none;
-  stroke: var(--hand-stroke);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  opacity: 0.25; /* 折った指のシワは薄く表現 */
 }
 
 /* 袖口（リストバンド）のスタイリング */
@@ -460,12 +462,18 @@ body {
   color: #ffcde0;
 }
 
-/* ホバー時の手の浮き上がり */
-[data-player="p1"] .card-slot:hover:not(.extinguished) .hand-graphic-wrapper {
+/* ホバー時の手の浮き上がり（左右反転・回転を保持したまま浮上） */
+[data-player="p1"].card-slot[data-card-id="A"]:hover:not(.extinguished) .hand-graphic-wrapper {
   transform: translateY(-8px);
 }
-[data-player="p2"] .card-slot:hover:not(.extinguished) .hand-graphic-wrapper {
-  transform: rotate(180deg) translateY(-8px); /* 180度回転を考慮 */
+[data-player="p1"].card-slot[data-card-id="B"]:hover:not(.extinguished) .hand-graphic-wrapper {
+  transform: scaleX(-1) translateY(-8px);
+}
+[data-player="p2"].card-slot[data-card-id="A"]:hover:not(.extinguished) .hand-graphic-wrapper {
+  transform: rotate(180deg) translateY(-8px);
+}
+[data-player="p2"].card-slot[data-card-id="B"]:hover:not(.extinguished) .hand-graphic-wrapper {
+  transform: rotate(180deg) scaleX(-1) translateY(-8px);
 }
 
 /* 消滅した手 (0 / グー / 暗転) */
