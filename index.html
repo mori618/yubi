@@ -29,8 +29,17 @@
           <h3>ルール設定</h3>
           
           <div class="setting-item">
-            <label for="rule-initial-value">初期値</label>
-            <select id="rule-initial-value">
+            <label for="rule-initial-value-min">初期値（最小値）</label>
+            <select id="rule-initial-value-min">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="rule-initial-value-max">初期値（最大値）</label>
+            <select id="rule-initial-value-max">
               <option value="1" selected>1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -70,18 +79,37 @@
             </label>
           </div>
           
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-disable-pull">
-              相手の数字を引き込む（加算する）操作を禁止
-            </label>
+          <div class="setting-item">
+            <label for="rule-pull-limit">引き込みの回数制限</label>
+            <select id="rule-pull-limit">
+              <option value="-1" selected>無制限</option>
+              <option value="0">禁止（0回）</option>
+              <option value="1">1回まで</option>
+              <option value="2">2回まで</option>
+              <option value="3">3回まで</option>
+            </select>
           </div>
           
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-disable-transfer">
-              自分の数字を分ける（譲渡）操作を禁止
-            </label>
+          <div class="setting-item">
+            <label for="rule-transfer-limit">譲渡(分配)の回数制限</label>
+            <select id="rule-transfer-limit">
+              <option value="-1" selected>無制限</option>
+              <option value="0">禁止（0回）</option>
+              <option value="1">1回まで</option>
+              <option value="2">2回まで</option>
+              <option value="3">3回まで</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="rule-pass-limit">パスの回数制限</label>
+            <select id="rule-pass-limit">
+              <option value="0" selected>禁止（0回）</option>
+              <option value="1">1回まで</option>
+              <option value="2">2回まで</option>
+              <option value="3">3回まで</option>
+              <option value="-1">無制限</option>
+            </select>
           </div>
 
           <div class="setting-item checkbox-item">
@@ -140,6 +168,11 @@
         <!-- プレイヤー2 / CPU（上側） -->
         <div class="player-section" id="player2-section" data-player="p2">
           <h3 class="player-name" id="p2-name">プレイヤー2</h3>
+          <div class="player-actions" id="p2-actions">
+            <span class="action-limit" id="p2-limit-transfer">譲渡: 無制限</span>
+            <span class="action-limit" id="p2-limit-pull">引込: 無制限</span>
+            <button class="btn pass-btn" id="p2-btn-pass">パス (0)</button>
+          </div>
           <div class="cards-container" id="p2-cards-container">
             <!-- JSで動的に生成 -->
           </div>
@@ -153,6 +186,11 @@
         <!-- プレイヤー1（下側） -->
         <div class="player-section" id="player1-section" data-player="p1">
           <h3 class="player-name" id="p1-name">プレイヤー1</h3>
+          <div class="player-actions" id="p1-actions">
+            <span class="action-limit" id="p1-limit-transfer">譲渡: 無制限</span>
+            <span class="action-limit" id="p1-limit-pull">引込: 無制限</span>
+            <button class="btn pass-btn" id="p1-btn-pass">パス (0)</button>
+          </div>
           <div class="cards-container" id="p1-cards-container">
             <!-- JSで動的に生成 -->
           </div>

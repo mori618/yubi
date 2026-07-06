@@ -10,15 +10,21 @@ const gameState = {
   },
   isGameOver: false,
   draggedCard: null,   // ドラッグ中のカード情報 { player, cardId, value }
+  limits: {
+    p1: { pull: -1, transfer: -1, pass: 0 },
+    p2: { pull: -1, transfer: -1, pass: 0 }
+  },
   explodedCards: new Set(),
   customRules: {
-    initialValue: 1,
+    initialValueMin: 1,
+    initialValueMax: 1,
     maxValue: 5,
     cardCount: 2,
     loseCount: 'all',
     zeroWhenFiveOrMore: false,
-    disablePull: false,
-    disableTransfer: false,
+    pullLimit: -1,
+    transferLimit: -1,
+    passLimit: 0,
     allowSelfAdd: false,
     blindMode: false,
     reverseWin: false,
@@ -55,13 +61,19 @@ const p2Section = document.getElementById('player2-section');
 const p2Name = document.getElementById('p2-name');
 
 // ルール設定用要素
-const ruleInitialValue = document.getElementById('rule-initial-value');
+const ruleInitMin = document.getElementById('rule-initial-value-min');
+const ruleInitMax = document.getElementById('rule-initial-value-max');
 const ruleMaxValue = document.getElementById('rule-max-value');
 const ruleCardCount = document.getElementById('rule-card-count');
 const ruleLoseCount = document.getElementById('rule-lose-count');
 const ruleZeroOnFive = document.getElementById('rule-zero-on-five');
-const ruleDisablePull = document.getElementById('rule-disable-pull');
-const ruleDisableTransfer = document.getElementById('rule-disable-transfer');
+const rulePullLimit = document.getElementById('rule-pull-limit');
+const ruleTransferLimit = document.getElementById('rule-transfer-limit');
+const rulePassLimit = document.getElementById('rule-pass-limit');
+
+document.getElementById('p1-btn-pass').addEventListener('click', () => executePass('p1'));
+document.getElementById('p2-btn-pass').addEventListener('click', () => executePass('p2'));
+
 const ruleAllowSelfAdd = document.getElementById('rule-allow-self-add');
 const ruleBlindMode = document.getElementById('rule-blind-mode');
 const ruleReverseWin = document.getElementById('rule-reverse-win');
@@ -99,13 +111,15 @@ function init() {
 // ゲーム開始
 function startGame(mode) {
   // 設定を読み取る
-  gameState.customRules.initialValue = parseInt(ruleInitialValue.value, 10);
+  gameState.customRules.initialValueMin = parseInt(ruleInitMin.value, 10);
+  gameState.customRules.initialValueMax = Math.max(gameState.customRules.initialValueMin, parseInt(ruleInitMax.value, 10));
   gameState.customRules.maxValue = parseInt(ruleMaxValue.value, 10);
   gameState.customRules.cardCount = parseInt(ruleCardCount.value, 10);
   gameState.customRules.loseCount = ruleLoseCount.value;
   gameState.customRules.zeroWhenFiveOrMore = ruleZeroOnFive.checked;
-  gameState.customRules.disablePull = ruleDisablePull.checked;
-  gameState.customRules.disableTransfer = ruleDisableTransfer.checked;
+  gameState.customRules.pullLimit = parseInt(rulePullLimit.value, 10);
+  gameState.customRules.transferLimit = parseInt(ruleTransferLimit.value, 10);
+  gameState.customRules.passLimit = parseInt(rulePassLimit.value, 10);
   gameState.customRules.allowSelfAdd = ruleAllowSelfAdd.checked;
   gameState.customRules.blindMode = ruleBlindMode.checked;
   gameState.customRules.reverseWin = ruleReverseWin.checked;
@@ -133,6 +147,9 @@ function resetGame() {
   gameState.draggedCard = null;
   gameState.explodedCards.clear();
   
+  gameState.limits.p1 = { pull: gameState.customRules.pullLimit, transfer: gameState.customRules.transferLimit, pass: gameState.customRules.passLimit };
+  gameState.limits.p2 = { pull: gameState.customRules.pullLimit, transfer: gameState.customRules.transferLimit, pass: gameState.customRules.passLimit };
+
   createCardsDOM();
 
   gameoverScreen.classList.remove('active');
@@ -161,7 +178,8 @@ function createCardsDOM() {
   gameState.cards.p1 = {};
   gameState.cards.p2 = {};
 
-  const initVal = gameState.customRules.initialValue;
+  const min = gameState.customRules.initialValueMin;
+  const max = gameState.customRules.initialValueMax;
 
   for (let i = 0; i < gameState.customRules.cardCount; i++) {
     const cardId = labels[i];
@@ -171,26 +189,29 @@ function createCardsDOM() {
       handLabel = `👑 ${handLabel}`;
     }
     
-    gameState.cards.p1[cardId] = initVal;
+    const p1Init = Math.floor(Math.random() * (max - min + 1)) + min;
+    const p2Init = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    gameState.cards.p1[cardId] = p1Init;
     const p1Card = `
       <div class="card-slot" id="p1-card-${cardId}" data-player="p1" data-card-id="${cardId}">
         <div class="card-inner">
           <span class="card-label">${handLabel}</span>
           <div class="card-value-display">
-            <span class="card-value">${initVal}</span>
+            <span class="card-value">${p1Init}</span>
           </div>
         </div>
       </div>
     `;
     p1CardsContainer.insertAdjacentHTML('beforeend', p1Card);
 
-    gameState.cards.p2[cardId] = initVal;
+    gameState.cards.p2[cardId] = p2Init;
     const p2Card = `
       <div class="card-slot" id="p2-card-${cardId}" data-player="p2" data-card-id="${cardId}">
         <div class="card-inner">
           <span class="card-label">${handLabel}</span>
           <div class="card-value-display">
-            <span class="card-value">${initVal}</span>
+            <span class="card-value">${p2Init}</span>
           </div>
         </div>
       </div>
@@ -215,6 +236,20 @@ function calculateCardValue(totalValue) {
 }
 
 // 攻撃処理のロジック
+
+function executePass(playerId) {
+  if (gameState.currentPlayer !== playerId || gameState.isGameOver) return;
+  if (gameState.limits[playerId].pass === 0) return;
+  
+  if (gameState.limits[playerId].pass > 0) {
+    gameState.limits[playerId].pass--;
+  }
+
+  const name = playerId === 'p1' ? 'プレイヤー1' : (gameState.mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2');
+  addLog(`⏩ ${name}がパスしました。`);
+  endTurn();
+}
+
 function executeAttack(attackerPlayerId, targetPlayerId, attackerCardId, targetCardId) {
   const attackerVal = gameState.cards[attackerPlayerId][attackerCardId];
   const targetVal = gameState.cards[targetPlayerId][targetCardId];
@@ -245,7 +280,9 @@ function executeTransfer(playerId, sourceCardId, targetCardId) {
   const sourceVal = gameState.cards[playerId][sourceCardId];
   const targetVal = gameState.cards[playerId][targetCardId];
 
-  if (sourceVal < 1) return false; // 0からは譲渡不可
+  if (sourceVal < 1) return false;
+  if (gameState.limits[playerId].transfer === 0) return false;
+  if (gameState.limits[playerId].transfer > 0) gameState.limits[playerId].transfer--;
 
   let newSourceVal = 0;
   let newTargetVal = 0;
@@ -654,6 +691,27 @@ function checkVictory() {
 
 // UIの同期更新
 function updateUI() {
+  // 制限表示の更新
+  for (const p of ['p1', 'p2']) {
+    const pullStr = gameState.limits[p].pull === -1 ? '無制限' : gameState.limits[p].pull;
+    const transStr = gameState.limits[p].transfer === -1 ? '無制限' : gameState.limits[p].transfer;
+    const passStr = gameState.limits[p].pass === -1 ? '無制限' : gameState.limits[p].pass;
+    
+    document.getElementById(`${p}-limit-transfer`).textContent = `譲渡: ${transStr}`;
+    document.getElementById(`${p}-limit-pull`).textContent = `引込: ${pullStr}`;
+    
+    const passBtn = document.getElementById(`${p}-btn-pass`);
+    if (gameState.limits[p].pass === 0 || gameState.currentPlayer !== p || (gameState.mode === 'cpu' && p === 'p2')) {
+      passBtn.disabled = true;
+      passBtn.style.display = gameState.limits[p].pass === 0 ? 'none' : 'inline-block';
+      passBtn.textContent = `パス (${passStr})`;
+    } else {
+      passBtn.disabled = false;
+      passBtn.style.display = 'inline-block';
+      passBtn.textContent = `パス (${passStr})`;
+    }
+  }
+
   const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
   for (const player of ['p1', 'p2']) {
     for (const cardId of labels) {
@@ -750,7 +808,7 @@ function executeCpuTurn() {
   }
 
   // 2. 譲渡の手
-  if (!gameState.customRules.disableTransfer) {
+  if (gameState.limits.p2.transfer !== 0) {
     for (const sourceCardId of labels) {
       const sourceVal = cpuCards[sourceCardId];
       if (sourceVal < 1) continue; // 1以上なら譲渡可能
@@ -782,7 +840,7 @@ function executeCpuTurn() {
   }
 
   // 3. 引き込みの手
-  if (!gameState.customRules.disablePull) {
+  if (gameState.limits.p2.pull !== 0) {
     for (const cpuCardId of labels) {
       const cpuVal = cpuCards[cpuCardId];
       if (cpuVal === 0) continue; // 消滅カードへは引き込めない
@@ -805,9 +863,18 @@ function executeCpuTurn() {
   }
 
   if (validMoves.length === 0) {
-    // 打つ手がない場合（基本的には全滅チェックで弾かれるが、安全策）
-    endTurn();
+    if (gameState.limits.p2.pass !== 0) {
+      executePass('p2');
+    } else {
+      endTurn();
+    }
     return;
+  }
+
+  // パスのシミュレーション
+  if (gameState.limits.p2.pass !== 0) {
+    // パスのスコアは0（何もしない）。もし他の手が全部マイナスならパスを選ぶ。
+    validMoves.push({ type: 'pass', score: 0 });
   }
 
   // スコア順にソート（降順）
@@ -833,11 +900,14 @@ function executeCpuTurn() {
       endTurn();
     }, 400);
   } else if (chosenMove.type === 'pull') {
-    // 相手(p1)から自分(p2)へ引き込み
     visualizeCpuAction('p1', chosenMove.from, 'p2', chosenMove.to);
     setTimeout(() => {
       executePull('p2', 'p1', chosenMove.to, chosenMove.from);
       endTurn();
+    }, 400);
+  } else if (chosenMove.type === 'pass') {
+    setTimeout(() => {
+      executePass('p2');
     }, 400);
   }
 }
