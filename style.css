@@ -84,9 +84,8 @@ body {
   margin-top: 5px;
 }
 
-/* ガラスモーフィズムパネル共通 */
-.glass-panel {
-  background: rgba(0, 0, 0, 0.03);
+/* モード選択エリアのコンテナ */
+.setup-content {
   border-radius: 16px;
   padding: 24px;
 }
@@ -613,6 +612,7 @@ body {
   width: 100%;
   max-width: 400px;
   text-align: center;
+  padding: 24px;
 }
 
 .modal-content h2 {
