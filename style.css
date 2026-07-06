@@ -366,7 +366,7 @@ body {
 
 .card-value {
   font-family: 'Orbitron', sans-serif;
-  font-size: 3.8rem;
+  font-size: 4.6rem;
   font-weight: 700;
   line-height: 1;
   user-select: none;
@@ -581,6 +581,7 @@ body {
 .control-buttons {
   display: flex;
   justify-content: center;
+  gap: 12px;
 }
 
 .control-buttons button {
