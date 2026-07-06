@@ -12,9 +12,15 @@ const gameState = {
   draggedCard: null,   // ドラッグ中のカード情報 { player, cardId, value }
   customRules: {
     initialValue: 1,
+    maxValue: 5,
+    cardCount: 2,
+    loseCount: 'all',
     zeroWhenFiveOrMore: false,
     disablePull: false,
-    disableTransfer: false
+    disableTransfer: false,
+    allowSelfAdd: false,
+    blindMode: false,
+    reverseWin: false
   }
 };
 
@@ -47,12 +53,21 @@ const p2Name = document.getElementById('p2-name');
 
 // ルール設定用要素
 const ruleInitialValue = document.getElementById('rule-initial-value');
+const ruleMaxValue = document.getElementById('rule-max-value');
+const ruleCardCount = document.getElementById('rule-card-count');
+const ruleLoseCount = document.getElementById('rule-lose-count');
 const ruleZeroOnFive = document.getElementById('rule-zero-on-five');
 const ruleDisablePull = document.getElementById('rule-disable-pull');
 const ruleDisableTransfer = document.getElementById('rule-disable-transfer');
+const ruleAllowSelfAdd = document.getElementById('rule-allow-self-add');
+const ruleBlindMode = document.getElementById('rule-blind-mode');
+const ruleReverseWin = document.getElementById('rule-reverse-win');
+
+const p1CardsContainer = document.getElementById('p1-cards-container');
+const p2CardsContainer = document.getElementById('p2-cards-container');
 
 // 全カードスロットの取得
-const cardSlots = document.querySelectorAll('.card-slot');
+let cardSlots = document.querySelectorAll('.card-slot');
 
 // ==========================================
 // 初期化・イベント設定
@@ -74,16 +89,21 @@ function init() {
   });
   btnCloseLog.addEventListener('click', () => logModal.classList.remove('active'));
 
-  setupDragAndDrop();
 }
 
 // ゲーム開始
 function startGame(mode) {
   // 設定を読み取る
   gameState.customRules.initialValue = parseInt(ruleInitialValue.value, 10);
+  gameState.customRules.maxValue = parseInt(ruleMaxValue.value, 10);
+  gameState.customRules.cardCount = parseInt(ruleCardCount.value, 10);
+  gameState.customRules.loseCount = ruleLoseCount.value;
   gameState.customRules.zeroWhenFiveOrMore = ruleZeroOnFive.checked;
   gameState.customRules.disablePull = ruleDisablePull.checked;
   gameState.customRules.disableTransfer = ruleDisableTransfer.checked;
+  gameState.customRules.allowSelfAdd = ruleAllowSelfAdd.checked;
+  gameState.customRules.blindMode = ruleBlindMode.checked;
+  gameState.customRules.reverseWin = ruleReverseWin.checked;
 
   gameState.mode = mode;
   p2Name.textContent = mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
@@ -101,14 +121,11 @@ function backToTitle() {
 
 // ゲームリセット
 function resetGame() {
-  const initVal = gameState.customRules.initialValue;
   gameState.currentPlayer = 'p1';
-  gameState.cards.p1.A = initVal;
-  gameState.cards.p1.B = initVal;
-  gameState.cards.p2.A = initVal;
-  gameState.cards.p2.B = initVal;
   gameState.isGameOver = false;
   gameState.draggedCard = null;
+  
+  createCardsDOM();
 
   gameoverScreen.classList.remove('active');
   
@@ -125,13 +142,62 @@ function resetGame() {
 // 計算ロジック (仕様書準拠)
 // ==========================================
 
+
+function createCardsDOM() {
+  p1CardsContainer.innerHTML = '';
+  p2CardsContainer.innerHTML = '';
+  
+  const labels = ['A', 'B', 'C', 'D'];
+  const handLabels = ['左手', '右手', '第3の手', '第4の手'];
+  
+  gameState.cards.p1 = {};
+  gameState.cards.p2 = {};
+
+  const initVal = gameState.customRules.initialValue;
+
+  for (let i = 0; i < gameState.customRules.cardCount; i++) {
+    const cardId = labels[i];
+    const handLabel = handLabels[i];
+    
+    gameState.cards.p1[cardId] = initVal;
+    const p1Card = `
+      <div class="card-slot" id="p1-card-${cardId}" data-player="p1" data-card-id="${cardId}">
+        <div class="card-inner">
+          <span class="card-label">${handLabel}</span>
+          <div class="card-value-display">
+            <span class="card-value">${initVal}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    p1CardsContainer.insertAdjacentHTML('beforeend', p1Card);
+
+    gameState.cards.p2[cardId] = initVal;
+    const p2Card = `
+      <div class="card-slot" id="p2-card-${cardId}" data-player="p2" data-card-id="${cardId}">
+        <div class="card-inner">
+          <span class="card-label">${handLabel}</span>
+          <div class="card-value-display">
+            <span class="card-value">${initVal}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    p2CardsContainer.insertAdjacentHTML('beforeend', p2Card);
+  }
+  
+  cardSlots = document.querySelectorAll('.card-slot');
+  setupDragAndDrop();
+}
+
 // カスタムルールを考慮した合計値計算
 function calculateCardValue(totalValue) {
-  if (totalValue >= 5) {
+  const max = gameState.customRules.maxValue;
+  if (totalValue >= max) {
     if (gameState.customRules.zeroWhenFiveOrMore) {
-      return 0; // 5以上なら一律0になる
+      return 0; 
     }
-    return totalValue - 5;
+    return totalValue - max;
   }
   return totalValue;
 }
@@ -155,7 +221,7 @@ function executeAttack(attackerPlayerId, targetPlayerId, attackerCardId, targetC
   
   addLog(
     attackerPlayerId,
-    `${attackerName}が${attackerCardId === 'A' ? '左手' : '右手'}(指${attackerVal}本)で、${targetName}の${targetCardId === 'A' ? '左手' : '右手'}(指${targetVal}本)を攻撃！結果: → ${nextTargetVal}本`,
+    `${attackerName}が${getHandName(attacke)}(指${attackerVal}本)で、${targetName}の${getHandName(targe)}(指${targetVal}本)を攻撃！結果: → ${nextTargetVal}本`,
     attackerPlayerId
   );
 
@@ -169,16 +235,22 @@ function executeTransfer(playerId, sourceCardId, targetCardId) {
 
   if (sourceVal < 1) return false; // 0からは譲渡不可
 
-  let transferAmount = 0;
   let newSourceVal = 0;
+  let newTargetVal = 0;
 
-  if (sourceVal === 1) { transferAmount = 1; newSourceVal = 0; }
-  else if (sourceVal === 2) { transferAmount = 1; newSourceVal = 1; }
-  else if (sourceVal === 3) { transferAmount = 1; newSourceVal = 2; }
-  else if (sourceVal === 4) { transferAmount = 2; newSourceVal = 2; }
-
-  // ターゲットへの加算と、5以上の端数処理
-  let newTargetVal = calculateCardValue(targetVal + transferAmount);
+  if (gameState.customRules.allowSelfAdd) {
+    newSourceVal = 0;
+    newTargetVal = calculateCardValue(targetVal + sourceVal);
+  } else {
+    let transferAmount = 0;
+    if (sourceVal === 1) { transferAmount = 1; newSourceVal = 0; }
+    else if (sourceVal === 2) { transferAmount = 1; newSourceVal = 1; }
+    else if (sourceVal === 3) { transferAmount = 1; newSourceVal = 2; }
+    else if (sourceVal === 4) { transferAmount = 2; newSourceVal = 2; }
+    else { transferAmount = Math.floor(sourceVal/2); newSourceVal = sourceVal - transferAmount; }
+    
+    newTargetVal = calculateCardValue(targetVal + transferAmount);
+  }
 
   // 状態の更新
   gameState.cards[playerId][sourceCardId] = newSourceVal;
@@ -187,7 +259,7 @@ function executeTransfer(playerId, sourceCardId, targetCardId) {
   const playerName = getPlayerName(playerId);
   addLog(
     playerId,
-    `${playerName}が${sourceCardId === 'A' ? '左手' : '右手'}(指${sourceVal}本)から${targetCardId === 'A' ? '左手' : '右手'}(指${targetVal}本)へ指を譲渡。結果: 送り側→ ${newSourceVal}本, 受け取り側→ ${newTargetVal}本`,
+    `${playerName}が${getHandName(sourc)}(指${sourceVal}本)から${getHandName(targe)}(指${targetVal}本)へ指を譲渡。結果: 送り側→ ${newSourceVal}本, 受け取り側→ ${newTargetVal}本`,
     playerId
   );
 
@@ -213,7 +285,7 @@ function executePull(pullerPlayerId, targetPlayerId, pullerCardId, targetCardId)
 
   addLog(
     pullerPlayerId,
-    `${pullerName}が相手の${targetCardId === 'A' ? '左手' : '右手'}(指${targetVal}本)を自分の${pullerCardId === 'A' ? '左手' : '右手'}(指${pullerVal}本)に引き込んで加算！結果: 自分の手→ ${nextPullerVal}本 (相手は変化なし)`,
+    `${pullerName}が相手の${getHandName(targe)}(指${targetVal}本)を自分の${getHandName(pulle)}(指${pullerVal}本)に引き込んで加算！結果: 自分の手→ ${nextPullerVal}本 (相手は変化なし)`,
     pullerPlayerId
   );
 
@@ -457,20 +529,40 @@ function disablePlayerDrag() {
 
 // 勝敗判定
 function checkVictory() {
-  const p1Defeated = gameState.cards.p1.A === 0 && gameState.cards.p1.B === 0;
-  const p2Defeated = gameState.cards.p2.A === 0 && gameState.cards.p2.B === 0;
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  let p1Zeros = 0;
+  let p2Zeros = 0;
+  
+  labels.forEach(id => {
+    if (gameState.cards.p1[id] === 0) p1Zeros++;
+    if (gameState.cards.p2[id] === 0) p2Zeros++;
+  });
+  
+  let requiredZeros = gameState.customRules.cardCount;
+  if (gameState.customRules.loseCount !== 'all') {
+    requiredZeros = parseInt(gameState.customRules.loseCount, 10);
+    if (requiredZeros > gameState.customRules.cardCount) {
+      requiredZeros = gameState.customRules.cardCount;
+    }
+  }
+
+  const p1Defeated = p1Zeros >= requiredZeros;
+  const p2Defeated = p2Zeros >= requiredZeros;
 
   if (p1Defeated || p2Defeated) {
     gameState.isGameOver = true;
     let winnerText = '';
 
     if (p1Defeated && p2Defeated) {
-      // 基本的には交互プレイなので同時は稀だが、ロジック上発生した場合は引き分け
       winnerText = '引き分け！';
-    } else if (p2Defeated) {
-      winnerText = 'プレイヤー1の勝利！';
     } else {
-      winnerText = gameState.mode === 'cpu' ? 'CPU (AI) の勝利！' : 'プレイヤー2の勝利！';
+      if (gameState.customRules.reverseWin) {
+        if (p1Defeated) winnerText = 'プレイヤー1の勝利！';
+        else winnerText = gameState.mode === 'cpu' ? 'CPU (AI) の勝利！' : 'プレイヤー2の勝利！';
+      } else {
+        if (p2Defeated) winnerText = 'プレイヤー1の勝利！';
+        else winnerText = gameState.mode === 'cpu' ? 'CPU (AI) の勝利！' : 'プレイヤー2の勝利！';
+      }
     }
 
     winnerMessage.textContent = winnerText;
@@ -489,13 +581,20 @@ function checkVictory() {
 
 // UIの同期更新
 function updateUI() {
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
   for (const player of ['p1', 'p2']) {
-    for (const cardId of ['A', 'B']) {
+    for (const cardId of labels) {
       const val = gameState.cards[player][cardId];
       const slot = document.getElementById(`${player}-card-${cardId}`);
+      if (!slot) continue;
       const valElement = slot.querySelector('.card-value');
 
-      valElement.textContent = val;
+      const isOpponent = player !== gameState.currentPlayer;
+      if (gameState.customRules.blindMode && isOpponent) {
+        valElement.textContent = '?';
+      } else {
+        valElement.textContent = val;
+      }
 
       if (val === 0) {
         slot.classList.add('extinguished');
@@ -553,12 +652,13 @@ function executeCpuTurn() {
   const validMoves = [];
 
   // 可能なすべての手をリストアップする
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
   // 1. 攻撃の手
-  for (const cpuCardId of ['A', 'B']) {
+  for (const cpuCardId of labels) {
     const cpuVal = cpuCards[cpuCardId];
     if (cpuVal === 0) continue; // 消滅カードからは攻撃不可
 
-    for (const playerCardId of ['A', 'B']) {
+    for (const playerCardId of labels) {
       const playerVal = playerCards[playerCardId];
       if (playerVal === 0) continue; // 消滅カードへは攻撃不可
 
@@ -576,16 +676,22 @@ function executeCpuTurn() {
 
   // 2. 譲渡の手
   if (!gameState.customRules.disableTransfer) {
-    for (const sourceCardId of ['A', 'B']) {
+    for (const sourceCardId of labels) {
       const sourceVal = cpuCards[sourceCardId];
       if (sourceVal < 1) continue; // 1以上なら譲渡可能
 
-      const targetCardId = sourceCardId === 'A' ? 'B' : 'A';
+      for (const targetCardId of labels) {
+        if (sourceCardId === targetCardId) continue;
       const targetVal = cpuCards[targetCardId];
 
       let transferAmount = 0;
-      if (sourceVal === 1 || sourceVal === 2 || sourceVal === 3) transferAmount = 1;
-      else if (sourceVal === 4) transferAmount = 2;
+      if (gameState.customRules.allowSelfAdd) {
+        transferAmount = sourceVal;
+      } else {
+        if (sourceVal === 1 || sourceVal === 2 || sourceVal === 3) transferAmount = 1;
+        else if (sourceVal === 4) transferAmount = 2;
+        else transferAmount = Math.floor(sourceVal/2);
+      }
 
       // 譲渡シミュレーション
       const nextTargetVal = calculateCardValue(targetVal + transferAmount);
@@ -596,16 +702,17 @@ function executeCpuTurn() {
         to: targetCardId,
         score: evaluateTransferResult(sourceCardId, targetCardId, sourceVal, targetVal, nextTargetVal)
       });
+      }
     }
   }
 
   // 3. 引き込みの手
   if (!gameState.customRules.disablePull) {
-    for (const cpuCardId of ['A', 'B']) {
+    for (const cpuCardId of labels) {
       const cpuVal = cpuCards[cpuCardId];
       if (cpuVal === 0) continue; // 消滅カードへは引き込めない
 
-      for (const playerCardId of ['A', 'B']) {
+      for (const playerCardId of labels) {
         const playerVal = playerCards[playerCardId];
         if (playerVal === 0) continue; // 消滅カードからは引き込めない
 
@@ -662,11 +769,25 @@ function executeCpuTurn() {
 
 // 攻撃手の評価関数
 function evaluateAttackResult(targetCardId, originalVal, nextVal) {
-  // 1. トドメを刺せる（相手のもう一方のカードも0で、この攻撃でターゲットも0になる）
-  const otherCardId = targetCardId === 'A' ? 'B' : 'A';
-  const otherVal = gameState.cards.p1[otherCardId];
-  if (otherVal === 0 && nextVal === 0) {
-    return 1000; // 最優先：勝利決定
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  let p1Zeros = 0;
+  labels.forEach(id => {
+    if (id === targetCardId) {
+      if (nextVal === 0) p1Zeros++;
+    } else {
+      if (gameState.cards.p1[id] === 0) p1Zeros++;
+    }
+  });
+
+  let requiredZeros = gameState.customRules.cardCount;
+  if (gameState.customRules.loseCount !== 'all') {
+    requiredZeros = parseInt(gameState.customRules.loseCount, 10);
+    if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
+  }
+
+  // 1. トドメを刺せる
+  if (p1Zeros >= requiredZeros) {
+    return gameState.customRules.reverseWin ? -1000 : 1000;
   }
 
   // 2. 相手の1枚を0にする（全滅ではないが数的有利）
@@ -729,11 +850,25 @@ function evaluateTransferResult(sourceCardId, targetCardId, sourceOriginalVal, t
 
 // 引き込み手の評価関数
 function evaluatePullResult(myCardId, originalVal, nextVal) {
-  // 1. 引き込んだ結果、自分が両方とも0になって全滅するなら最悪の手（自殺行為）
-  const otherCardId = myCardId === 'A' ? 'B' : 'A';
-  const otherVal = gameState.cards.p2[otherCardId];
-  if (otherVal === 0 && nextVal === 0) {
-    return -1000;
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  let p2Zeros = 0;
+  labels.forEach(id => {
+    if (id === myCardId) {
+      if (nextVal === 0) p2Zeros++;
+    } else {
+      if (gameState.cards.p2[id] === 0) p2Zeros++;
+    }
+  });
+
+  let requiredZeros = gameState.customRules.cardCount;
+  if (gameState.customRules.loseCount !== 'all') {
+    requiredZeros = parseInt(gameState.customRules.loseCount, 10);
+    if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
+  }
+
+  // 1. 引き込んだ結果、自分が全滅条件を満たすなら最悪の手
+  if (p2Zeros >= requiredZeros) {
+    return gameState.customRules.reverseWin ? 1000 : -1000;
   }
 
   // 2. 自分のカードの数値をちょうど0（消滅）にするのは、相方が生きている場合はターゲットを減らせるが、自分も弱体化するため低評価

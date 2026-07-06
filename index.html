@@ -37,11 +37,35 @@
               <option value="4">4</option>
             </select>
           </div>
+
+          <div class="setting-item">
+            <label for="rule-max-value">最大値（消滅または引かれる値）</label>
+            <input type="number" id="rule-max-value" value="5" min="2" max="20" style="width: 60px; padding: 4px; border-radius: 4px;">
+          </div>
+
+          <div class="setting-item">
+            <label for="rule-card-count">カードの枚数</label>
+            <select id="rule-card-count">
+              <option value="2" selected>2枚</option>
+              <option value="3">3枚</option>
+              <option value="4">4枚</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="rule-lose-count">敗北条件（消滅したカード数）</label>
+            <select id="rule-lose-count">
+              <option value="all" selected>すべてのカード</option>
+              <option value="1">1枚でも消滅したら</option>
+              <option value="2">2枚消滅したら</option>
+              <option value="3">3枚消滅したら</option>
+            </select>
+          </div>
           
           <div class="setting-item checkbox-item">
             <label>
               <input type="checkbox" id="rule-zero-on-five">
-              合計が5以上になった場合は一律で「0」にする
+              最大値以上になった場合は一律で「0」にする
             </label>
           </div>
           
@@ -55,7 +79,28 @@
           <div class="setting-item checkbox-item">
             <label>
               <input type="checkbox" id="rule-disable-transfer">
-              自分の数字をもう片方の手に分ける（譲渡）操作を禁止
+              自分の数字を分ける（譲渡）操作を禁止
+            </label>
+          </div>
+
+          <div class="setting-item checkbox-item">
+            <label>
+              <input type="checkbox" id="rule-allow-self-add">
+              自分のカード同士の「加算」を許可（元のカードは0になる）
+            </label>
+          </div>
+
+          <div class="setting-item checkbox-item">
+            <label>
+              <input type="checkbox" id="rule-blind-mode">
+              ブラインドモード（相手のカードの数字が見えなくなる）
+            </label>
+          </div>
+
+          <div class="setting-item checkbox-item">
+            <label>
+              <input type="checkbox" id="rule-reverse-win">
+              勝利条件の逆転（自分が敗北条件を満たすと「勝ち」になるデスゲーム）
             </label>
           </div>
         </div>
@@ -80,26 +125,8 @@
         <!-- プレイヤー2 / CPU（上側） -->
         <div class="player-section" id="player2-section" data-player="p2">
           <h3 class="player-name" id="p2-name">プレイヤー2</h3>
-          <div class="cards-container">
-            <!-- プレイヤー2 左手 -->
-            <div class="card-slot" id="p2-card-A" data-player="p2" data-card-id="A">
-              <div class="card-inner">
-                <span class="card-label">左手</span>
-                <div class="card-value-display">
-                  <span class="card-value">1</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- プレイヤー2 右手 -->
-            <div class="card-slot" id="p2-card-B" data-player="p2" data-card-id="B">
-              <div class="card-inner">
-                <span class="card-label">右手</span>
-                <div class="card-value-display">
-                  <span class="card-value">1</span>
-                </div>
-              </div>
-            </div>
+          <div class="cards-container" id="p2-cards-container">
+            <!-- JSで動的に生成 -->
           </div>
         </div>
 
@@ -111,26 +138,8 @@
         <!-- プレイヤー1（下側） -->
         <div class="player-section" id="player1-section" data-player="p1">
           <h3 class="player-name" id="p1-name">プレイヤー1</h3>
-          <div class="cards-container">
-            <!-- プレイヤー1 左手 -->
-            <div class="card-slot" id="p1-card-A" data-player="p1" data-card-id="A">
-              <div class="card-inner">
-                <span class="card-label">左手</span>
-                <div class="card-value-display">
-                  <span class="card-value">1</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- プレイヤー1 右手 -->
-            <div class="card-slot" id="p1-card-B" data-player="p1" data-card-id="B">
-              <div class="card-inner">
-                <span class="card-label">右手</span>
-                <div class="card-value-display">
-                  <span class="card-value">1</span>
-                </div>
-              </div>
-            </div>
+          <div class="cards-container" id="p1-cards-container">
+            <!-- JSで動的に生成 -->
           </div>
         </div>
       </div>
