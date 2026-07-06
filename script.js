@@ -165,7 +165,11 @@ function createCardsDOM() {
 
   for (let i = 0; i < gameState.customRules.cardCount; i++) {
     const cardId = labels[i];
-    const handLabel = handLabels[i];
+    let handLabel = handLabels[i];
+    
+    if (gameState.customRules.loseCount === 'leader' && cardId === 'A') {
+      handLabel = `👑 ${handLabel}`;
+    }
     
     gameState.cards.p1[cardId] = initVal;
     const p1Card = `
@@ -600,16 +604,23 @@ function checkVictory() {
     if (gameState.cards.p2[id] === 0) p2Zeros++;
   });
   
-  let requiredZeros = gameState.customRules.cardCount;
-  if (gameState.customRules.loseCount !== 'all') {
-    requiredZeros = parseInt(gameState.customRules.loseCount, 10);
-    if (requiredZeros > gameState.customRules.cardCount) {
-      requiredZeros = gameState.customRules.cardCount;
-    }
-  }
+  let p1Defeated = false;
+  let p2Defeated = false;
 
-  const p1Defeated = p1Zeros >= requiredZeros;
-  const p2Defeated = p2Zeros >= requiredZeros;
+  if (gameState.customRules.loseCount === 'leader') {
+    p1Defeated = gameState.cards.p1['A'] === 0;
+    p2Defeated = gameState.cards.p2['A'] === 0;
+  } else {
+    let requiredZeros = gameState.customRules.cardCount;
+    if (gameState.customRules.loseCount !== 'all') {
+      requiredZeros = parseInt(gameState.customRules.loseCount, 10);
+      if (requiredZeros > gameState.customRules.cardCount) {
+        requiredZeros = gameState.customRules.cardCount;
+      }
+    }
+    p1Defeated = p1Zeros >= requiredZeros;
+    p2Defeated = p2Zeros >= requiredZeros;
+  }
 
   if (p1Defeated || p2Defeated) {
     gameState.isGameOver = true;
@@ -834,6 +845,14 @@ function executeCpuTurn() {
 // 攻撃手の評価関数
 function evaluateAttackResult(targetCardId, originalVal, nextVal) {
   const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  
+  // リーダールールの場合のトドメ判定
+  if (gameState.customRules.loseCount === 'leader') {
+    if (targetCardId === 'A' && nextVal === 0) {
+      return gameState.customRules.reverseWin ? -1000 : 1000;
+    }
+  }
+
   let p1Zeros = 0;
   labels.forEach(id => {
     if (id === targetCardId) {
@@ -843,19 +862,23 @@ function evaluateAttackResult(targetCardId, originalVal, nextVal) {
     }
   });
 
-  let requiredZeros = gameState.customRules.cardCount;
-  if (gameState.customRules.loseCount !== 'all') {
-    requiredZeros = parseInt(gameState.customRules.loseCount, 10);
-    if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
-  }
-
-  // 1. トドメを刺せる
-  if (p1Zeros >= requiredZeros) {
-    return gameState.customRules.reverseWin ? -1000 : 1000;
+  if (gameState.customRules.loseCount !== 'leader') {
+    let requiredZeros = gameState.customRules.cardCount;
+    if (gameState.customRules.loseCount !== 'all') {
+      requiredZeros = parseInt(gameState.customRules.loseCount, 10);
+      if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
+    }
+    if (p1Zeros >= requiredZeros) {
+      return gameState.customRules.reverseWin ? -1000 : 1000;
+    }
   }
 
   // 2. 相手の1枚を0にする（全滅ではないが数的有利）
   if (nextVal === 0) {
+    // リーダールールの場合はリーダーを狙う価値が通常より高い(トドメにならない場合でも)
+    if (gameState.customRules.loseCount === 'leader' && targetCardId === 'A') {
+      return 200;
+    }
     return 100;
   }
 
@@ -915,6 +938,13 @@ function evaluateTransferResult(sourceCardId, targetCardId, sourceOriginalVal, t
 // 引き込み手の評価関数
 function evaluatePullResult(myCardId, originalVal, nextVal) {
   const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  
+  if (gameState.customRules.loseCount === 'leader') {
+    if (myCardId === 'A' && nextVal === 0) {
+      return gameState.customRules.reverseWin ? 1000 : -1000;
+    }
+  }
+
   let p2Zeros = 0;
   labels.forEach(id => {
     if (id === myCardId) {
@@ -924,15 +954,15 @@ function evaluatePullResult(myCardId, originalVal, nextVal) {
     }
   });
 
-  let requiredZeros = gameState.customRules.cardCount;
-  if (gameState.customRules.loseCount !== 'all') {
-    requiredZeros = parseInt(gameState.customRules.loseCount, 10);
-    if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
-  }
-
-  // 1. 引き込んだ結果、自分が全滅条件を満たすなら最悪の手
-  if (p2Zeros >= requiredZeros) {
-    return gameState.customRules.reverseWin ? 1000 : -1000;
+  if (gameState.customRules.loseCount !== 'leader') {
+    let requiredZeros = gameState.customRules.cardCount;
+    if (gameState.customRules.loseCount !== 'all') {
+      requiredZeros = parseInt(gameState.customRules.loseCount, 10);
+      if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
+    }
+    if (p2Zeros >= requiredZeros) {
+      return gameState.customRules.reverseWin ? 1000 : -1000;
+    }
   }
 
   // 2. 自分のカードの数値をちょうど0（消滅）にするのは、相方が生きている場合はターゲットを減らせるが、自分も弱体化するため低評価
