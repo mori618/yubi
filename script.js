@@ -23,9 +23,17 @@ const btnCpu = document.getElementById('btn-cpu');
 const btnRestart = document.getElementById('btn-restart');
 const btnRematch = document.getElementById('btn-rematch');
 const turnIndicator = document.getElementById('turn-indicator');
-const gameGuide = document.getElementById('game-guide');
 const logList = document.getElementById('log-list');
 const winnerMessage = document.getElementById('winner-message');
+
+// 新規追加ボタンとモーダル
+const btnSetupRules = document.getElementById('btn-setup-rules');
+const btnShowRules = document.getElementById('btn-show-rules');
+const btnCloseRules = document.getElementById('btn-close-rules');
+const btnShowLog = document.getElementById('btn-show-log');
+const btnCloseLog = document.getElementById('btn-close-log');
+const rulesModal = document.getElementById('rules-modal');
+const logModal = document.getElementById('log-modal');
 
 const p1Section = document.getElementById('player1-section');
 const p2Section = document.getElementById('player2-section');
@@ -42,6 +50,17 @@ function init() {
   btnCpu.addEventListener('click', () => startGame('cpu'));
   btnRestart.addEventListener('click', backToTitle);
   btnRematch.addEventListener('click', resetGame);
+
+  // モーダル制御
+  btnSetupRules.addEventListener('click', () => rulesModal.classList.add('active'));
+  btnShowRules.addEventListener('click', () => rulesModal.classList.add('active'));
+  btnCloseRules.addEventListener('click', () => rulesModal.classList.remove('active'));
+  
+  btnShowLog.addEventListener('click', () => {
+    logModal.classList.add('active');
+    logList.scrollTop = logList.scrollHeight; // 開いたときに最新を見る
+  });
+  btnCloseLog.addEventListener('click', () => logModal.classList.remove('active'));
 
   setupDragAndDrop();
 }
@@ -477,14 +496,10 @@ function updateTurnIndicator() {
   if (gameState.currentPlayer === 'p1') {
     turnIndicator.textContent = 'プレイヤー1のターン';
     turnIndicator.classList.add('turn-p1');
-    gameGuide.textContent = '自分の手をドラッグして、相手（攻撃）、味方（譲渡）、または相手から自分（引き込み）を行ってください';
   } else {
     const name = gameState.mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
     turnIndicator.textContent = `${name}のターン`;
     turnIndicator.classList.add('turn-p2');
-    gameGuide.textContent = gameState.mode === 'cpu' 
-      ? 'CPUが思考中です...' 
-      : '自分の手をドラッグして、相手（攻撃）、味方（譲渡）、または相手から自分（引き込み）を行ってください';
   }
 }
 

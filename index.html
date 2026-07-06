@@ -26,26 +26,16 @@
         <div class="mode-buttons">
           <button id="btn-local" class="btn btn-primary">ローカル2人対戦</button>
           <button id="btn-cpu" class="btn btn-secondary">VS CPU（対戦相手：AI）</button>
-        </div>
-        <div class="rules-summary">
-          <h3>【簡易ルール説明】</h3>
-          <ul>
-            <li>各プレイヤーは「左手」「右手」の2つのカード（初期状態は1）を持ちます。</li>
-            <li><strong>攻撃（自分のカードを相手のカードへドラッグ）</strong>: 自分のカードをドラッグして相手のカードに重ね、数値を加算します。合計が5以上になると、5を引いた数が残ります（例：5→0、7→2）。</li>
-            <li><strong>譲渡（自分のカードをもう一方の味方カードへドラッグ）</strong>: 自分のカードからもう一方のカードへ数値を移動できます（1→0と1、2→1と1、3→1と2、4→2と2に分配）。</li>
-            <li><strong>引き込み（相手のカードを自分のカードへドラッグ）</strong>: 相手のカードを自分のカードに重ねることで、相手の数値分自分のカードを加算します（相手の数値は変化しません）。</li>
-            <li>先に相手の「両方のカード」を同時に「0」にしたプレイヤーの勝利です。</li>
-          </ul>
+          <button id="btn-setup-rules" class="btn btn-info">ルール確認</button>
         </div>
       </div>
     </div>
 
     <!-- メインゲーム画面 -->
     <div id="game-screen" class="screen">
-      <!-- ターン表示と操作ガイド -->
+      <!-- ターン表示 -->
       <div class="status-panel">
         <div id="turn-indicator" class="turn-indicator">プレイヤー1のターン</div>
-        <div id="game-guide" class="game-guide">カードをドラッグして、相手（攻撃）、味方（譲渡）、または相手から自分（引き込み）を行ってください</div>
       </div>
 
       <!-- プレイエリア -->
@@ -110,13 +100,9 @@
 
       <!-- 下部コントロール・ログパネル -->
       <div class="bottom-panel">
-        <div class="log-panel">
-          <h4>アクションログ</h4>
-          <div id="log-list" class="log-list">
-            <div class="log-item system">ゲームが開始されました。</div>
-          </div>
-        </div>
         <div class="control-buttons">
+          <button id="btn-show-rules" class="btn btn-info">ルール</button>
+          <button id="btn-show-log" class="btn btn-info">ログ</button>
           <button id="btn-restart" class="btn btn-danger">タイトルへ戻る</button>
         </div>
       </div>
@@ -128,6 +114,34 @@
         <h2 id="winner-message">プレイヤー1の勝利！</h2>
         <p>対戦お疲れ様でした。</p>
         <button id="btn-rematch" class="btn btn-primary">もう一度遊ぶ</button>
+      </div>
+    </div>
+
+    <!-- ルールモーダル -->
+    <div id="rules-modal" class="modal-overlay">
+      <div class="modal-content glass-panel" style="max-width: 500px; text-align: left;">
+        <h2 style="text-align: center; margin-bottom: 20px;">ゲームルール</h2>
+        <div class="rules-summary" style="margin-bottom: 20px;">
+          <ul>
+            <li>各プレイヤーは「左手」「右手」の2つのカード（初期状態は1）を持ちます。</li>
+            <li><strong>攻撃（相手へドラッグ）</strong>: 自分の数値を相手に加算。5以上なら5を引いた数が残ります。</li>
+            <li><strong>譲渡（自分のもう一方へドラッグ）</strong>: 自分の数値を分配します。</li>
+            <li><strong>引き込み（相手から自分へドラッグ）</strong>: 相手の数値を自分に加算します（相手は変化なし）。</li>
+            <li>先に相手の両手を「0」にした方の勝利です。</li>
+          </ul>
+        </div>
+        <button id="btn-close-rules" class="btn btn-primary" style="width: 100%;">閉じる</button>
+      </div>
+    </div>
+
+    <!-- ログモーダル -->
+    <div id="log-modal" class="modal-overlay">
+      <div class="modal-content glass-panel" style="max-width: 500px; text-align: left;">
+        <h2 style="text-align: center; margin-bottom: 20px;">アクションログ</h2>
+        <div class="log-list" id="log-list" style="height: 300px; overflow-y: auto; margin-bottom: 20px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px;">
+          <div class="log-item system">ゲームが開始されました。</div>
+        </div>
+        <button id="btn-close-log" class="btn btn-primary" style="width: 100%;">閉じる</button>
       </div>
     </div>
 
