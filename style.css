@@ -86,13 +86,9 @@ body {
 
 /* ガラスモーフィズムパネル共通 */
 .glass-panel {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.03);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 /* 画面制御 */
@@ -128,7 +124,6 @@ body {
 
 .rules-summary {
   background: rgba(0, 0, 0, 0.03);
-  border: 1px solid var(--panel-border);
   border-radius: 12px;
   padding: 16px;
 }
@@ -175,50 +170,40 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1b62cd 0%, var(--p1-sleeve) 100%);
+  background: var(--p1-primary);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(47, 128, 237, 0.25);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(47, 128, 237, 0.35);
   filter: brightness(1.08);
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #cd3254 0%, var(--p2-sleeve) 100%);
+  background: var(--p2-primary);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(235, 87, 87, 0.25);
 }
 
 .btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(235, 87, 87, 0.35);
   filter: brightness(1.08);
 }
 
 .btn-info {
   background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
   color: var(--text-primary);
 }
 
 .btn-info:hover {
   background: rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
 }
 
 .btn-danger {
-  background: rgba(235, 87, 87, 0.1);
-  border: 1px solid var(--color-danger);
+  background: rgba(239, 68, 68, 0.1);
   color: var(--color-danger);
 }
 
 .btn-danger:hover {
   background: var(--color-danger);
   color: #fff;
-  box-shadow: 0 4px 12px var(--glow-danger);
 }
 
 /* メインゲーム画面 - ステータスパネル */
@@ -227,8 +212,7 @@ body {
   margin-bottom: 20px;
   padding: 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .turn-indicator {
@@ -269,20 +253,15 @@ body {
   border-radius: 16px;
   transition: all 0.3s ease;
   position: relative;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid transparent;
+  background: transparent;
 }
 
 #player1-section.active-turn {
   background: var(--p1-bg);
-  border-color: rgba(0, 240, 255, 0.15);
-  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);
 }
 
 #player2-section.active-turn {
   background: var(--p2-bg);
-  border-color: rgba(255, 0, 127, 0.15);
-  box-shadow: inset 0 0 15px rgba(255, 0, 127, 0.05);
 }
 
 .player-name {
@@ -319,8 +298,7 @@ body {
   cursor: default;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   user-select: none;
-  background: var(--panel-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* ターンプレイヤーかつ数値が1以上の時にドラッグ可能 */
@@ -328,12 +306,10 @@ body {
   cursor: grab;
 }
 .active-turn [data-player="p1"].card-slot:not(.extinguished):hover {
-  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15);
-  transform: translateY(-6px);
+  background: rgba(2, 132, 199, 0.1);
 }
 .active-turn [data-player="p2"].card-slot:not(.extinguished):hover {
-  box-shadow: 0 8px 20px rgba(219, 39, 119, 0.15);
-  transform: translateY(-6px);
+  background: rgba(219, 39, 119, 0.1);
 }
 
 .card-slot:active:not(.extinguished) {
