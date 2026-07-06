@@ -63,6 +63,7 @@ const p2Name = document.getElementById('p2-name');
 
 // ルール設定用要素
 const ruleCpuDifficulty = document.getElementById('rule-cpu-difficulty');
+const btnRandomizeRules = document.getElementById('btn-randomize-rules');
 const ruleInitMin = document.getElementById('rule-initial-value-min');
 const ruleInitMax = document.getElementById('rule-initial-value-max');
 const ruleMaxValue = document.getElementById('rule-max-value');
@@ -72,6 +73,54 @@ const ruleZeroOnFive = document.getElementById('rule-zero-on-five');
 const rulePullLimit = document.getElementById('rule-pull-limit');
 const ruleTransferLimit = document.getElementById('rule-transfer-limit');
 const rulePassLimit = document.getElementById('rule-pass-limit');
+
+
+btnRandomizeRules.addEventListener('click', randomizeRules);
+
+function getRandomItem(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function randomizeRules() {
+  ruleCpuDifficulty.value = getRandomItem(['strong', 'normal']);
+  
+  const minVal = getRandomItem([1, 2, 3, 4]);
+  ruleInitMin.value = minVal;
+  
+  // maxValはminVal以上
+  const validMaxVals = [1, 2, 3, 4].filter(v => v >= minVal);
+  ruleInitMax.value = getRandomItem(validMaxVals);
+  
+  ruleMaxValue.value = Math.floor(Math.random() * (12 - 4 + 1)) + 4; // 4〜12
+  
+  ruleCardCount.value = getRandomItem([2, 3, 4]);
+  
+  // 敗北条件はカード数に応じて
+  const cCount = parseInt(ruleCardCount.value, 10);
+  const loseOptions = ['all', '1', 'leader'];
+  if (cCount >= 2) loseOptions.push('2');
+  if (cCount >= 3) loseOptions.push('3');
+  ruleLoseCount.value = getRandomItem(loseOptions);
+  
+  rulePullLimit.value = getRandomItem([-1, 0, 1, 2, 3]);
+  ruleTransferLimit.value = getRandomItem([-1, 0, 1, 2, 3]);
+  rulePassLimit.value = getRandomItem([-1, 0, 1, 2, 3]);
+  
+  ruleZeroOnFive.checked = Math.random() < 0.5;
+  ruleAllowSelfAdd.checked = Math.random() < 0.5;
+  ruleBlindMode.checked = Math.random() < 0.5;
+  ruleReverseWin.checked = Math.random() < 0.5;
+  ruleMultiplyAttack.checked = Math.random() < 0.5;
+  ruleChainExplosion.checked = Math.random() < 0.5;
+  
+  // 視覚的フィードバック（チカッと光る）
+  const panel = document.querySelector('.settings-panel');
+  panel.style.transition = 'background-color 0.3s';
+  panel.style.backgroundColor = '#f1c40f';
+  setTimeout(() => {
+    panel.style.backgroundColor = '#f9f9f9';
+  }, 300);
+}
 
 document.getElementById('p1-btn-pass').addEventListener('click', () => executePass('p1'));
 document.getElementById('p2-btn-pass').addEventListener('click', () => executePass('p2'));

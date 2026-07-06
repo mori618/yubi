@@ -773,3 +773,12 @@ body {
   cursor: not-allowed;
   transform: none;
 }
+
+/* ランダム設定ボタン用 */
+.btn-warning {
+  background-color: #9b59b6;
+  color: white;
+}
+.btn-warning:hover {
+  background-color: #8e44ad;
+}
