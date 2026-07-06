@@ -10,6 +10,7 @@ const gameState = {
   },
   isGameOver: false,
   draggedCard: null,   // ドラッグ中のカード情報 { player, cardId, value }
+  explodedCards: new Set(),
   customRules: {
     initialValue: 1,
     maxValue: 5,
@@ -20,7 +21,9 @@ const gameState = {
     disableTransfer: false,
     allowSelfAdd: false,
     blindMode: false,
-    reverseWin: false
+    reverseWin: false,
+    multiplyAttack: false,
+    chainExplosion: false
   }
 };
 
@@ -62,6 +65,8 @@ const ruleDisableTransfer = document.getElementById('rule-disable-transfer');
 const ruleAllowSelfAdd = document.getElementById('rule-allow-self-add');
 const ruleBlindMode = document.getElementById('rule-blind-mode');
 const ruleReverseWin = document.getElementById('rule-reverse-win');
+const ruleMultiplyAttack = document.getElementById('rule-multiply-attack');
+const ruleChainExplosion = document.getElementById('rule-chain-explosion');
 
 const p1CardsContainer = document.getElementById('p1-cards-container');
 const p2CardsContainer = document.getElementById('p2-cards-container');
@@ -104,6 +109,8 @@ function startGame(mode) {
   gameState.customRules.allowSelfAdd = ruleAllowSelfAdd.checked;
   gameState.customRules.blindMode = ruleBlindMode.checked;
   gameState.customRules.reverseWin = ruleReverseWin.checked;
+  gameState.customRules.multiplyAttack = ruleMultiplyAttack.checked;
+  gameState.customRules.chainExplosion = ruleChainExplosion.checked;
 
   gameState.mode = mode;
   p2Name.textContent = mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
@@ -124,6 +131,7 @@ function resetGame() {
   gameState.currentPlayer = 'p1';
   gameState.isGameOver = false;
   gameState.draggedCard = null;
+  gameState.explodedCards.clear();
   
   createCardsDOM();
 
@@ -471,6 +479,60 @@ function clearHighlights() {
 }
 
 // カードの更新アニメーションを適用する
+
+function handleChainExplosion() {
+  if (!gameState.customRules.chainExplosion) return;
+
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  let keepChecking = true;
+  let chainCount = 0;
+
+  while(keepChecking) {
+    keepChecking = false;
+    let newExplosions = 0;
+
+    for (const player of ['p1', 'p2']) {
+      for (const id of labels) {
+        // もし値が0になっていて、まだ爆発済みリストになければ爆発！
+        if (gameState.cards[player][id] === 0 && !gameState.explodedCards.has(`${player}-${id}`)) {
+           gameState.explodedCards.add(`${player}-${id}`);
+           newExplosions++;
+           const name = player === 'p1' ? 'プレイヤー1' : 'プレイヤー2'; // 厳密にはCPU名とかあるけど簡易的に
+           addLog(`💥 【連鎖爆発】${name}の${getHandName(id)}が0になり爆発！他のすべてのカードに ＋1`);
+        }
+      }
+    }
+
+    if (newExplosions > 0) {
+      keepChecking = true;
+      chainCount++;
+      // すべての「生存している（> 0）」カードに ＋newExplosions する
+      for (const player of ['p1', 'p2']) {
+        for (const id of labels) {
+          if (gameState.cards[player][id] > 0) {
+             let newVal = gameState.cards[player][id] + newExplosions;
+             gameState.cards[player][id] = calculateCardValue(newVal);
+             triggerUpdateAnimation(player, id);
+          }
+        }
+      }
+      updateUI();
+    }
+  }
+}
+
+// 復活処理用（0から1以上になったら爆発フラグを消す）
+function checkRevivals() {
+  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
+  for (const player of ['p1', 'p2']) {
+    for (const id of labels) {
+      if (gameState.cards[player][id] > 0) {
+         gameState.explodedCards.delete(`${player}-${id}`);
+      }
+    }
+  }
+}
+
 function triggerUpdateAnimation(player, cardId) {
   const slot = document.getElementById(`${player}-card-${cardId}`);
   if (slot) {
@@ -663,7 +725,9 @@ function executeCpuTurn() {
       if (playerVal === 0) continue; // 消滅カードへは攻撃不可
 
       // 攻撃シミュレーション
-      const nextPlayerVal = calculateCardValue(cpuVal + playerVal);
+      let rawSimDamage = cpuVal + playerVal;
+      if (gameState.customRules.multiplyAttack) rawSimDamage = cpuVal * playerVal;
+      const nextPlayerVal = calculateCardValue(rawSimDamage);
       
       validMoves.push({
         type: 'attack',
