@@ -320,18 +320,7 @@ body {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   user-select: none;
   background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
-
-/* プレイヤー別のネオン枠線 */
-[data-player="p1"].card-slot {
-  border-color: rgba(0, 240, 255, 0.25);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.05), inset 0 0 8px rgba(0, 240, 255, 0.02);
-}
-[data-player="p2"].card-slot {
-  border-color: rgba(255, 0, 127, 0.25);
-  box-shadow: 0 0 10px rgba(255, 0, 127, 0.05), inset 0 0 8px rgba(255, 0, 127, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ターンプレイヤーかつ数値が1以上の時にドラッグ可能 */
@@ -339,13 +328,11 @@ body {
   cursor: grab;
 }
 .active-turn [data-player="p1"].card-slot:not(.extinguished):hover {
-  border-color: var(--p1-primary);
-  box-shadow: 0 0 15px var(--p1-glow), inset 0 0 10px var(--p1-glow);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.15);
   transform: translateY(-6px);
 }
 .active-turn [data-player="p2"].card-slot:not(.extinguished):hover {
-  border-color: var(--p2-primary);
-  box-shadow: 0 0 15px var(--p2-glow), inset 0 0 10px var(--p2-glow);
+  box-shadow: 0 8px 20px rgba(219, 39, 119, 0.15);
   transform: translateY(-6px);
 }
 
@@ -412,9 +399,10 @@ body {
 
 [data-player="p1"] .card-value {
   color: var(--p1-primary);
-  text-shadow: 0 0 10px var(--p1-glow), 0 0 20px var(--p1-glow);
 }
 [data-player="p2"] .card-value {
+  color: var(--p2-primary);
+}
 /* 消滅した手 (0 / グー / 暗転) */
 .card-slot.extinguished {
   opacity: 0.35;
