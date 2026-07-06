@@ -16,13 +16,50 @@
     <!-- ヘッダーエリア -->
     <header class="game-header">
       <h1>NUMBER CRUSH</h1>
-      <div class="game-subtitle">指遊び・戦争ゲーム</div>
+      <div class="game-subtitle">ゲーム</div>
     </header>
 
     <!-- モード選択エリア -->
     <div id="setup-screen" class="screen active">
       <div class="setup-content">
         <h2>ゲームモードを選択してください</h2>
+        
+        <!-- ルールカスタマイズ設定 -->
+        <div class="settings-panel">
+          <h3>ルール設定</h3>
+          
+          <div class="setting-item">
+            <label for="rule-initial-value">初期値</label>
+            <select id="rule-initial-value">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          
+          <div class="setting-item checkbox-item">
+            <label>
+              <input type="checkbox" id="rule-zero-on-five">
+              合計が5以上になった場合は一律で「0」にする
+            </label>
+          </div>
+          
+          <div class="setting-item checkbox-item">
+            <label>
+              <input type="checkbox" id="rule-disable-pull">
+              相手の数字を引き込む（加算する）操作を禁止
+            </label>
+          </div>
+          
+          <div class="setting-item checkbox-item">
+            <label>
+              <input type="checkbox" id="rule-disable-transfer">
+              自分の数字をもう片方の手に分ける（譲渡）操作を禁止
+            </label>
+          </div>
+        </div>
+
         <div class="mode-buttons">
           <button id="btn-local" class="btn btn-primary">ローカル2人対戦</button>
           <button id="btn-cpu" class="btn btn-secondary">VS CPU（対戦相手：AI）</button>

@@ -9,7 +9,13 @@ const gameState = {
     p2: { A: 1, B: 1 }
   },
   isGameOver: false,
-  draggedCard: null    // ドラッグ中のカード情報 { player, cardId, value }
+  draggedCard: null,   // ドラッグ中のカード情報 { player, cardId, value }
+  customRules: {
+    initialValue: 1,
+    zeroWhenFiveOrMore: false,
+    disablePull: false,
+    disableTransfer: false
+  }
 };
 
 // ==========================================
@@ -39,6 +45,12 @@ const p1Section = document.getElementById('player1-section');
 const p2Section = document.getElementById('player2-section');
 const p2Name = document.getElementById('p2-name');
 
+// ルール設定用要素
+const ruleInitialValue = document.getElementById('rule-initial-value');
+const ruleZeroOnFive = document.getElementById('rule-zero-on-five');
+const ruleDisablePull = document.getElementById('rule-disable-pull');
+const ruleDisableTransfer = document.getElementById('rule-disable-transfer');
+
 // 全カードスロットの取得
 const cardSlots = document.querySelectorAll('.card-slot');
 
@@ -67,6 +79,12 @@ function init() {
 
 // ゲーム開始
 function startGame(mode) {
+  // 設定を読み取る
+  gameState.customRules.initialValue = parseInt(ruleInitialValue.value, 10);
+  gameState.customRules.zeroWhenFiveOrMore = ruleZeroOnFive.checked;
+  gameState.customRules.disablePull = ruleDisablePull.checked;
+  gameState.customRules.disableTransfer = ruleDisableTransfer.checked;
+
   gameState.mode = mode;
   p2Name.textContent = mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
   setupScreen.classList.remove('active');
@@ -83,11 +101,12 @@ function backToTitle() {
 
 // ゲームリセット
 function resetGame() {
+  const initVal = gameState.customRules.initialValue;
   gameState.currentPlayer = 'p1';
-  gameState.cards.p1.A = 1;
-  gameState.cards.p1.B = 1;
-  gameState.cards.p2.A = 1;
-  gameState.cards.p2.B = 1;
+  gameState.cards.p1.A = initVal;
+  gameState.cards.p1.B = initVal;
+  gameState.cards.p2.A = initVal;
+  gameState.cards.p2.B = initVal;
   gameState.isGameOver = false;
   gameState.draggedCard = null;
 
@@ -106,9 +125,12 @@ function resetGame() {
 // 計算ロジック (仕様書準拠)
 // ==========================================
 
-// 5以上になったら5を引く、5未満ならそのままの数値を返す関数
+// カスタムルールを考慮した合計値計算
 function calculateCardValue(totalValue) {
   if (totalValue >= 5) {
+    if (gameState.customRules.zeroWhenFiveOrMore) {
+      return 0; // 5以上なら一律0になる
+    }
     return totalValue - 5;
   }
   return totalValue;
@@ -250,7 +272,7 @@ function setupDragAndDrop() {
         if (targetPlayer !== dragSource.player && targetValue > 0) {
           slot.classList.add('drop-target-attack');
         } else if (targetPlayer === dragSource.player && targetCardId !== dragSource.cardId) {
-          if (dragSource.value >= 1) {
+          if (!gameState.customRules.disableTransfer && dragSource.value >= 1) {
             slot.classList.add('drop-target-transfer');
           } else {
             slot.classList.add('drop-target-invalid');
@@ -259,10 +281,10 @@ function setupDragAndDrop() {
       } else {
         // 相手のカードをドラッグ：引き込み加算
         if (targetPlayer === gameState.currentPlayer) {
-          if (targetValue > 0) {
+          if (!gameState.customRules.disablePull && targetValue > 0) {
             slot.classList.add('drop-target-pull');
           } else {
-            slot.classList.add('drop-target-invalid'); // 0へは引き込めない
+            slot.classList.add('drop-target-invalid'); // 引き込み不可
           }
         }
       }
@@ -285,12 +307,12 @@ function setupDragAndDrop() {
           e.preventDefault();
         }
         // 譲渡：自分の1以上のカードから、もう一方のカードに対してドロップを許可
-        else if (targetPlayer === dragSource.player && targetCardId !== dragSource.cardId && dragSource.value >= 1) {
+        else if (!gameState.customRules.disableTransfer && targetPlayer === dragSource.player && targetCardId !== dragSource.cardId && dragSource.value >= 1) {
           e.preventDefault();
         }
       } else {
         // 引き込み：相手のカードを自分の1以上のカードにドロップするのを許可
-        if (targetPlayer === gameState.currentPlayer && targetValue > 0) {
+        if (!gameState.customRules.disablePull && targetPlayer === gameState.currentPlayer && targetValue > 0) {
           e.preventDefault();
         }
       }
@@ -323,12 +345,14 @@ function setupDragAndDrop() {
         }
         // 譲渡の実行
         else if (targetPlayer === dragSource.player && targetCardId !== dragSource.cardId) {
-          actionExecuted = executeTransfer(dragSource.player, dragSource.cardId, targetCardId);
+          if (!gameState.customRules.disableTransfer) {
+            actionExecuted = executeTransfer(dragSource.player, dragSource.cardId, targetCardId);
+          }
         }
       } else {
         // 引き込みの実行（相手のカードを自分のカードへドロップ）
         const currentTargetValue = gameState.cards[targetPlayer][targetCardId];
-        if (targetPlayer === gameState.currentPlayer && currentTargetValue > 0) {
+        if (!gameState.customRules.disablePull && targetPlayer === gameState.currentPlayer && currentTargetValue > 0) {
           executePull(targetPlayer, dragSource.player, targetCardId, dragSource.cardId);
           actionExecuted = true;
         }
@@ -354,12 +378,12 @@ function highlightValidTargets(dragPlayer, cardId, value) {
       // 自分のカードをドラッグ：攻撃（相手の1以上）または譲渡（自分のもう一方）
       if (slotPlayer !== dragPlayer && slotValue > 0) {
         slot.style.borderColor = 'rgba(255, 59, 48, 0.4)';
-      } else if (slotPlayer === dragPlayer && slotCardId !== cardId && value >= 1) {
+      } else if (!gameState.customRules.disableTransfer && slotPlayer === dragPlayer && slotCardId !== cardId && value >= 1) {
         slot.style.borderColor = 'rgba(52, 199, 89, 0.4)';
       }
     } else {
       // 相手のカードをドラッグ：引き込み（自分の1以上）
-      if (slotPlayer === gameState.currentPlayer && slotValue > 0) {
+      if (!gameState.customRules.disablePull && slotPlayer === gameState.currentPlayer && slotValue > 0) {
         slot.style.borderColor = 'rgba(255, 204, 0, 0.4)';
       }
     }
@@ -551,46 +575,50 @@ function executeCpuTurn() {
   }
 
   // 2. 譲渡の手
-  for (const sourceCardId of ['A', 'B']) {
-    const sourceVal = cpuCards[sourceCardId];
-    if (sourceVal < 1) continue; // 1以上なら譲渡可能
+  if (!gameState.customRules.disableTransfer) {
+    for (const sourceCardId of ['A', 'B']) {
+      const sourceVal = cpuCards[sourceCardId];
+      if (sourceVal < 1) continue; // 1以上なら譲渡可能
 
-    const targetCardId = sourceCardId === 'A' ? 'B' : 'A';
-    const targetVal = cpuCards[targetCardId];
+      const targetCardId = sourceCardId === 'A' ? 'B' : 'A';
+      const targetVal = cpuCards[targetCardId];
 
-    let transferAmount = 0;
-    if (sourceVal === 1 || sourceVal === 2 || sourceVal === 3) transferAmount = 1;
-    else if (sourceVal === 4) transferAmount = 2;
+      let transferAmount = 0;
+      if (sourceVal === 1 || sourceVal === 2 || sourceVal === 3) transferAmount = 1;
+      else if (sourceVal === 4) transferAmount = 2;
 
-    // 譲渡シミュレーション
-    const nextTargetVal = calculateCardValue(targetVal + transferAmount);
+      // 譲渡シミュレーション
+      const nextTargetVal = calculateCardValue(targetVal + transferAmount);
 
-    validMoves.push({
-      type: 'transfer',
-      from: sourceCardId,
-      to: targetCardId,
-      score: evaluateTransferResult(sourceCardId, targetCardId, sourceVal, targetVal, nextTargetVal)
-    });
+      validMoves.push({
+        type: 'transfer',
+        from: sourceCardId,
+        to: targetCardId,
+        score: evaluateTransferResult(sourceCardId, targetCardId, sourceVal, targetVal, nextTargetVal)
+      });
+    }
   }
 
   // 3. 引き込みの手
-  for (const cpuCardId of ['A', 'B']) {
-    const cpuVal = cpuCards[cpuCardId];
-    if (cpuVal === 0) continue; // 消滅カードへは引き込めない
+  if (!gameState.customRules.disablePull) {
+    for (const cpuCardId of ['A', 'B']) {
+      const cpuVal = cpuCards[cpuCardId];
+      if (cpuVal === 0) continue; // 消滅カードへは引き込めない
 
-    for (const playerCardId of ['A', 'B']) {
-      const playerVal = playerCards[playerCardId];
-      if (playerVal === 0) continue; // 消滅カードからは引き込めない
+      for (const playerCardId of ['A', 'B']) {
+        const playerVal = playerCards[playerCardId];
+        if (playerVal === 0) continue; // 消滅カードからは引き込めない
 
-      // 引き込みシミュレーション
-      const nextCpuVal = calculateCardValue(cpuVal + playerVal);
+        // 引き込みシミュレーション
+        const nextCpuVal = calculateCardValue(cpuVal + playerVal);
 
-      validMoves.push({
-        type: 'pull',
-        from: playerCardId,
-        to: cpuCardId,
-        score: evaluatePullResult(cpuCardId, cpuVal, nextCpuVal)
-      });
+        validMoves.push({
+          type: 'pull',
+          from: playerCardId,
+          to: cpuCardId,
+          score: evaluatePullResult(cpuCardId, cpuVal, nextCpuVal)
+        });
+      }
     }
   }
 

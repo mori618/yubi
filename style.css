@@ -90,6 +90,57 @@ body {
   padding: 24px;
 }
 
+.settings-panel {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.settings-panel h3 {
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.setting-item {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.setting-item.checkbox-item {
+  justify-content: flex-start;
+}
+
+.setting-item label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-item select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.setting-item select:focus {
+  background: rgba(0, 0, 0, 0.1);
+}
+
 /* 画面制御 */
 .screen {
   display: none;
