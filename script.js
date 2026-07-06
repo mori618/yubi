@@ -16,6 +16,7 @@ const gameState = {
   },
   explodedCards: new Set(),
   customRules: {
+    cpuDifficulty: 'strong',
     initialValueMin: 1,
     initialValueMax: 1,
     maxValue: 5,
@@ -61,6 +62,7 @@ const p2Section = document.getElementById('player2-section');
 const p2Name = document.getElementById('p2-name');
 
 // ルール設定用要素
+const ruleCpuDifficulty = document.getElementById('rule-cpu-difficulty');
 const ruleInitMin = document.getElementById('rule-initial-value-min');
 const ruleInitMax = document.getElementById('rule-initial-value-max');
 const ruleMaxValue = document.getElementById('rule-max-value');
@@ -111,6 +113,7 @@ function init() {
 // ゲーム開始
 function startGame(mode) {
   // 設定を読み取る
+  gameState.customRules.cpuDifficulty = ruleCpuDifficulty.value;
   gameState.customRules.initialValueMin = parseInt(ruleInitMin.value, 10);
   gameState.customRules.initialValueMax = Math.max(gameState.customRules.initialValueMin, parseInt(ruleInitMax.value, 10));
   gameState.customRules.maxValue = parseInt(ruleMaxValue.value, 10);
@@ -773,121 +776,323 @@ function addLog(speaker, text, type) {
 }
 
 // ==========================================
-// CPU (AI) の思考ロジック
+// CPU (AI) の思考ロジック (Minimax / Alpha-Beta)
 // ==========================================
+
+// --- シミュレーション用純粋関数 ---
+
+function cloneState(state) {
+  return {
+    cards: {
+      p1: { ...state.cards.p1 },
+      p2: { ...state.cards.p2 }
+    },
+    limits: {
+      p1: { ...state.limits.p1 },
+      p2: { ...state.limits.p2 }
+    },
+    currentPlayer: state.currentPlayer,
+    customRules: state.customRules, // ルールは不変なので参照でOK
+    // 勝敗状態は別途判定するため不要
+  };
+}
+
+function simulateVictoryCheck(state) {
+  let p1Zeros = 0;
+  let p2Zeros = 0;
+  const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
+
+  if (state.customRules.loseCount === 'leader') {
+    if (state.cards.p1['A'] === 0) p1Zeros = 999;
+    if (state.cards.p2['A'] === 0) p2Zeros = 999;
+  } else {
+    labels.forEach(id => {
+      if (state.cards.p1[id] === 0) p1Zeros++;
+      if (state.cards.p2[id] === 0) p2Zeros++;
+    });
+  }
+
+  let requiredZeros = state.customRules.cardCount;
+  if (state.customRules.loseCount !== 'all' && state.customRules.loseCount !== 'leader') {
+    requiredZeros = parseInt(state.customRules.loseCount, 10);
+    if (requiredZeros > state.customRules.cardCount) requiredZeros = state.customRules.cardCount;
+  }
+  
+  if (state.customRules.loseCount === 'leader') {
+      requiredZeros = 999;
+  }
+
+  const p1Defeated = p1Zeros >= requiredZeros;
+  const p2Defeated = p2Zeros >= requiredZeros;
+
+  if (p1Defeated && p2Defeated) return 'draw';
+  if (p1Defeated) return state.customRules.reverseWin ? 'p1' : 'p2';
+  if (p2Defeated) return state.customRules.reverseWin ? 'p2' : 'p1';
+  return null;
+}
+
+function simulateCalculateVal(state, val) {
+  if (state.customRules.zeroWhenFiveOrMore && val >= state.customRules.maxValue) return 0;
+  return val >= state.customRules.maxValue ? val - state.customRules.maxValue : val;
+}
+
+function simulateChainExplosion(state, explodedSet) {
+  if (!state.customRules.chainExplosion) return;
+  
+  const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
+  let hasNewExplosion = true;
+
+  while (hasNewExplosion) {
+    hasNewExplosion = false;
+    const toExplode = [];
+
+    ['p1', 'p2'].forEach(p => {
+      labels.forEach(id => {
+        if (state.cards[p][id] === 0 && !explodedSet.has(`${p}-${id}`)) {
+          toExplode.push({ p, id });
+        }
+      });
+    });
+
+    if (toExplode.length > 0) {
+      toExplode.forEach(c => {
+        explodedSet.add(`${c.p}-${c.id}`);
+        // 生きている全カードに+1
+        ['p1', 'p2'].forEach(tp => {
+          labels.forEach(tid => {
+            if (state.cards[tp][tid] > 0) {
+              state.cards[tp][tid] = simulateCalculateVal(state, state.cards[tp][tid] + 1);
+            }
+          });
+        });
+      });
+      hasNewExplosion = true; // 新しい0が生まれたかもしれないので再ループ
+    }
+  }
+}
+
+function simulateMove(baseState, move) {
+  const state = cloneState(baseState);
+  const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
+  const p = state.currentPlayer;
+  const op = p === 'p1' ? 'p2' : 'p1';
+
+  const explodedSet = new Set();
+  // 初期状態ですでに0のものは爆発済みとしてセット
+  ['p1', 'p2'].forEach(player => {
+    labels.forEach(id => {
+      if (state.cards[player][id] === 0) explodedSet.add(`${player}-${id}`);
+    });
+  });
+
+  if (move.type === 'attack') {
+    const sVal = state.cards[p][move.from];
+    const tVal = state.cards[op][move.to];
+    let newVal;
+    if (state.customRules.multiplyAttack) {
+      newVal = simulateCalculateVal(state, sVal * tVal);
+    } else {
+      newVal = simulateCalculateVal(state, sVal + tVal);
+    }
+    state.cards[op][move.to] = newVal;
+  } 
+  else if (move.type === 'transfer') {
+    const sVal = state.cards[p][move.from];
+    const tVal = Math.floor(sVal / 2);
+    const remain = sVal - tVal;
+    
+    if (state.customRules.allowSelfAdd) {
+       // self-add logic
+       const curTVal = state.cards[p][move.to];
+       state.cards[p][move.to] = simulateCalculateVal(state, sVal + curTVal);
+       state.cards[p][move.from] = 0;
+    } else {
+       state.cards[p][move.to] = tVal;
+       state.cards[p][move.from] = remain;
+    }
+    if (state.limits[p].transfer > 0) state.limits[p].transfer--;
+  } 
+  else if (move.type === 'pull') {
+    const sVal = state.cards[op][move.from];
+    const curVal = state.cards[p][move.to];
+    state.cards[p][move.to] = simulateCalculateVal(state, curVal + sVal);
+    if (state.limits[p].pull > 0) state.limits[p].pull--;
+  } 
+  else if (move.type === 'pass') {
+    if (state.limits[p].pass > 0) state.limits[p].pass--;
+  }
+
+  // 爆発処理
+  simulateChainExplosion(state, explodedSet);
+  
+  // ターン交代
+  state.currentPlayer = op;
+
+  return state;
+}
+
+function generateLegalMoves(state) {
+  const p = state.currentPlayer;
+  const op = p === 'p1' ? 'p2' : 'p1';
+  const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
+  const moves = [];
+
+  labels.forEach(fromId => {
+    const sVal = state.cards[p][fromId];
+    if (sVal === 0) return;
+
+    // Attack
+    labels.forEach(toId => {
+      if (state.cards[op][toId] !== 0) {
+        moves.push({ type: 'attack', from: fromId, to: toId });
+      }
+    });
+
+    // Transfer
+    if (state.limits[p].transfer !== 0 && sVal >= 1) {
+      labels.forEach(toId => {
+        if (fromId !== toId) {
+          const tVal = state.cards[p][toId];
+          if (tVal === 0) {
+            moves.push({ type: 'transfer', from: fromId, to: toId }); // 復活譲渡
+          } else if (sVal >= 2 && !state.customRules.allowSelfAdd) {
+            moves.push({ type: 'transfer', from: fromId, to: toId }); // 分配
+          } else if (state.customRules.allowSelfAdd) {
+            moves.push({ type: 'transfer', from: fromId, to: toId }); // 自己加算
+          }
+        }
+      });
+    }
+
+    // Pull
+    if (state.limits[p].pull !== 0) {
+      labels.forEach(oppId => {
+        if (state.cards[op][oppId] !== 0) {
+           moves.push({ type: 'pull', from: oppId, to: fromId });
+        }
+      });
+    }
+  });
+
+  // Pass
+  if (state.limits[p].pass !== 0) {
+    moves.push({ type: 'pass' });
+  }
+  
+  return moves;
+}
+
+// 評価関数: 正の数ならp2有利、負の数ならp1有利
+function evaluateBoard(state) {
+  const winner = simulateVictoryCheck(state);
+  if (winner === 'p2') return 10000;
+  if (winner === 'p1') return -10000;
+  if (winner === 'draw') return 0;
+
+  const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
+  let p1Score = 0;
+  let p2Score = 0;
+
+  // 生存カード数や、リーダーの生存状態による加点
+  labels.forEach(id => {
+    const p1v = state.cards.p1[id];
+    const p2v = state.cards.p2[id];
+    
+    if (p1v > 0) p1Score += 50;
+    if (p2v > 0) p2Score += 50;
+    
+    // リーダールールの場合、リーダーへの圧力を評価
+    if (state.customRules.loseCount === 'leader' && id === 'A') {
+       if (p1v > 0) p1Score += 200;
+       if (p2v > 0) p2Score += 200;
+    }
+    
+    // 1は防御力が高いので少しボーナス
+    if (p1v === 1) p1Score += 10;
+    if (p2v === 1) p2Score += 10;
+  });
+
+  return p2Score - p1Score;
+}
+
+function minimax(state, depth, alpha, beta, isMaximizing) {
+  const winner = simulateVictoryCheck(state);
+  if (winner !== null || depth === 0) {
+    return evaluateBoard(state);
+  }
+
+  const moves = generateLegalMoves(state);
+  if (moves.length === 0) {
+    return evaluateBoard(state);
+  }
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of moves) {
+      const nextState = simulateMove(state, move);
+      const ev = minimax(nextState, depth - 1, alpha, beta, false);
+      maxEval = Math.max(maxEval, ev);
+      alpha = Math.max(alpha, ev);
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const move of moves) {
+      const nextState = simulateMove(state, move);
+      const ev = minimax(nextState, depth - 1, alpha, beta, true);
+      minEval = Math.min(minEval, ev);
+      beta = Math.min(beta, ev);
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
 function executeCpuTurn() {
   if (gameState.isGameOver) return;
-
-  const cpuCards = gameState.cards.p2;
-  const playerCards = gameState.cards.p1;
-  const validMoves = [];
-
-  // 可能なすべての手をリストアップする
-  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
-  // 1. 攻撃の手
-  for (const cpuCardId of labels) {
-    const cpuVal = cpuCards[cpuCardId];
-    if (cpuVal === 0) continue; // 消滅カードからは攻撃不可
-
-    for (const playerCardId of labels) {
-      const playerVal = playerCards[playerCardId];
-      if (playerVal === 0) continue; // 消滅カードへは攻撃不可
-
-      // 攻撃シミュレーション
-      let rawSimDamage = cpuVal + playerVal;
-      if (gameState.customRules.multiplyAttack) rawSimDamage = cpuVal * playerVal;
-      const nextPlayerVal = calculateCardValue(rawSimDamage);
-      
-      validMoves.push({
-        type: 'attack',
-        from: cpuCardId,
-        to: playerCardId,
-        score: evaluateAttackResult(playerCardId, playerVal, nextPlayerVal)
-      });
-    }
+  
+  // 探索深さの決定
+  let maxDepth = 4;
+  if (gameState.customRules.cpuDifficulty === 'normal') {
+    maxDepth = 1; // 普通は1手先のみ
+  } else {
+    // 強い場合は数手先を読むが、カード数が多いと重くなるので調整
+    if (gameState.customRules.cardCount >= 3) maxDepth = 3;
+    if (gameState.customRules.chainExplosion && gameState.customRules.cardCount >= 3) maxDepth = 3;
   }
 
-  // 2. 譲渡の手
-  if (gameState.limits.p2.transfer !== 0) {
-    for (const sourceCardId of labels) {
-      const sourceVal = cpuCards[sourceCardId];
-      if (sourceVal < 1) continue; // 1以上なら譲渡可能
-
-      for (const targetCardId of labels) {
-        if (sourceCardId === targetCardId) continue;
-      const targetVal = cpuCards[targetCardId];
-
-      let transferAmount = 0;
-      if (gameState.customRules.allowSelfAdd) {
-        transferAmount = sourceVal;
-      } else {
-        if (sourceVal === 1 || sourceVal === 2 || sourceVal === 3) transferAmount = 1;
-        else if (sourceVal === 4) transferAmount = 2;
-        else transferAmount = Math.floor(sourceVal/2);
-      }
-
-      // 譲渡シミュレーション
-      const nextTargetVal = calculateCardValue(targetVal + transferAmount);
-
-      validMoves.push({
-        type: 'transfer',
-        from: sourceCardId,
-        to: targetCardId,
-        score: evaluateTransferResult(sourceCardId, targetCardId, sourceVal, targetVal, nextTargetVal)
-      });
-      }
-    }
-  }
-
-  // 3. 引き込みの手
-  if (gameState.limits.p2.pull !== 0) {
-    for (const cpuCardId of labels) {
-      const cpuVal = cpuCards[cpuCardId];
-      if (cpuVal === 0) continue; // 消滅カードへは引き込めない
-
-      for (const playerCardId of labels) {
-        const playerVal = playerCards[playerCardId];
-        if (playerVal === 0) continue; // 消滅カードからは引き込めない
-
-        // 引き込みシミュレーション
-        const nextCpuVal = calculateCardValue(cpuVal + playerVal);
-
-        validMoves.push({
-          type: 'pull',
-          from: playerCardId,
-          to: cpuCardId,
-          score: evaluatePullResult(cpuCardId, cpuVal, nextCpuVal)
-        });
-      }
-    }
-  }
-
-  if (validMoves.length === 0) {
-    if (gameState.limits.p2.pass !== 0) {
-      executePass('p2');
-    } else {
-      endTurn();
-    }
+  const moves = generateLegalMoves(gameState);
+  
+  if (moves.length === 0) {
+    endTurn();
     return;
   }
 
-  // パスのシミュレーション
-  if (gameState.limits.p2.pass !== 0) {
-    // パスのスコアは0（何もしない）。もし他の手が全部マイナスならパスを選ぶ。
-    validMoves.push({ type: 'pass', score: 0 });
+  // 1手先を実際にシミュレートして、その後のMinimaxスコアを求める
+  let bestScore = -Infinity;
+  let bestMoves = [];
+
+  for (const move of moves) {
+    const nextState = simulateMove(gameState, move);
+    // CPU(p2)はmaximizingPlayer。次のターンはp1なのでfalse
+    const score = minimax(nextState, maxDepth - 1, -Infinity, Infinity, false);
+    
+    // 少しだけランダム性を入れて同じ手ばかり打たないようにする（スコアに微小な乱数を足す）
+    const randomizedScore = score + (Math.random() * 2 - 1);
+
+    if (randomizedScore > bestScore) {
+      bestScore = randomizedScore;
+      bestMoves = [move];
+    } else if (Math.abs(randomizedScore - bestScore) < 0.1) {
+      bestMoves.push(move);
+    }
   }
 
-  // スコア順にソート（降順）
-  validMoves.sort((a, b) => b.score - a.score);
-
-  // 同率一位の手がある場合はランダムに選ぶ
-  const topScore = validMoves[0].score;
-  const bestMoves = validMoves.filter(move => move.score === topScore);
   const chosenMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
 
   // アクションの実行
   if (chosenMove.type === 'attack') {
-    // 画面上にビジュアル演出を加えるために少し待機
     visualizeCpuAction('p2', chosenMove.from, 'p1', chosenMove.to);
     setTimeout(() => {
       executeAttack('p2', 'p1', chosenMove.from, chosenMove.to);
@@ -912,152 +1117,6 @@ function executeCpuTurn() {
   }
 }
 
-// 攻撃手の評価関数
-function evaluateAttackResult(targetCardId, originalVal, nextVal) {
-  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
-  
-  // リーダールールの場合のトドメ判定
-  if (gameState.customRules.loseCount === 'leader') {
-    if (targetCardId === 'A' && nextVal === 0) {
-      return gameState.customRules.reverseWin ? -1000 : 1000;
-    }
-  }
-
-  let p1Zeros = 0;
-  labels.forEach(id => {
-    if (id === targetCardId) {
-      if (nextVal === 0) p1Zeros++;
-    } else {
-      if (gameState.cards.p1[id] === 0) p1Zeros++;
-    }
-  });
-
-  if (gameState.customRules.loseCount !== 'leader') {
-    let requiredZeros = gameState.customRules.cardCount;
-    if (gameState.customRules.loseCount !== 'all') {
-      requiredZeros = parseInt(gameState.customRules.loseCount, 10);
-      if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
-    }
-    if (p1Zeros >= requiredZeros) {
-      return gameState.customRules.reverseWin ? -1000 : 1000;
-    }
-  }
-
-  // 2. 相手の1枚を0にする（全滅ではないが数的有利）
-  if (nextVal === 0) {
-    // リーダールールの場合はリーダーを狙う価値が通常より高い(トドメにならない場合でも)
-    if (gameState.customRules.loseCount === 'leader' && targetCardId === 'A') {
-      return 200;
-    }
-    return 100;
-  }
-
-  // 3. 相手のカードの数値を高くしすぎない（4などは相手が譲渡で分配しやすくなるため避ける）
-  if (nextVal === 4) {
-    return 10;
-  }
-
-  // 4. 相手のカードの数値を2や3など、譲渡の起点にしやすい中途半端な値にする
-  if (nextVal === 2 || nextVal === 3) {
-    return 20;
-  }
-
-  // 5. 相手のカードの数値を1にする（譲渡できなくなるため有利）
-  if (nextVal === 1) {
-    return 50;
-  }
-
-  return 0;
-}
-
-// 譲渡手の評価関数
-function evaluateTransferResult(sourceCardId, targetCardId, sourceOriginalVal, targetOriginalVal, targetNextVal) {
-  // 1. 味方の消滅カード(0)を復活させる手は価値が高い
-  if (targetOriginalVal === 0 && targetNextVal > 0) {
-    return 200; // 0のカードを復活させるのは非常に強力
-  }
-
-  // 2. 自分のカードが0になるような危険な譲渡（譲渡して5以上になり0になる等）は避ける
-  if (targetNextVal === 0) {
-    return -50; // 自殺行為
-  }
-
-  // 3. 譲渡後に両方のカードの数値がバランスよくなる手（例：2と2にするなど）
-  let sourceNextVal = 0;
-  if (sourceOriginalVal === 1) sourceNextVal = 0;
-  else if (sourceOriginalVal === 2) sourceNextVal = 1;
-  else if (sourceOriginalVal === 3) sourceNextVal = 2;
-  else if (sourceOriginalVal === 4) sourceNextVal = 2;
-
-  // 両方が0になるような最悪の譲渡（全滅）は避ける
-  if (sourceNextVal === 0 && targetNextVal === 0) {
-    return -1000;
-  }
-
-  // 数値が均等に近い方が、防御面・攻撃面で有利なことが多い
-  const balanceDiff = Math.abs(sourceNextVal - targetNextVal);
-  if (balanceDiff === 0) {
-    return 40;
-  } else if (balanceDiff === 1) {
-    return 30;
-  }
-
-  return 10;
-}
-
-// 引き込み手の評価関数
-function evaluatePullResult(myCardId, originalVal, nextVal) {
-  const labels = ['A', 'B', 'C', 'D'].slice(0, gameState.customRules.cardCount);
-  
-  if (gameState.customRules.loseCount === 'leader') {
-    if (myCardId === 'A' && nextVal === 0) {
-      return gameState.customRules.reverseWin ? 1000 : -1000;
-    }
-  }
-
-  let p2Zeros = 0;
-  labels.forEach(id => {
-    if (id === myCardId) {
-      if (nextVal === 0) p2Zeros++;
-    } else {
-      if (gameState.cards.p2[id] === 0) p2Zeros++;
-    }
-  });
-
-  if (gameState.customRules.loseCount !== 'leader') {
-    let requiredZeros = gameState.customRules.cardCount;
-    if (gameState.customRules.loseCount !== 'all') {
-      requiredZeros = parseInt(gameState.customRules.loseCount, 10);
-      if (requiredZeros > gameState.customRules.cardCount) requiredZeros = gameState.customRules.cardCount;
-    }
-    if (p2Zeros >= requiredZeros) {
-      return gameState.customRules.reverseWin ? 1000 : -1000;
-    }
-  }
-
-  // 2. 自分のカードの数値をちょうど0（消滅）にするのは、相方が生きている場合はターゲットを減らせるが、自分も弱体化するため低評価
-  if (nextVal === 0) {
-    return 10;
-  }
-
-  // 3. 自分の数値を1にする（相手から譲渡・攻撃されにくく、安全）
-  if (nextVal === 1) {
-    return 60;
-  }
-
-  // 4. 自分の数値を2か3にする（譲渡に使えて使い勝手が良い）
-  if (nextVal === 2 || nextVal === 3) {
-    return 40;
-  }
-
-  // 5. 自分の数値を4にする（増やしすぎて危険値）
-  if (nextVal === 4) {
-    return 20;
-  }
-
-  return 0;
-}
-
 // CPUのドラッグ操作を視覚的に表現するエフェクト
 function visualizeCpuAction(fromPlayer, fromCardId, toPlayer, toCardId) {
   const fromSlot = document.getElementById(`${fromPlayer}-card-${fromCardId}`);
@@ -1069,7 +1128,6 @@ function visualizeCpuAction(fromPlayer, fromCardId, toPlayer, toCardId) {
     setTimeout(() => {
       fromSlot.classList.remove('dragging');
       if (fromPlayer !== toPlayer) {
-        // ドラッグ元が相手でドロップ先が自分なら引き込み
         if (fromPlayer === 'p1' && toPlayer === 'p2') {
           toSlot.classList.add('drop-target-pull');
         } else {
