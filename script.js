@@ -255,6 +255,7 @@ function startGame(mode) {
   if (gameState.customRules.loseValues.length === 0) {
     gameState.customRules.loseValues = [0]; // 最低限0は含めるか、空でも良いが基本ルールとして0をデフォルトにする
   }
+  }
 
   gameState.mode = mode;
   p2Name.textContent = mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
