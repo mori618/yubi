@@ -458,7 +458,7 @@ function executeAttack(attackerPlayerId, targetPlayerId, attackerCardId, targetC
   
   addLog(
     attackerPlayerId,
-    `${attackerName}が${getHandName(attacke)}(指${attackerVal}本)で、${targetName}の${getHandName(targe)}(指${targetVal}本)を攻撃！結果: → ${nextTargetVal}本`,
+    `${attackerName}が${getHandName(attackerCardId)}(指${attackerVal}本)で、${targetName}の${getHandName(targetCardId)}(指${targetVal}本)を攻撃！結果: → ${nextTargetVal}本`,
     attackerPlayerId
   );
 
@@ -497,7 +497,7 @@ function executeTransfer(playerId, sourceCardId, targetCardId) {
   const playerName = getPlayerName(playerId);
   addLog(
     playerId,
-    `${playerName}が${getHandName(sourc)}(指${sourceVal}本)から${getHandName(targe)}(指${targetVal}本)へ指を譲渡。結果: 送り側→ ${newSourceVal}本, 受け取り側→ ${newTargetVal}本`,
+    `${playerName}が${getHandName(sourceCardId)}(指${sourceVal}本)から${getHandName(targetCardId)}(指${targetVal}本)へ指を譲渡。結果: 送り側→ ${newSourceVal}本, 受け取り側→ ${newTargetVal}本`,
     playerId
   );
 
@@ -523,7 +523,7 @@ function executePull(pullerPlayerId, targetPlayerId, pullerCardId, targetCardId)
 
   addLog(
     pullerPlayerId,
-    `${pullerName}が相手の${getHandName(targe)}(指${targetVal}本)を自分の${getHandName(pulle)}(指${pullerVal}本)に引き込んで加算！結果: 自分の手→ ${nextPullerVal}本 (相手は変化なし)`,
+    `${pullerName}が相手の${getHandName(targetCardId)}(指${targetVal}本)を自分の${getHandName(pullerCardId)}(指${pullerVal}本)に引き込んで加算！結果: 自分の手→ ${nextPullerVal}本 (相手は変化なし)`,
     pullerPlayerId
   );
 
