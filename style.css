@@ -351,7 +351,16 @@ body {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   user-select: none;
   background: rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
+
+[data-player="p1"].card-slot {
+  border-color: rgba(2, 132, 199, 0.3);
+}
+
+[data-player="p2"].card-slot {
+  border-color: rgba(219, 39, 119, 0.3);}
 
 /* ターンプレイヤーかつ数値が1以上の時にドラッグ可能 */
 .active-turn .card-slot:not(.extinguished) {
