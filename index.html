@@ -24,6 +24,109 @@
       <div class="setup-content">
         <h2>ゲームモードを選択してください</h2>
         
+        <div class="mode-buttons">
+          <button id="btn-campaign" class="btn btn-campaign" style="background-color:#9b59b6; color:white; border:none;">ステージ攻略モード</button>
+          <button id="btn-local" class="btn btn-primary">ローカル2人対戦</button>
+          <button id="btn-cpu" class="btn btn-secondary">VS CPU（対戦相手：AI）</button>
+          <button id="btn-setup-rules" class="btn btn-info">ルール確認</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ステージ選択画面 -->
+    <div id="stage-select-screen" class="screen hidden">
+      <div class="setup-content" style="max-width: 800px; width: 100%;">
+        <h2>ステージ攻略モード</h2>
+        <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">クリアするごとに新しいルールや難しい組み合わせのステージが解放されます。</p>
+        <div id="stage-grid" class="stage-grid">
+          <!-- JSで動的にボタンを生成 -->
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+          <button id="btn-back-to-title" class="btn btn-secondary">タイトルに戻る</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- メインゲーム画面 -->
+    <div id="game-screen" class="screen">
+      <!-- ターン表示 -->
+      <div class="status-panel">
+        <div id="stage-info-bar" class="stage-info-bar hidden">
+          <strong id="stage-title">Stage 1: 基本のキ</strong>
+          <span id="stage-desc">相手の手を5以上にして消そう。</span>
+        </div>
+        <div id="turn-indicator" class="turn-indicator">プレイヤー1のターン</div>
+      </div>
+
+      <!-- プレイエリア -->
+      <div class="play-area">
+        <!-- プレイヤー2 / CPU（上側） -->
+        <div class="player-section" id="player2-section" data-player="p2">
+          <h3 class="player-name" id="p2-name">プレイヤー2</h3>
+          <div class="player-actions" id="p2-actions">
+            <span class="action-limit" id="p2-limit-transfer">譲渡: 無制限</span>
+            <span class="action-limit" id="p2-limit-pull">引込: 無制限</span>
+            <button class="btn pass-btn" id="p2-btn-pass">パス (0)</button>
+          </div>
+          <div class="cards-container" id="p2-cards-container">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+
+        <!-- VS表示・中央ライン -->
+        <div class="vs-divider">
+          <span>VS</span>
+        </div>
+
+        <!-- プレイヤー1（下側） -->
+        <div class="player-section" id="player1-section" data-player="p1">
+          <h3 class="player-name" id="p1-name">プレイヤー1</h3>
+          <div class="player-actions" id="p1-actions">
+            <span class="action-limit" id="p1-limit-transfer">譲渡: 無制限</span>
+            <span class="action-limit" id="p1-limit-pull">引込: 無制限</span>
+            <button class="btn pass-btn" id="p1-btn-pass">パス (0)</button>
+          </div>
+          <div class="cards-container" id="p1-cards-container">
+            <!-- JSで動的に生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 下部コントロール・ログパネル -->
+      <div class="bottom-panel">
+        <div class="control-buttons">
+          <button id="btn-show-rules" class="btn btn-info">ルール</button>
+          <button id="btn-show-log" class="btn btn-info">ログ</button>
+          <button id="btn-restart" class="btn btn-danger">タイトルへ戻る</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ゲーム終了画面（モーダル） -->
+    <div id="gameover-screen" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h2 id="winner-message">プレイヤー1の勝利！</h2>
+        <p>対戦お疲れ様でした。</p>
+        <button id="btn-next-stage" class="btn btn-campaign hidden" style="background-color:#9b59b6; color:white; border:none; margin-bottom: 10px; width: 100%;">次のステージへ</button>
+        <button id="btn-rematch" class="btn btn-primary" style="width: 100%;">もう一度遊ぶ</button>
+        <button id="btn-back-to-select" class="btn btn-secondary hidden" style="width: 100%; margin-top: 10px;">ステージ選択に戻る</button>
+      </div>
+    </div>
+
+    <!-- ルールモーダル -->
+    <div id="rules-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 600px; text-align: left; max-height: 90vh; overflow-y: auto;">
+        <h2 style="text-align: center; margin-bottom: 20px;">ゲームルール</h2>
+        <div class="rules-summary" style="margin-bottom: 20px;">
+          <ul>
+            <li>各プレイヤーは「左手」「右手」の2つのカード（初期状態は1）を持ちます。</li>
+            <li><strong>攻撃（相手へドラッグ）</strong>: 自分の数値を相手に加算。5以上なら5を引いた数が残ります。</li>
+            <li><strong>譲渡（自分のもう一方へドラッグ）</strong>: 自分の数値を分配します。</li>
+            <li><strong>引き込み（相手から自分へドラッグ）</strong>: 相手の数値を自分に加算します（相手は変化なし）。</li>
+            <li>先に相手の両手を「0」にした方の勝利です。</li>
+          </ul>
+        </div>
+
         <!-- ルールカスタマイズ設定 -->
         <div class="settings-panel">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
@@ -189,108 +292,6 @@
           </div>
         </div>
 
-        <div class="mode-buttons">
-          <button id="btn-campaign" class="btn btn-campaign" style="background-color:#9b59b6; color:white; border:none;">ステージ攻略モード</button>
-          <button id="btn-local" class="btn btn-primary">ローカル2人対戦</button>
-          <button id="btn-cpu" class="btn btn-secondary">VS CPU（対戦相手：AI）</button>
-          <button id="btn-setup-rules" class="btn btn-info">ルール確認</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ステージ選択画面 -->
-    <div id="stage-select-screen" class="screen hidden">
-      <div class="setup-content" style="max-width: 800px; width: 100%;">
-        <h2>ステージ攻略モード</h2>
-        <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">クリアするごとに新しいルールや難しい組み合わせのステージが解放されます。</p>
-        <div id="stage-grid" class="stage-grid">
-          <!-- JSで動的にボタンを生成 -->
-        </div>
-        <div style="text-align: center; margin-top: 30px;">
-          <button id="btn-back-to-title" class="btn btn-secondary">タイトルに戻る</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- メインゲーム画面 -->
-    <div id="game-screen" class="screen">
-      <!-- ターン表示 -->
-      <div class="status-panel">
-        <div id="stage-info-bar" class="stage-info-bar hidden">
-          <strong id="stage-title">Stage 1: 基本のキ</strong>
-          <span id="stage-desc">相手の手を5以上にして消そう。</span>
-        </div>
-        <div id="turn-indicator" class="turn-indicator">プレイヤー1のターン</div>
-      </div>
-
-      <!-- プレイエリア -->
-      <div class="play-area">
-        <!-- プレイヤー2 / CPU（上側） -->
-        <div class="player-section" id="player2-section" data-player="p2">
-          <h3 class="player-name" id="p2-name">プレイヤー2</h3>
-          <div class="player-actions" id="p2-actions">
-            <span class="action-limit" id="p2-limit-transfer">譲渡: 無制限</span>
-            <span class="action-limit" id="p2-limit-pull">引込: 無制限</span>
-            <button class="btn pass-btn" id="p2-btn-pass">パス (0)</button>
-          </div>
-          <div class="cards-container" id="p2-cards-container">
-            <!-- JSで動的に生成 -->
-          </div>
-        </div>
-
-        <!-- VS表示・中央ライン -->
-        <div class="vs-divider">
-          <span>VS</span>
-        </div>
-
-        <!-- プレイヤー1（下側） -->
-        <div class="player-section" id="player1-section" data-player="p1">
-          <h3 class="player-name" id="p1-name">プレイヤー1</h3>
-          <div class="player-actions" id="p1-actions">
-            <span class="action-limit" id="p1-limit-transfer">譲渡: 無制限</span>
-            <span class="action-limit" id="p1-limit-pull">引込: 無制限</span>
-            <button class="btn pass-btn" id="p1-btn-pass">パス (0)</button>
-          </div>
-          <div class="cards-container" id="p1-cards-container">
-            <!-- JSで動的に生成 -->
-          </div>
-        </div>
-      </div>
-
-      <!-- 下部コントロール・ログパネル -->
-      <div class="bottom-panel">
-        <div class="control-buttons">
-          <button id="btn-show-rules" class="btn btn-info">ルール</button>
-          <button id="btn-show-log" class="btn btn-info">ログ</button>
-          <button id="btn-restart" class="btn btn-danger">タイトルへ戻る</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ゲーム終了画面（モーダル） -->
-    <div id="gameover-screen" class="modal-overlay hidden">
-      <div class="modal-content">
-        <h2 id="winner-message">プレイヤー1の勝利！</h2>
-        <p>対戦お疲れ様でした。</p>
-        <button id="btn-next-stage" class="btn btn-campaign hidden" style="background-color:#9b59b6; color:white; border:none; margin-bottom: 10px; width: 100%;">次のステージへ</button>
-        <button id="btn-rematch" class="btn btn-primary" style="width: 100%;">もう一度遊ぶ</button>
-        <button id="btn-back-to-select" class="btn btn-secondary hidden" style="width: 100%; margin-top: 10px;">ステージ選択に戻る</button>
-      </div>
-    </div>
-
-    <!-- ルールモーダル -->
-    <div id="rules-modal" class="modal-overlay">
-      <div class="modal-content" style="max-width: 500px; text-align: left;">
-        <h2 style="text-align: center; margin-bottom: 20px;">ゲームルール</h2>
-        <div class="rules-summary" style="margin-bottom: 20px;">
-          <ul>
-            <li>各プレイヤーは「左手」「右手」の2つのカード（初期状態は1）を持ちます。</li>
-            <li><strong>攻撃（相手へドラッグ）</strong>: 自分の数値を相手に加算。5以上なら5を引いた数が残ります。</li>
-            <li><strong>譲渡（自分のもう一方へドラッグ）</strong>: 自分の数値を分配します。</li>
-            <li><strong>引き込み（相手から自分へドラッグ）</strong>: 相手の数値を自分に加算します（相手は変化なし）。</li>
-            <li>先に相手の両手を「0」にした方の勝利です。</li>
-          </ul>
-        </div>
         <button id="btn-close-rules" class="btn btn-primary" style="width: 100%;">閉じる</button>
       </div>
     </div>
