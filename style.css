@@ -452,6 +452,26 @@ body {
   text-shadow: none !important;
 }
 
+/* 特殊勝利になった手 */
+.card-slot.special-win .card-inner {
+  border-color: #ffd700;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+.card-slot.special-win .card-value {
+  color: #ffd700 !important;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* 特殊敗北になった手 */
+.card-slot.special-lose .card-inner {
+  border-color: #ff3b30;
+  box-shadow: 0 0 15px rgba(255, 59, 48, 0.5);
+}
+.card-slot.special-lose .card-value {
+  color: #ff3b30 !important;
+  text-shadow: 0 0 10px rgba(255, 59, 48, 0.5) !important;
+}
+
 /* ドラッグ中の影排除と透過 */
 .card-slot.dragging {
   opacity: 0.25;
@@ -781,4 +801,103 @@ body {
 }
 .btn-warning:hover {
   background-color: #8e44ad;
+}
+
+/* ==========================================
+   ステージ攻略モード (Campaign) スタイル
+   ========================================== */
+
+/* ステージ選択グリッド */
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+}
+
+/* ステージボタン */
+.btn-stage {
+  padding: 15px 5px;
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-stage .stage-num {
+  font-size: 1.5rem;
+}
+
+/* ステージ状態ごとのスタイル */
+.btn-stage.cleared {
+  background: var(--p1-bg);
+  border-color: var(--p1-primary);
+  color: var(--p1-primary);
+}
+.btn-stage.cleared::after {
+  content: '★';
+  font-size: 0.8rem;
+  color: #fbbf24;
+  margin-top: 5px;
+}
+
+.btn-stage.current {
+  background: var(--color-warning);
+  color: white;
+  border-color: #d97706;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  animation: pulse-current 2s infinite;
+}
+
+@keyframes pulse-current {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.btn-stage.locked {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border-color: #cbd5e1;
+}
+
+.btn-stage:hover:not(.locked) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+/* ゲーム内ステージ情報バー */
+.stage-info-bar {
+  background: rgba(155, 89, 182, 0.1);
+  border: 1px solid rgba(155, 89, 182, 0.3);
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stage-info-bar strong {
+  color: #8e44ad;
+  font-size: 1.1rem;
+}
+
+.stage-info-bar span {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }

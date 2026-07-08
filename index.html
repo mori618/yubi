@@ -83,6 +83,16 @@
             </select>
           </div>
           
+          <div class="setting-item">
+            <label for="rule-win-values">勝ち（上がり）になる数字（カンマ区切りで複数指定可）</label>
+            <input type="text" id="rule-win-values" placeholder="例: 5, 10" style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+          </div>
+
+          <div class="setting-item">
+            <label for="rule-lose-values">負け（消滅）になる数字（基本は0。カンマ区切りで複数指定可）</label>
+            <input type="text" id="rule-lose-values" placeholder="例: 0, 5" value="0" style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
+          </div>
+          
           <div class="setting-item checkbox-item">
             <label>
               <input type="checkbox" id="rule-zero-on-five">
@@ -109,6 +119,26 @@
               <option value="1">1回まで</option>
               <option value="2">2回まで</option>
               <option value="3">3回まで</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="rule-attack-hand-restriction">動かす手の制限（攻撃・譲渡・引き込み元）</label>
+            <select id="rule-attack-hand-restriction">
+              <option value="none" selected>制限なし</option>
+              <option value="min">必ず小さい方を動かす</option>
+              <option value="max">必ず大きい方を動かす</option>
+              <option value="alternate">小さい方・大きい方を交互に動かす</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="rule-pull-target-restriction">引き込み対象の制限</label>
+            <select id="rule-pull-target-restriction">
+              <option value="none" selected>相手のどちらでも引き込める</option>
+              <option value="min">相手の小さい方しか引き込めない</option>
+              <option value="max">相手の大きい方しか引き込めない</option>
+              <option value="alternate">相手の小さい方・大きい方を交互にしか引き込めない</option>
             </select>
           </div>
 
@@ -160,9 +190,24 @@
         </div>
 
         <div class="mode-buttons">
+          <button id="btn-campaign" class="btn btn-campaign" style="background-color:#9b59b6; color:white; border:none;">ステージ攻略モード</button>
           <button id="btn-local" class="btn btn-primary">ローカル2人対戦</button>
           <button id="btn-cpu" class="btn btn-secondary">VS CPU（対戦相手：AI）</button>
           <button id="btn-setup-rules" class="btn btn-info">ルール確認</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ステージ選択画面 -->
+    <div id="stage-select-screen" class="screen hidden">
+      <div class="setup-content" style="max-width: 800px; width: 100%;">
+        <h2>ステージ攻略モード</h2>
+        <p style="text-align: center; margin-bottom: 20px; color: var(--text-secondary);">クリアするごとに新しいルールや難しい組み合わせのステージが解放されます。</p>
+        <div id="stage-grid" class="stage-grid">
+          <!-- JSで動的にボタンを生成 -->
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+          <button id="btn-back-to-title" class="btn btn-secondary">タイトルに戻る</button>
         </div>
       </div>
     </div>
@@ -171,6 +216,10 @@
     <div id="game-screen" class="screen">
       <!-- ターン表示 -->
       <div class="status-panel">
+        <div id="stage-info-bar" class="stage-info-bar hidden">
+          <strong id="stage-title">Stage 1: 基本のキ</strong>
+          <span id="stage-desc">相手の手を5以上にして消そう。</span>
+        </div>
         <div id="turn-indicator" class="turn-indicator">プレイヤー1のターン</div>
       </div>
 
@@ -219,11 +268,13 @@
     </div>
 
     <!-- ゲーム終了画面（モーダル） -->
-    <div id="gameover-screen" class="modal-overlay">
+    <div id="gameover-screen" class="modal-overlay hidden">
       <div class="modal-content">
         <h2 id="winner-message">プレイヤー1の勝利！</h2>
         <p>対戦お疲れ様でした。</p>
-        <button id="btn-rematch" class="btn btn-primary">もう一度遊ぶ</button>
+        <button id="btn-next-stage" class="btn btn-campaign hidden" style="background-color:#9b59b6; color:white; border:none; margin-bottom: 10px; width: 100%;">次のステージへ</button>
+        <button id="btn-rematch" class="btn btn-primary" style="width: 100%;">もう一度遊ぶ</button>
+        <button id="btn-back-to-select" class="btn btn-secondary hidden" style="width: 100%; margin-top: 10px;">ステージ選択に戻る</button>
       </div>
     </div>
 
