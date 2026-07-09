@@ -445,6 +445,9 @@ function calculateCardValue(totalValue) {
 
 // 動かせる自分の手か判定
 function isCardMovable(state, player, cardId) {
+  const val = state.cards[player][cardId];
+  if (isLoseValue(state, val)) return false;
+
   if (state.customRules.attackHandRestriction === 'none') return true;
 
   const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
@@ -452,12 +455,11 @@ function isCardMovable(state, player, cardId) {
   let maxVal = -1;
 
   labels.forEach(id => {
-    const val = state.cards[player][id];
-    if (val < minVal) minVal = val;
-    if (val > maxVal) maxVal = val;
+    const v = state.cards[player][id];
+    if (isLoseValue(state, v)) return;
+    if (v < minVal) minVal = v;
+    if (v > maxVal) maxVal = v;
   });
-
-  const val = state.cards[player][cardId];
 
   let rule = state.customRules.attackHandRestriction;
   if (rule === 'alternate') {
@@ -474,6 +476,9 @@ function isCardMovable(state, player, cardId) {
 
 // 引き込み可能な相手の手か判定
 function isPullTargetValid(state, targetPlayer, targetCardId) {
+  const val = state.cards[targetPlayer][targetCardId];
+  if (isLoseValue(state, val)) return false;
+
   if (state.customRules.pullTargetRestriction === 'none') return true;
 
   const labels = ['A', 'B', 'C', 'D'].slice(0, state.customRules.cardCount);
@@ -481,12 +486,11 @@ function isPullTargetValid(state, targetPlayer, targetCardId) {
   let maxVal = -1;
 
   labels.forEach(id => {
-    const val = state.cards[targetPlayer][id];
-    if (val < minVal) minVal = val;
-    if (val > maxVal) maxVal = val;
+    const v = state.cards[targetPlayer][id];
+    if (isLoseValue(state, v)) return;
+    if (v < minVal) minVal = v;
+    if (v > maxVal) maxVal = v;
   });
-
-  const val = state.cards[targetPlayer][targetCardId];
 
   let rule = state.customRules.pullTargetRestriction;
   if (rule === 'alternate') {
