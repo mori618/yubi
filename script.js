@@ -187,6 +187,70 @@ const ruleChainExplosion = document.getElementById('rule-chain-explosion');
 const p1CardsContainer = document.getElementById('p1-cards-container');
 const p2CardsContainer = document.getElementById('p2-cards-container');
 
+function syncRulesToUI() {
+  const rules = gameState.customRules;
+  const isCampaign = gameState.campaignStage !== null;
+
+  const setVal = (el, val, hideCondition = false) => {
+    el.value = val;
+    const container = el.closest('.setting-item');
+    if (container) {
+      if (isCampaign && hideCondition) {
+        container.classList.add('hidden');
+      } else {
+        container.classList.remove('hidden');
+      }
+    }
+  };
+
+  const setCheck = (el, val, hideCondition = false) => {
+    el.checked = val;
+    const container = el.closest('.setting-item');
+    if (container) {
+      if (isCampaign && hideCondition) {
+        container.classList.add('hidden');
+      } else {
+        container.classList.remove('hidden');
+      }
+    }
+  };
+
+  setVal(ruleCpuDifficulty, rules.cpuDifficulty);
+  setVal(ruleInitMin, rules.initialValueMin);
+  setVal(ruleInitMax, rules.initialValueMax);
+  setVal(ruleMaxValue, rules.maxValue);
+  setVal(ruleCardCount, rules.cardCount);
+  setVal(ruleLoseCount, rules.loseCount);
+  
+  setCheck(ruleZeroOnFive, rules.zeroWhenFiveOrMore, !rules.zeroWhenFiveOrMore);
+  setVal(rulePullLimit, rules.pullLimit, rules.pullLimit == 0);
+  setVal(ruleTransferLimit, rules.transferLimit, rules.transferLimit == 0);
+  setVal(rulePassLimit, rules.passLimit, rules.passLimit == 0);
+  
+  setVal(ruleAttackHandRestriction, rules.attackHandRestriction, rules.attackHandRestriction === 'none');
+  setVal(rulePullTargetRestriction, rules.pullTargetRestriction, rules.pullTargetRestriction === 'none');
+  
+  const winValStr = rules.winValues ? rules.winValues.join(',') : '';
+  setVal(ruleWinValues, winValStr, winValStr === '');
+  
+  const loseValStr = rules.loseValues ? rules.loseValues.join(',') : '';
+  setVal(ruleLoseValues, loseValStr, loseValStr === '0' || loseValStr === '');
+  
+  setCheck(ruleAllowSelfAdd, rules.allowSelfAdd, !rules.allowSelfAdd);
+  setCheck(ruleBlindMode, rules.blindMode, !rules.blindMode);
+  setCheck(ruleReverseWin, rules.reverseWin, !rules.reverseWin);
+  setCheck(ruleMultiplyAttack, rules.multiplyAttack, !rules.multiplyAttack);
+  setCheck(ruleChainExplosion, rules.chainExplosion, !rules.chainExplosion);
+}
+
+function setRulesEditable(editable) {
+  const inputs = rulesModal.querySelectorAll('.settings-panel input, .settings-panel select');
+  inputs.forEach(input => {
+    input.disabled = !editable;
+  });
+  btnRandomizeRules.style.display = editable ? '' : 'none';
+}
+
 // 全カードスロットの取得
 let cardSlots = document.querySelectorAll('.card-slot');
 
@@ -210,8 +274,8 @@ function init() {
   });
   btnBackToSelect.addEventListener('click', showStageSelectScreen);
 
-  btnLocal.addEventListener('click', () => { gameState.campaignStage = null; stageInfoBar.classList.add('hidden'); startGame('local'); });
-  btnCpu.addEventListener('click', () => { gameState.campaignStage = null; stageInfoBar.classList.add('hidden'); startGame('cpu'); });
+  btnLocal.addEventListener('click', () => { gameState.campaignStage = null; stageInfoBar.classList.add('hidden'); setRulesEditable(true); startGame('local'); });
+  btnCpu.addEventListener('click', () => { gameState.campaignStage = null; stageInfoBar.classList.add('hidden'); setRulesEditable(true); startGame('cpu'); });
 
   btnRestart.addEventListener('click', backToTitle);
   btnRematch.addEventListener('click', resetGame);
@@ -260,6 +324,8 @@ function startGame(mode) {
   gameState.mode = mode;
   p2Name.textContent = mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
   setupScreen.classList.remove('active');
+  setupScreen.classList.add('hidden');
+  gameScreen.classList.remove('hidden');
   gameScreen.classList.add('active');
   resetGame();
 }
@@ -267,7 +333,10 @@ function startGame(mode) {
 // タイトルへ戻る
 function backToTitle() {
   gameScreen.classList.remove('active');
+  gameScreen.classList.add('hidden');
   gameoverScreen.classList.remove('active');
+  gameoverScreen.classList.add('hidden');
+  setupScreen.classList.remove('hidden');
   setupScreen.classList.add('active');
 }
 
@@ -285,6 +354,7 @@ function resetGame() {
   createCardsDOM();
 
   gameoverScreen.classList.remove('active');
+  gameoverScreen.classList.add('hidden');
   
   // ログクリア
   logList.innerHTML = '<div class="log-item system">ゲームが開始されました。</div>';
@@ -444,8 +514,12 @@ function executeAttack(attackerPlayerId, targetPlayerId, attackerCardId, targetC
   const attackerVal = gameState.cards[attackerPlayerId][attackerCardId];
   const targetVal = gameState.cards[targetPlayerId][targetCardId];
 
-  // 攻撃された側のカードに加算
-  let nextTargetVal = attackerVal + targetVal;
+  let nextTargetVal;
+  if (gameState.customRules.multiplyAttack) {
+    nextTargetVal = attackerVal * targetVal;
+  } else {
+    nextTargetVal = attackerVal + targetVal;
+  }
   
   // 新しいルール：5以上なら5を引いた数を残す
   nextTargetVal = calculateCardValue(nextTargetVal);
@@ -782,6 +856,12 @@ function triggerUpdateAnimation(player, cardId) {
 // ==========================================
 function endTurn() {
   gameState.playerTurnCount[gameState.currentPlayer]++;
+  
+  if (gameState.customRules.chainExplosion) {
+    handleChainExplosion();
+  }
+  checkRevivals();
+  
   updateUI();
 
   // 勝敗チェック
@@ -899,7 +979,24 @@ function checkVictory() {
     // 勝利ログ
     addLog('システム', `ゲーム終了！ ${winnerText}`, 'system');
     
+    // ボタンの表示制御
+    if (gameState.campaignStage !== null) {
+      if (winnerText === 'プレイヤー1の勝利！') {
+        btnNextStage.classList.remove('hidden');
+        btnRematch.classList.add('hidden');
+      } else {
+        btnNextStage.classList.add('hidden');
+        btnRematch.classList.remove('hidden');
+      }
+      btnBackToSelect.classList.remove('hidden');
+    } else {
+      btnNextStage.classList.add('hidden');
+      btnRematch.classList.remove('hidden');
+      btnBackToSelect.classList.add('hidden');
+    }
+    
     setTimeout(() => {
+      gameoverScreen.classList.remove('hidden');
       gameoverScreen.classList.add('active');
     }, 800);
 
@@ -916,8 +1013,24 @@ function updateUI() {
     const transStr = gameState.limits[p].transfer === -1 ? '無制限' : gameState.limits[p].transfer;
     const passStr = gameState.limits[p].pass === -1 ? '無制限' : gameState.limits[p].pass;
     
-    document.getElementById(`${p}-limit-transfer`).textContent = `譲渡: ${transStr}`;
-    document.getElementById(`${p}-limit-pull`).textContent = `引込: ${pullStr}`;
+    const transEl = document.getElementById(`${p}-limit-transfer`);
+    const pullEl = document.getElementById(`${p}-limit-pull`);
+    
+    transEl.textContent = `譲渡: ${transStr}`;
+    pullEl.textContent = `引込: ${pullStr}`;
+    
+    // ルール上で0（禁止）に設定されている場合は非表示にする
+    if (gameState.customRules.transferLimit == 0) {
+      transEl.classList.add('hidden');
+    } else {
+      transEl.classList.remove('hidden');
+    }
+    
+    if (gameState.customRules.pullLimit == 0) {
+      pullEl.classList.add('hidden');
+    } else {
+      pullEl.classList.remove('hidden');
+    }
     
     const passBtn = document.getElementById(`${p}-btn-pass`);
     if (gameState.limits[p].pass === 0 || gameState.currentPlayer !== p || (gameState.mode === 'cpu' && p === 'p2')) {
@@ -990,6 +1103,12 @@ function getPlayerName(playerId) {
   return gameState.mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
 }
 
+// 手（カード）の名称取得
+function getHandName(cardId) {
+  const names = { 'A': '右手', 'B': '左手', 'C': '第3の手', 'D': '第4の手' };
+  return names[cardId] || `カード${cardId}`;
+}
+
 // ログの追加
 function addLog(speaker, text, type) {
   const item = document.createElement('div');
@@ -1053,11 +1172,7 @@ function simulateVictoryCheck(state) {
   let p1WonBySpecial = false;
   let p2WonBySpecial = false;
 
-  if (state.customRules.loseValue !== 'none') {
-    const loseVal = parseInt(state.customRules.loseValue, 10);
-    if (checkAllCardsMatch(state, 'p1', loseVal)) p1Defeated = true;
-    if (checkAllCardsMatch(state, 'p2', loseVal)) p2Defeated = true;
-  }
+  // old loseValue code removed
 
   if (state.customRules.winValues.length > 0) {
     p1WonBySpecial = true;
@@ -1444,6 +1559,7 @@ function showStageSelectScreen() {
   setupScreen.classList.add('hidden');
   gameScreen.classList.remove('active');
   gameScreen.classList.add('hidden');
+  gameoverScreen.classList.remove('active');
   gameoverScreen.classList.add('hidden');
   stageSelectScreen.classList.remove('hidden');
   stageSelectScreen.classList.add('active');
@@ -1507,6 +1623,9 @@ function startCampaignStage(stageNum) {
 
   gameState.customRules = { ...defaultRules, ...stageData.rules };
 
+  setRulesEditable(false);
+  syncRulesToUI();
+
   // 画面遷移
   stageSelectScreen.classList.remove('active');
   stageSelectScreen.classList.add('hidden');
@@ -1518,4 +1637,25 @@ function startCampaignStage(stageNum) {
   stageInfoBar.classList.remove('hidden');
 
   startGame('cpu');
+}
+
+// テスト用のエクスポート（Node.js環境でのみ実行される）
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    gameState,
+    parseValues,
+    isLoseValue,
+    isWinValue,
+    isAlive,
+    calculateCardValue,
+    simulateMove,
+    evaluateBoard,
+    minimax,
+    generateLegalMoves,
+    isCardMovable,
+    isPullTargetValid,
+    simulateVictoryCheck,
+    simulateCalculateVal,
+    simulateChainExplosion
+  };
 }

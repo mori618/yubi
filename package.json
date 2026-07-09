@@ -1,0 +1,33 @@
+{
+  "name": "number-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest",
+    "test:e2e": "playwright test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mori618/yubi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mori618/yubi/issues"
+  },
+  "homepage": "https://github.com/mori618/yubi#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/e2e/"
+    ]
+  }
+}

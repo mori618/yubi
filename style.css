@@ -910,3 +910,8 @@ body {
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
+
+/* ユーティリティ */
+.hidden {
+  display: none !important;
+}
