@@ -252,7 +252,7 @@ function setRulesEditable(editable) {
 }
 
 // 全カードスロットの取得
-let cardSlots = document.querySelectorAll('.card-slot');
+let cardSlots = [];
 
 // ==========================================
 // 初期化・イベント設定
@@ -1524,29 +1524,29 @@ window.onload = init;
 // ==========================================
 const CAMPAIGN_STAGES = [
   // 第1エリア: 基礎訓練
-  { title: "Stage 1: 基本のキ", desc: "相手の手を5以上にして消そう。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1 } },
-  { title: "Stage 2: 移動の極意", desc: "自分の手から手へ数値を移動して調整しよう。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, transferLimit: -1 } },
-  { title: "Stage 3: あふれる力", desc: "5以上になると「5を引いた余り」になるぞ。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, zeroWhenFiveOrMore: true } },
+  { title: "Stage 1: 基本のキ", desc: "相手の手を5以上にして消そう。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, firstPlayer: 'p2' } },
+  { title: "Stage 2: 移動の極意", desc: "自分の手から手へ数値を移動して調整しよう。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, transferLimit: -1, firstPlayer: 'p2' } },
+  { title: "Stage 3: あふれる力", desc: "5以上になると「5を引いた余り」になるぞ。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, zeroWhenFiveOrMore: true, firstPlayer: 'p2' } },
   { title: "Stage 4: 奪取の技", desc: "相手の手の数値を自分に引き込めるぞ。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, pullLimit: -1 } },
-  { title: "Stage 5: 三つ巴", desc: "お互いに手が3本に増加！ (CPU先手)", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, firstPlayer: 'p2' } },
+  { title: "Stage 5: 三つ巴", desc: "お互いに手が3本に増加！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1 } },
   // 第2エリア: 変則数値
   { title: "Stage 6: ギリギリの戦い", desc: "お互い初期値が4の状態でスタート。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 4, initialValueMax: 4 } },
-  { title: "Stage 7: デス・ナンバー", desc: "「3」を作ってしまったらその手は消滅する！ (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, loseValues: [3], zeroWhenFiveOrMore: true, firstPlayer: 'p2' } },
+  { title: "Stage 7: デス・ナンバー", desc: "「3」を作ってしまったらその手は消滅する！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, loseValues: [3], zeroWhenFiveOrMore: true } },
   { title: "Stage 8: イレブン", desc: "上限が11に拡張。長期戦を制覇しろ。", rules: { cardCount: 2, maxValue: 11, initialValueMin: 1, initialValueMax: 1 } },
   { title: "Stage 9: ダブル・ゼロ", desc: "5以上の超過は「0」になり即消滅！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, zeroWhenFiveOrMore: true, loseValues: [0] } },
   { title: "Stage 10: パスゲーム", desc: "パスが3回まで使える。どう押し付けるか？", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, passLimit: 3 } },
   // 第3エリア: 特殊ルール
   { title: "Stage 11: 王将戦", desc: "左手が消滅した時点で負けになる！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseCount: 'leader' } },
-  { title: "Stage 12: 暗闇の戦い", desc: "相手の手が見えない。推測して戦え。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, blindMode: true, transferLimit: -1, firstPlayer: 'p2' } },
+  { title: "Stage 12: 暗闇の戦い", desc: "相手の手が見えない。推測して戦え。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, blindMode: true, transferLimit: -1 } },
   { title: "Stage 13: インフレーション", desc: "攻撃が掛け算に！一気に上限突破を狙え。", rules: { cardCount: 2, maxValue: 10, initialValueMin: 1, initialValueMax: 2, multiplyAttack: true } },
   { title: "Stage 14: 逆転の世界", desc: "「自分が全滅したら勝ち」のデスゲーム！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, reverseWin: true } },
   { title: "Stage 15: 連鎖の恐怖", desc: "手が消滅すると他の手にもダメージが飛ぶ！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 2, chainExplosion: true } },
   // 第4エリア: 複合と極限
-  { title: "Stage 16: 見えない王将", desc: "王将戦 ＋ ブラインドモード！ (CPU先手)", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseCount: 'leader', blindMode: true, firstPlayer: 'p2' } },
+  { title: "Stage 16: 見えない王将", desc: "王将戦 ＋ ブラインドモード！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseCount: 'leader', blindMode: true } },
   { title: "Stage 17: デス・スパイラル", desc: "連鎖爆発 ＋ 0戻り ＋ 掛け算！", rules: { cardCount: 2, maxValue: 10, initialValueMin: 1, initialValueMax: 2, chainExplosion: true, zeroWhenFiveOrMore: true, multiplyAttack: true } },
-  { title: "Stage 18: 四面楚歌", desc: "手4本、2と3を作ったら負け！", rules: { cardCount: 4, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseValues: [2, 3] } },
+  { title: "Stage 18: 四面楚歌", desc: "手4本、2と3を作ったら負け！ (CPU先手)", rules: { cardCount: 4, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseValues: [2, 3], firstPlayer: 'p2' } },
   { title: "Stage 19: 究極の矛と盾", desc: "吸収無制限 ＋ 自分が全滅したら勝ち", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, pullLimit: -1, reverseWin: true } },
-  { title: "Stage 20: 真の最終試練", desc: "今まで学んだ全てを駆使しろ！ (CPU先手)", rules: { cardCount: 4, maxValue: 5, initialValueMin: 1, initialValueMax: 2, transferLimit: -1, pullLimit: -1, chainExplosion: true, cpuDifficulty: 'strong', firstPlayer: 'p2' } }
+  { title: "Stage 20: 真の最終試練", desc: "今まで学んだ全てを駆使しろ！", rules: { cardCount: 4, maxValue: 5, initialValueMin: 1, initialValueMax: 2, transferLimit: -1, pullLimit: -1, chainExplosion: true, cpuDifficulty: 'strong' } }
 ];
 
 function getUnlockedStage() {
