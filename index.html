@@ -137,7 +137,7 @@
 <!-- Menu Actions (Bento-ish Layout) -->
 <div class="w-full max-w-lg grid grid-cols-1 gap-4">
 <!-- Featured Button: Campaign -->
-<button id="btnCampaign" class="w-full group bg-primary text-on-primary border-4 border-primary-container rounded-full py-5 px-8 shadow-[0_8px_24px_rgba(224,64,160,0.3)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-between">
+<button id="btnCampaign" class="w-full group bg-primary text-on-primary rounded-full py-5 px-8 shadow-[0_8px_24px_rgba(224,64,160,0.3)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-between">
 <span class="flex items-center gap-4">
 <span class="material-symbols-outlined text-3xl">military_tech</span>
 <span class="font-headline font-bold text-2xl uppercase tracking-wide">Campaign Mode</span>
@@ -146,12 +146,12 @@
 </button>
 <div class="grid grid-cols-2 gap-4">
 <!-- Local 2P -->
-<button id="btnLocal" class="bg-surface-bright text-secondary border-4 border-secondary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(124,82,170,0.15)] hover:scale-[1.03] hover:bg-secondary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
+<button id="btnLocal" class="bg-surface-bright text-secondary rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(124,82,170,0.15)] hover:scale-[1.03] hover:bg-secondary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
 <span class="material-symbols-outlined text-4xl">group</span>
 <span class="font-label font-bold text-lg">Local 2P Battle</span>
 </button>
 <!-- VS CPU -->
-<button id="btnCpu" class="bg-surface-bright text-tertiary border-4 border-tertiary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(0,150,204,0.15)] hover:scale-[1.03] hover:bg-tertiary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
+<button id="btnCpu" class="bg-surface-bright text-tertiary rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(0,150,204,0.15)] hover:scale-[1.03] hover:bg-tertiary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
 <span class="material-symbols-outlined text-4xl">smart_toy</span>
 <span class="font-label font-bold text-lg">VS CPU</span>
 </button>
@@ -353,50 +353,16 @@
 </div>
 <div id="rules-screen" class="screen-container hidden w-full h-full absolute inset-0 bg-background text-on-background overflow-y-auto">
 
-<!-- TopAppBar -->
-<header class="bg-surface dark:bg-surface full-width top-0 shadow-[0_4px_0_0_rgba(220,200,224,1)] sticky z-40">
-<div class="flex justify-between items-center px-6 py-4 w-full">
-<button class="text-primary dark:text-primary-fixed-dim hover:scale-105 transition-transform duration-200 active:scale-95 flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container">
-<span class="material-symbols-outlined text-3xl" data-icon="menu">menu</span>
-</button>
-<h1 class="text-2xl font-black text-primary dark:text-primary-fixed-dim drop-shadow-[0_2px_0_rgba(224,64,160,0.2)] font-display uppercase tracking-wider">NUMBER CRUSH</h1>
-<button class="text-primary dark:text-primary-fixed-dim hover:scale-105 transition-transform duration-200 active:scale-95 flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container">
-<span class="material-symbols-outlined text-3xl" data-icon="settings">settings</span>
-</button>
-</div>
-</header>
 <!-- Main Content -->
 <main class="flex-grow flex flex-col md:flex-row pb-24 md:pb-0 overflow-hidden">
-<!-- Desktop SideNav (Hidden on Mobile) -->
-<aside class="hidden md:flex flex-col h-[calc(100vh-76px)] py-6 w-72 rounded-r-lg bg-surface-bright dark:bg-inverse-surface border-r-4 border-primary-container shadow-2xl sticky top-[76px]">
-<h2 class="px-6 mb-4 text-sm font-bold text-on-surface-variant uppercase tracking-wider font-headline">GAME MODES</h2>
-<nav class="flex-grow flex flex-col gap-2">
-<a class="text-on-surface-variant mx-2 px-4 py-3 flex items-center gap-3 hover:bg-primary-fixed-dim hover:text-on-primary-fixed-variant transition-colors rounded-full active:translate-x-1 font-medium" href="#">
-<span class="material-symbols-outlined" data-icon="military_tech">military_tech</span>
-                    Campaign
-                </a>
-<a class="text-on-surface-variant mx-2 px-4 py-3 flex items-center gap-3 hover:bg-primary-fixed-dim hover:text-on-primary-fixed-variant transition-colors rounded-full active:translate-x-1 font-medium" href="#">
-<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
-                    Versus CPU
-                </a>
-<a class="bg-secondary-container text-on-secondary-container rounded-full mx-2 px-4 py-3 font-bold flex items-center gap-3 active:translate-x-1 shadow-sm" href="#">
-<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
-                    Local 2P
-                </a>
-<a class="text-on-surface-variant mx-2 px-4 py-3 flex items-center gap-3 hover:bg-primary-fixed-dim hover:text-on-primary-fixed-variant transition-colors rounded-full active:translate-x-1 font-medium" href="#">
-<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
-                    Global Rankings
-                </a>
-</nav>
-</aside>
 <!-- Canvas -->
 <section class="flex-grow p-4 md:p-8 lg:p-12 overflow-y-auto w-full max-w-4xl mx-auto">
 <!-- Tabs -->
 <div class="flex bg-surface-container rounded-full p-1 mb-8 shadow-inner border border-surface-dim">
-<button class="flex-1 py-3 px-6 rounded-full font-headline font-bold text-center transition-all duration-300 bg-primary text-on-primary shadow-[0_4px_12px_rgba(224,64,160,0.3)]" id="tab-settings" onclick="switchTab('settings')">
+<button class="flex-1 py-3 px-6 rounded-full font-headline font-bold text-center transition-all duration-300 bg-primary text-on-primary shadow-[0_4px_12px_rgba(224,64,160,0.3)]" id="tab-settings">
                     Setup Game
                 </button>
-<button class="flex-1 py-3 px-6 rounded-full font-headline font-bold text-center transition-all duration-300 text-on-surface-variant hover:bg-surface-variant" id="tab-rules" onclick="switchTab('rules')">
+<button class="flex-1 py-3 px-6 rounded-full font-headline font-bold text-center transition-all duration-300 text-on-surface-variant hover:bg-surface-variant" id="tab-rules">
                     How to Play
                 </button>
 </div>
@@ -500,20 +466,7 @@
         </a>
 </nav>
 <script>
-        function switchTab(tabId) {
-            // Update tabs
-            document.getElementById('tab-settings').className = `flex-1 py-3 px-6 rounded-full font-headline font-bold text-center transition-all duration-300 ${tabId === 'settings' ? 'bg-primary text-on-primary shadow-[0_4px_12px_rgba(224,64,160,0.3)]' : 'text-on-surface-variant hover:bg-surface-variant'}`;
-            document.getElementById('tab-rules').className = `flex-1 py-3 px-6 rounded-full font-headline font-bold text-center transition-all duration-300 ${tabId === 'rules' ? 'bg-primary text-on-primary shadow-[0_4px_12px_rgba(224,64,160,0.3)]' : 'text-on-surface-variant hover:bg-surface-variant'}`;
-            
-            // Update content visibility
-            document.getElementById('content-settings').classList.remove('active');
-            document.getElementById('content-rules').classList.remove('active');
-            
-            // Small delay for reflow to ensure animation plays
-            setTimeout(() => {
-                document.getElementById(`content-${tabId}`).classList.add('active');
-            }, 10);
-        }
+    <!-- Script moved to script.js -->
     </script>
 
 </div>

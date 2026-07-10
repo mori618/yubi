@@ -89,9 +89,17 @@ const btnSettings = document.getElementById('btnSettings');
 const btnShowRules = document.getElementById('btn-show-rules');
 const btnCloseRules = document.getElementById('btn-close-rules');
 const btnShowLog = document.getElementById('btnShowLog');
+const btnCloseLog = document.getElementById('btn-close-log');
 const latestLogText = document.getElementById('latest-log-text');
 const rulesScreen = document.getElementById('rules-screen');
 const logModal = document.getElementById('log-modal');
+
+// タブ切り替えとバトル画面設定ボタン
+const btnSettingsBattle = document.getElementById('btnSettingsBattle');
+const tabSettings = document.getElementById('tab-settings');
+const tabRules = document.getElementById('tab-rules');
+const contentSettings = document.getElementById('content-settings');
+const contentRules = document.getElementById('content-rules');
 
 const p1Name = document.getElementById('p1-name-label');
 const p2Name = document.getElementById('p2-name-label');
@@ -116,7 +124,9 @@ function setSegValue(id, value) {
   if (target) target.classList.add('active');
 }
 
-btnRandomizeRules.addEventListener('click', randomizeRules);
+if (btnRandomizeRules) {
+  btnRandomizeRules.addEventListener('click', randomizeRules);
+}
 
 function getRandomItem(array) {
   return array[Math.floor(Math.random() * array.length)];
@@ -260,7 +270,9 @@ function setRulesEditable(editable) {
     }
   });
 
-  btnRandomizeRules.style.display = editable ? '' : 'none';
+  if (btnRandomizeRules) {
+    btnRandomizeRules.style.display = editable ? '' : 'none';
+  }
 }
 
 // 全カードスロットの取得
@@ -270,64 +282,102 @@ let cardSlots = [];
 // 初期化・イベント設定
 // ==========================================
 function init() {
-  btnCampaign.addEventListener('click', showStageSelectScreen);
-  btnBackToTitle.addEventListener('click', () => {
-    stageSelectScreen.classList.remove('active');
-    stageSelectScreen.classList.add('hidden');
-    titleScreen.classList.remove('hidden');
-    titleScreen.classList.add('active');
-  });
-  btnNextStage.addEventListener('click', () => {
-    if (gameState.campaignStage && gameState.campaignStage < CAMPAIGN_STAGES.length) {
-      startCampaignStage(gameState.campaignStage + 1);
-    } else {
-      showStageSelectScreen();
-    }
-  });
-  btnBackToSelect.addEventListener('click', showStageSelectScreen);
-
-  btnLocal.addEventListener('click', () => { gameState.campaignStage = null; stageInfoBar.classList.add('hidden'); setRulesEditable(true); startGame('local'); });
-  btnCpu.addEventListener('click', () => { gameState.campaignStage = null; stageInfoBar.classList.add('hidden'); setRulesEditable(true); startGame('cpu'); });
-
-  btnRestart.addEventListener('click', backToTitle);
-  btnRematch.addEventListener('click', resetGame);
-
-  // ルール画面制御
-  btnSetupRules.addEventListener('click', () => {
-    titleScreen.classList.remove('active');
-    titleScreen.classList.add('hidden');
-    rulesScreen.classList.remove('hidden');
-    rulesScreen.classList.add('active');
-  });
-  btnShowRules.addEventListener('click', () => {
-    battleScreen.classList.remove('active');
-    battleScreen.classList.add('hidden');
-    rulesScreen.classList.remove('hidden');
-    rulesScreen.classList.add('active');
-  });
-  btnCloseRules.addEventListener('click', () => {
-    rulesScreen.classList.remove('active');
-    rulesScreen.classList.add('hidden');
-    // どこから来たかで戻り先を変える
-    if (gameState.mode === null && gameState.campaignStage === null) {
+  if (btnCampaign) btnCampaign.addEventListener('click', showStageSelectScreen);
+  if (btnBackToTitle) {
+    btnBackToTitle.addEventListener('click', () => {
+      stageSelectScreen.classList.remove('active');
+      stageSelectScreen.classList.add('hidden');
       titleScreen.classList.remove('hidden');
       titleScreen.classList.add('active');
-    } else {
-      battleScreen.classList.remove('hidden');
-      battleScreen.classList.add('active');
-    }
-  });
+    });
+  }
+  if (btnNextStage) {
+    btnNextStage.addEventListener('click', () => {
+      if (gameState.campaignStage && gameState.campaignStage < CAMPAIGN_STAGES.length) {
+        startCampaignStage(gameState.campaignStage + 1);
+      } else {
+        showStageSelectScreen();
+      }
+    });
+  }
+  if (btnBackToSelect) btnBackToSelect.addEventListener('click', showStageSelectScreen);
+
+  if (btnLocal) btnLocal.addEventListener('click', () => { gameState.campaignStage = null; if (stageInfoBar) stageInfoBar.classList.add('hidden'); setRulesEditable(true); startGame('local'); });
+  if (btnCpu) btnCpu.addEventListener('click', () => { gameState.campaignStage = null; if (stageInfoBar) stageInfoBar.classList.add('hidden'); setRulesEditable(true); startGame('cpu'); });
+
+  if (btnRestart) btnRestart.addEventListener('click', backToTitle);
+  if (btnRematch) btnRematch.addEventListener('click', resetGame);
+
+  // ルール画面制御
+  if (btnSettings) {
+    btnSettings.addEventListener('click', () => {
+      titleScreen.classList.remove('active');
+      titleScreen.classList.add('hidden');
+      if (rulesScreen) {
+        rulesScreen.classList.remove('hidden');
+        rulesScreen.classList.add('active');
+      }
+    });
+  }
+  if (btnShowRules) {
+    btnShowRules.addEventListener('click', () => {
+      battleScreen.classList.remove('active');
+      battleScreen.classList.add('hidden');
+      if (rulesScreen) {
+        rulesScreen.classList.remove('hidden');
+        rulesScreen.classList.add('active');
+      }
+    });
+  }
+  if (btnCloseRules) {
+    btnCloseRules.addEventListener('click', () => {
+      rulesScreen.classList.remove('active');
+      rulesScreen.classList.add('hidden');
+      // どこから来たかで戻り先を変える
+      if (gameState.mode === null && gameState.campaignStage === null) {
+        titleScreen.classList.remove('hidden');
+        titleScreen.classList.add('active');
+      } else {
+        battleScreen.classList.remove('hidden');
+        battleScreen.classList.add('active');
+      }
+    });
+  }
+
+  // バトル画面設定ボタン
+  if (btnSettingsBattle) {
+    btnSettingsBattle.addEventListener('click', () => {
+      rulesScreen.classList.remove('hidden');
+      rulesScreen.classList.add('active');
+    });
+  }
 
   // タブ切り替え
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const targetId = e.target.dataset.tab;
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      e.target.classList.add('active');
-      document.getElementById(targetId).classList.add('active');
-    });
-  });
+  function switchTab(tabId) {
+    const activeClass = 'bg-primary text-on-primary shadow-[0_4px_12px_rgba(224,64,160,0.3)]'.split(' ');
+    const inactiveClass = 'text-on-surface-variant hover:bg-surface-variant'.split(' ');
+    
+    if (tabId === 'settings') {
+      tabSettings.classList.add(...activeClass);
+      tabSettings.classList.remove(...inactiveClass);
+      tabRules.classList.remove(...activeClass);
+      tabRules.classList.add(...inactiveClass);
+      
+      contentRules.classList.remove('active');
+      setTimeout(() => contentSettings.classList.add('active'), 10);
+    } else {
+      tabRules.classList.add(...activeClass);
+      tabRules.classList.remove(...inactiveClass);
+      tabSettings.classList.remove(...activeClass);
+      tabSettings.classList.add(...inactiveClass);
+      
+      contentSettings.classList.remove('active');
+      setTimeout(() => contentRules.classList.add('active'), 10);
+    }
+  }
+
+  if (tabSettings) tabSettings.addEventListener('click', () => switchTab('settings'));
+  if (tabRules) tabRules.addEventListener('click', () => switchTab('rules'));
 
   // セグメントボタン切り替え
   document.querySelectorAll('.seg-btn').forEach(btn => {
@@ -362,22 +412,37 @@ function startGame(mode) {
     gameState.customRules.cpuDifficulty = getSegValue('seg-cpu-difficulty') || 'strong';
     gameState.customRules.initialValueMin = parseInt(getSegValue('seg-initial-min') || '1', 10);
     gameState.customRules.initialValueMax = Math.max(gameState.customRules.initialValueMin, parseInt(getSegValue('seg-initial-max') || '1', 10));
-    gameState.customRules.maxValue = parseInt(ruleMaxValue.value, 10);
+    gameState.customRules.maxValue = ruleMaxValue ? parseInt(ruleMaxValue.value, 10) : 5;
     gameState.customRules.cardCount = parseInt(getSegValue('seg-card-count') || '2', 10);
     gameState.customRules.loseCount = getSegValue('seg-lose-count') || 'all';
-    gameState.customRules.zeroWhenFiveOrMore = document.getElementById('rule-zero-on-five').checked;
+    
+    const ruleZeroOnFive = document.getElementById('rule-zero-on-five');
+    gameState.customRules.zeroWhenFiveOrMore = ruleZeroOnFive ? ruleZeroOnFive.checked : false;
+    
     gameState.customRules.pullLimit = parseInt(getSegValue('seg-pull-limit') || '-1', 10);
     gameState.customRules.transferLimit = parseInt(getSegValue('seg-transfer-limit') || '-1', 10);
     gameState.customRules.passLimit = parseInt(getSegValue('seg-pass-limit') || '0', 10);
-    gameState.customRules.allowSelfAdd = document.getElementById('rule-allow-self-add').checked;
-    gameState.customRules.blindMode = document.getElementById('rule-blind-mode').checked;
-    gameState.customRules.reverseWin = document.getElementById('rule-reverse-win').checked;
-    gameState.customRules.multiplyAttack = document.getElementById('rule-multiply-attack').checked;
-    gameState.customRules.chainExplosion = document.getElementById('rule-chain-explosion').checked;
+    
+    const ruleAllowSelfAdd = document.getElementById('rule-allow-self-add');
+    gameState.customRules.allowSelfAdd = ruleAllowSelfAdd ? ruleAllowSelfAdd.checked : false;
+    
+    const ruleBlindMode = document.getElementById('rule-blind-mode');
+    gameState.customRules.blindMode = ruleBlindMode ? ruleBlindMode.checked : false;
+    
+    const ruleReverseWin = document.getElementById('rule-reverse-win');
+    gameState.customRules.reverseWin = ruleReverseWin ? ruleReverseWin.checked : false;
+    
+    const ruleMultiplyAttack = document.getElementById('rule-multiply-attack');
+    gameState.customRules.multiplyAttack = ruleMultiplyAttack ? ruleMultiplyAttack.checked : false;
+    
+    const ruleChainExplosion = document.getElementById('rule-chain-explosion');
+    gameState.customRules.chainExplosion = ruleChainExplosion ? ruleChainExplosion.checked : false;
+    
     gameState.customRules.attackHandRestriction = getSegValue('seg-attack-hand') || 'none';
     gameState.customRules.pullTargetRestriction = getSegValue('seg-pull-target') || 'none';
-    gameState.customRules.winValues = parseValues(ruleWinValues.value);
-    gameState.customRules.loseValues = parseValues(ruleLoseValues.value);
+    
+    gameState.customRules.winValues = ruleWinValues ? parseValues(ruleWinValues.value) : [];
+    gameState.customRules.loseValues = ruleLoseValues ? parseValues(ruleLoseValues.value) : [0];
     if (gameState.customRules.loseValues.length === 0) {
       gameState.customRules.loseValues = [0]; 
     }

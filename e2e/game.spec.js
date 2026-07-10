@@ -12,10 +12,15 @@ test('ローカル対戦で攻撃を実行できること', async ({ page }) => 
   await page.goto('/index.html');
 
   // ローカル対戦ボタンをクリック
-  await page.click('#btn-local');
+  await page.click('#btnLocal');
 
   // ゲーム画面が表示されるのを待つ
-  await expect(page.locator('#game-screen')).toBeVisible();
+  try {
+    await expect(page.locator('#battle-screen')).toBeVisible({ timeout: 3000 });
+  } catch (e) {
+    console.error('Errors found in browser console:', errors);
+    throw e;
+  }
 
   // p1のターンであることを確認
   await expect(page.locator('#turn-indicator')).toHaveText('プレイヤー1のターン');
