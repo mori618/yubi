@@ -137,7 +137,7 @@
 <!-- Menu Actions (Bento-ish Layout) -->
 <div class="w-full max-w-lg grid grid-cols-1 gap-4">
 <!-- Featured Button: Campaign -->
-<button id="btnCampaign" class="w-full group bg-primary text-on-primary rounded-full py-5 px-8 shadow-[0_8px_24px_rgba(224,64,160,0.3)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-between">
+<button id="btnCampaign" class="w-full group bg-primary text-on-primary border-4 border-primary-container rounded-full py-5 px-8 shadow-[0_8px_24px_rgba(224,64,160,0.3)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-between">
 <span class="flex items-center gap-4">
 <span class="material-symbols-outlined text-3xl">military_tech</span>
 <span class="font-headline font-bold text-2xl uppercase tracking-wide">Campaign Mode</span>
@@ -146,12 +146,12 @@
 </button>
 <div class="grid grid-cols-2 gap-4">
 <!-- Local 2P -->
-<button id="btnLocal" class="bg-surface-bright text-secondary rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(124,82,170,0.15)] hover:scale-[1.03] hover:bg-secondary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
+<button id="btnLocal" class="bg-surface-bright text-secondary border-4 border-secondary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(124,82,170,0.15)] hover:scale-[1.03] hover:bg-secondary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
 <span class="material-symbols-outlined text-4xl">group</span>
 <span class="font-label font-bold text-lg">Local 2P Battle</span>
 </button>
 <!-- VS CPU -->
-<button id="btnCpu" class="bg-surface-bright text-tertiary rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(0,150,204,0.15)] hover:scale-[1.03] hover:bg-tertiary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
+<button id="btnCpu" class="bg-surface-bright text-tertiary border-4 border-tertiary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(0,150,204,0.15)] hover:scale-[1.03] hover:bg-tertiary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
 <span class="material-symbols-outlined text-4xl">smart_toy</span>
 <span class="font-label font-bold text-lg">VS CPU</span>
 </button>
@@ -169,46 +169,7 @@
 </div>
 <div id="stage-select-screen" class="screen-container hidden w-full h-full absolute inset-0 bg-background text-on-background overflow-y-auto">
 
-<!-- Desktop Navigation Drawer (Hidden on mobile) -->
-<nav class="hidden md:flex flex-col h-full py-6 bg-surface-bright dark:bg-inverse-surface border-r-4 border-primary-container shadow-2xl h-full w-72 rounded-r-lg z-40 relative flex-shrink-0">
-<div class="px-6 mb-8">
-<h2 class="text-primary text-xl font-black font-headline tracking-wide uppercase">GAME MODES</h2>
-</div>
-<ul class="flex flex-col gap-2 flex-grow">
-<!-- Active Tab -->
-<li>
-<a class="flex items-center gap-4 bg-secondary-container text-on-secondary-container rounded-full mx-2 px-4 py-3 font-bold active:translate-x-1 transition-all bouncy-hover shadow-[0_4px_16px_rgba(124,82,170,0.15)]" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">military_tech</span>
-                    Campaign
-                </a>
-</li>
-<!-- Inactive Tabs -->
-<li>
-<a class="flex items-center gap-4 text-on-surface-variant mx-2 px-4 py-3 hover:bg-primary-fixed-dim hover:text-on-primary-fixed-variant transition-colors active:translate-x-1 bouncy-hover rounded-full" href="#">
-<span class="material-symbols-outlined">smart_toy</span>
-                    Versus CPU
-                </a>
-</li>
-<li>
-<a class="flex items-center gap-4 text-on-surface-variant mx-2 px-4 py-3 hover:bg-primary-fixed-dim hover:text-on-primary-fixed-variant transition-colors active:translate-x-1 bouncy-hover rounded-full" href="#">
-<span class="material-symbols-outlined">group</span>
-                    Local 2P
-                </a>
-</li>
-<li>
-<a class="flex items-center gap-4 text-on-surface-variant mx-2 px-4 py-3 hover:bg-primary-fixed-dim hover:text-on-primary-fixed-variant transition-colors active:translate-x-1 bouncy-hover rounded-full" href="#">
-<span class="material-symbols-outlined">leaderboard</span>
-                    Global Rankings
-                </a>
-</li>
-</ul>
-<div class="px-6 mt-auto">
-<button class="w-full flex items-center justify-center gap-2 bg-surface-container-high text-primary rounded-full py-3 font-bold bouncy-hover shadow-[0_4px_12px_rgba(224,64,160,0.1)]">
-<span class="material-symbols-outlined">settings</span>
-                Settings
-            </button>
-</div>
-</nav>
+<!-- Dummy Navigation Removed -->
 <!-- Main Content Area -->
 <main class="flex-grow flex flex-col h-screen relative z-10 overflow-hidden bg-gradient-to-br from-surface to-surface-container-high">
 <!-- TopAppBar -->
@@ -244,7 +205,7 @@
 </div>
 </div>
 <!-- Bento Grid for Stages -->
-<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+<div id="stage-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
 <!-- Stage 1: Cleared -->
 <button class="relative aspect-square bg-white rounded-[1.5rem] shadow-[0_8px_20px_rgba(224,64,160,0.15)] flex flex-col items-center justify-center p-4 border-2 border-primary-container bouncy-hover group overflow-hidden">
 <div class="absolute inset-0 bg-gradient-to-br from-primary-fixed to-surface opacity-50"></div>
@@ -328,27 +289,7 @@
 </div>
 </div>
 </main>
-<!-- BottomNavBar (Visible only on mobile) -->
-<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container dark:bg-inverse-surface shadow-[0_-4px_16px_rgba(224,64,160,0.15)] rounded-t-xl">
-<!-- Active Nav Item -->
-<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full px-5 py-2 scale-110 shadow-[0_4px_12px_rgba(224,64,160,0.4)] active:scale-90 transition-all z-10" href="#">
-<span class="material-symbols-outlined text-xl mb-1" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
-<span class="font-label font-bold text-xs uppercase tracking-wide">Play</span>
-</a>
-<!-- Inactive Nav Items -->
-<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 hover:translate-y-[-2px] active:scale-90 transition-all px-3 py-2" href="#">
-<span class="material-symbols-outlined text-xl mb-1">map</span>
-<span class="font-label font-medium text-xs">Stages</span>
-</a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 hover:translate-y-[-2px] active:scale-90 transition-all px-3 py-2" href="#">
-<span class="material-symbols-outlined text-xl mb-1">rule</span>
-<span class="font-label font-medium text-xs">Rules</span>
-</a>
-<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 hover:translate-y-[-2px] active:scale-90 transition-all px-3 py-2" href="#">
-<span class="material-symbols-outlined text-xl mb-1">person</span>
-<span class="font-label font-medium text-xs">Profile</span>
-</a>
-</nav>
+<!-- Bottom Dummy Navigation Removed -->
 
 </div>
 <div id="rules-screen" class="screen-container hidden w-full h-full absolute inset-0 bg-background text-on-background overflow-y-auto">

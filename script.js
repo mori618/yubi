@@ -202,7 +202,8 @@ function syncRulesToUI() {
 
   const setSeg = (id, val, hideCondition = false) => {
     setSegValue(id, val);
-    const container = document.getElementById(id).closest('.setting-item');
+    const el = document.getElementById(id);
+    const container = el ? el.closest('.setting-item') : null;
     if (container) {
       if (isCampaign && hideCondition) {
         container.classList.add('hidden');
@@ -228,7 +229,7 @@ function syncRulesToUI() {
   setSeg('seg-cpu-difficulty', rules.cpuDifficulty);
   setSeg('seg-initial-min', rules.initialValueMin);
   setSeg('seg-initial-max', rules.initialValueMax);
-  ruleMaxValue.value = rules.maxValue;
+  if (ruleMaxValue) ruleMaxValue.value = rules.maxValue;
   setSeg('seg-card-count', rules.cardCount);
   setSeg('seg-lose-count', rules.loseCount);
   
@@ -241,10 +242,10 @@ function syncRulesToUI() {
   setSeg('seg-pull-target', rules.pullTargetRestriction, rules.pullTargetRestriction === 'none');
   
   const winValStr = rules.winValues ? rules.winValues.join(',') : '';
-  ruleWinValues.value = winValStr;
+  if (ruleWinValues) ruleWinValues.value = winValStr;
   
   const loseValStr = rules.loseValues ? rules.loseValues.join(',') : '';
-  ruleLoseValues.value = loseValStr;
+  if (ruleLoseValues) ruleLoseValues.value = loseValStr;
   
   setCheck('rule-allow-self-add', rules.allowSelfAdd, !rules.allowSelfAdd);
   setCheck('rule-blind-mode', rules.blindMode, !rules.blindMode);
@@ -494,7 +495,7 @@ function resetGame() {
   
   // CPUが先手の場合、少し待ってから行動させる
   if (gameState.currentPlayer === 'p2' && gameState.mode === 'cpu') {
-    setTimeout(cpuTurn, 800);
+    setTimeout(executeCpuTurn, 800);
   }
 }
 
@@ -1745,9 +1746,9 @@ function startCampaignStage(stageNum) {
   gameoverScreen.classList.add('hidden');
 
   // ヘッダー情報表示
-  stageTitleEl.textContent = stageData.title;
-  stageDescEl.textContent = stageData.desc;
-  stageInfoBar.classList.remove('hidden');
+  if (stageTitleEl) stageTitleEl.textContent = stageData.title;
+  if (stageDescEl) stageDescEl.textContent = stageData.desc;
+  if (stageInfoBar) stageInfoBar.classList.remove('hidden');
 
   startGame('cpu');
 }
