@@ -61,22 +61,22 @@ function isAlive(state, val) {
 // ==========================================
 // DOM 要素の取得
 // ==========================================
-const setupScreen = document.getElementById('setup-screen');
-const gameScreen = document.getElementById('game-screen');
-const gameoverScreen = document.getElementById('gameover-screen');
-const btnLocal = document.getElementById('btn-local');
-const btnCpu = document.getElementById('btn-cpu');
-const btnRestart = document.getElementById('btn-restart');
-const btnRematch = document.getElementById('btn-rematch');
+const titleScreen = document.getElementById('title-screen');
+const battleScreen = document.getElementById('battle-screen');
+const gameoverScreen = document.getElementById('gameover-screen'); // TODO: HTMLに追加が必要
+const btnLocal = document.getElementById('btnLocal');
+const btnCpu = document.getElementById('btnCpu');
+const btnRestart = document.getElementById('btn-restart'); // TODO: 後で調整
+const btnRematch = document.getElementById('btn-rematch'); // TODO: 後で調整
 const turnIndicator = document.getElementById('turn-indicator');
-const logList = document.getElementById('log-list');
+const logList = document.getElementById('log-list'); // TODO: 後で調整
 const winnerMessage = document.getElementById('winner-message');
 
 // 追加：ステージ攻略モード関連のUI要素
-const btnCampaign = document.getElementById('btn-campaign');
+const btnCampaign = document.getElementById('btnCampaign');
 const stageSelectScreen = document.getElementById('stage-select-screen');
 const stageGrid = document.getElementById('stage-grid');
-const btnBackToTitle = document.getElementById('btn-back-to-title');
+const btnBackToTitle = document.getElementById('btnBackToTitle');
 const stageInfoBar = document.getElementById('stage-info-bar');
 const stageTitleEl = document.getElementById('stage-title');
 const stageDescEl = document.getElementById('stage-desc');
@@ -85,17 +85,16 @@ const btnBackToSelect = document.getElementById('btn-back-to-select');
 
 
 // 新規追加ボタンとモーダル
-const btnSetupRules = document.getElementById('btn-setup-rules');
+const btnSettings = document.getElementById('btnSettings');
 const btnShowRules = document.getElementById('btn-show-rules');
 const btnCloseRules = document.getElementById('btn-close-rules');
-const btnShowLog = document.getElementById('btn-show-log');
-const btnCloseLog = document.getElementById('btn-close-log');
+const btnShowLog = document.getElementById('btnShowLog');
+const latestLogText = document.getElementById('latest-log-text');
 const rulesScreen = document.getElementById('rules-screen');
 const logModal = document.getElementById('log-modal');
 
-const p1Section = document.getElementById('player1-section');
-const p2Section = document.getElementById('player2-section');
-const p2Name = document.getElementById('p2-name');
+const p1Name = document.getElementById('p1-name-label');
+const p2Name = document.getElementById('p2-name-label');
 
 // ルール設定用要素
 const btnRandomizeRules = document.getElementById('btn-randomize-rules');
@@ -177,8 +176,12 @@ function randomizeRules() {
   }, 300);
 }
 
-document.getElementById('p1-btn-pass').addEventListener('click', () => executePass('p1'));
-document.getElementById('p2-btn-pass').addEventListener('click', () => executePass('p2'));
+const btnPass = document.getElementById('btnPass');
+if (btnPass) {
+  btnPass.addEventListener('click', () => {
+    executePass(gameState.currentPlayer);
+  });
+}
 
 const p1CardsContainer = document.getElementById('p1-cards-container');
 const p2CardsContainer = document.getElementById('p2-cards-container');
@@ -271,8 +274,8 @@ function init() {
   btnBackToTitle.addEventListener('click', () => {
     stageSelectScreen.classList.remove('active');
     stageSelectScreen.classList.add('hidden');
-    setupScreen.classList.remove('hidden');
-    setupScreen.classList.add('active');
+    titleScreen.classList.remove('hidden');
+    titleScreen.classList.add('active');
   });
   btnNextStage.addEventListener('click', () => {
     if (gameState.campaignStage && gameState.campaignStage < CAMPAIGN_STAGES.length) {
@@ -291,14 +294,14 @@ function init() {
 
   // ルール画面制御
   btnSetupRules.addEventListener('click', () => {
-    setupScreen.classList.remove('active');
-    setupScreen.classList.add('hidden');
+    titleScreen.classList.remove('active');
+    titleScreen.classList.add('hidden');
     rulesScreen.classList.remove('hidden');
     rulesScreen.classList.add('active');
   });
   btnShowRules.addEventListener('click', () => {
-    gameScreen.classList.remove('active');
-    gameScreen.classList.add('hidden');
+    battleScreen.classList.remove('active');
+    battleScreen.classList.add('hidden');
     rulesScreen.classList.remove('hidden');
     rulesScreen.classList.add('active');
   });
@@ -307,11 +310,11 @@ function init() {
     rulesScreen.classList.add('hidden');
     // どこから来たかで戻り先を変える
     if (gameState.mode === null && gameState.campaignStage === null) {
-      setupScreen.classList.remove('hidden');
-      setupScreen.classList.add('active');
+      titleScreen.classList.remove('hidden');
+      titleScreen.classList.add('active');
     } else {
-      gameScreen.classList.remove('hidden');
-      gameScreen.classList.add('active');
+      battleScreen.classList.remove('hidden');
+      battleScreen.classList.add('active');
     }
   });
 
@@ -382,21 +385,21 @@ function startGame(mode) {
 
   gameState.mode = mode;
   p2Name.textContent = mode === 'cpu' ? 'CPU (AI)' : 'プレイヤー2';
-  setupScreen.classList.remove('active');
-  setupScreen.classList.add('hidden');
-  gameScreen.classList.remove('hidden');
-  gameScreen.classList.add('active');
+  titleScreen.classList.remove('active');
+  titleScreen.classList.add('hidden');
+  battleScreen.classList.remove('hidden');
+  battleScreen.classList.add('active');
   resetGame();
 }
 
 // タイトルへ戻る
 function backToTitle() {
-  gameScreen.classList.remove('active');
-  gameScreen.classList.add('hidden');
+  battleScreen.classList.remove('active');
+  battleScreen.classList.add('hidden');
   gameoverScreen.classList.remove('active');
   gameoverScreen.classList.add('hidden');
-  setupScreen.classList.remove('hidden');
-  setupScreen.classList.add('active');
+  titleScreen.classList.remove('hidden');
+  titleScreen.classList.add('active');
 }
 
 // ゲームリセット
@@ -436,11 +439,13 @@ function resetGame() {
 
 
 function createCardsDOM() {
+  const p1CardsContainer = document.getElementById('p1-area');
+  const p2CardsContainer = document.getElementById('p2-area');
   p1CardsContainer.innerHTML = '';
   p2CardsContainer.innerHTML = '';
   
   const labels = ['A', 'B', 'C', 'D'];
-  const handLabels = ['左手', '右手', '第3の手', '第4の手'];
+  const handLabels = ['左手', '右手', '第3', '第4'];
   
   gameState.cards.p1 = {};
   gameState.cards.p2 = {};
@@ -461,26 +466,20 @@ function createCardsDOM() {
 
     gameState.cards.p1[cardId] = p1Init;
     const p1Card = `
-      <div class="card-slot" id="p1-card-${cardId}" data-player="p1" data-card-id="${cardId}">
-        <div class="card-inner">
-          <span class="card-label">${handLabel}</span>
-          <div class="card-value-display">
-            <span class="card-value">${p1Init}</span>
-          </div>
-        </div>
+      <div class="card-slot w-28 h-40 bg-surface rounded-xl shadow-md flex flex-col items-center justify-between p-2 cursor-pointer transition-transform hover:-translate-y-2 card-active" id="p1-card-${cardId}" data-player="p1" data-card-id="${cardId}">
+        <div class="self-start text-sm font-bold text-primary card-label">${handLabel}</div>
+        <span class="font-display font-black text-5xl text-primary card-value">${p1Init}</span>
+        <div class="self-end text-sm font-bold text-primary rotate-180 card-label">${handLabel}</div>
       </div>
     `;
     p1CardsContainer.insertAdjacentHTML('beforeend', p1Card);
 
     gameState.cards.p2[cardId] = p2Init;
     const p2Card = `
-      <div class="card-slot" id="p2-card-${cardId}" data-player="p2" data-card-id="${cardId}">
-        <div class="card-inner">
-          <span class="card-label">${handLabel}</span>
-          <div class="card-value-display">
-            <span class="card-value">${p2Init}</span>
-          </div>
-        </div>
+      <div class="card-slot w-24 h-36 bg-surface rounded-xl shadow-md flex flex-col items-center justify-between p-2 relative transform rotate-180" id="p2-card-${cardId}" data-player="p2" data-card-id="${cardId}">
+        <div class="self-start text-xs font-bold text-secondary card-label">${handLabel}</div>
+        <span class="font-display font-black text-4xl text-secondary card-value">${p2Init}</span>
+        <div class="self-end text-xs font-bold text-secondary rotate-180 card-label">${handLabel}</div>
       </div>
     `;
     p2CardsContainer.insertAdjacentHTML('beforeend', p2Card);
@@ -1076,40 +1075,31 @@ function checkVictory() {
 
 // UIの同期更新
 function updateUI() {
-  // 制限表示の更新
+  // アクション残量の表示更新
   for (const p of ['p1', 'p2']) {
-    const pullStr = gameState.limits[p].pull === -1 ? '無制限' : gameState.limits[p].pull;
-    const transStr = gameState.limits[p].transfer === -1 ? '無制限' : gameState.limits[p].transfer;
-    const passStr = gameState.limits[p].pass === -1 ? '無制限' : gameState.limits[p].pass;
+    const pullStr = gameState.limits[p].pull === -1 ? '∞' : gameState.limits[p].pull;
+    const transStr = gameState.limits[p].transfer === -1 ? '∞' : gameState.limits[p].transfer;
+    const passStr = gameState.limits[p].pass === -1 ? '∞' : gameState.limits[p].pass;
     
-    const transEl = document.getElementById(`${p}-limit-transfer`);
-    const pullEl = document.getElementById(`${p}-limit-pull`);
-    
-    transEl.textContent = `譲渡: ${transStr}`;
-    pullEl.textContent = `引込: ${pullStr}`;
-    
-    // ルール上で0（禁止）に設定されている場合は非表示にする
-    if (gameState.customRules.transferLimit == 0) {
-      transEl.classList.add('hidden');
-    } else {
-      transEl.classList.remove('hidden');
+    const actionLabel = document.getElementById(`${p}-action-label`);
+    if (actionLabel) {
+      actionLabel.style.display = 'inline-block';
+      actionLabel.textContent = `P: ${passStr} | T: ${transStr} | L: ${pullStr}`;
     }
     
-    if (gameState.customRules.pullLimit == 0) {
-      pullEl.classList.add('hidden');
-    } else {
-      pullEl.classList.remove('hidden');
-    }
-    
-    const passBtn = document.getElementById(`${p}-btn-pass`);
-    if (gameState.limits[p].pass === 0 || gameState.currentPlayer !== p || (gameState.mode === 'cpu' && p === 'p2')) {
-      passBtn.disabled = true;
-      passBtn.style.display = gameState.limits[p].pass === 0 ? 'none' : 'inline-block';
-      passBtn.textContent = `パス (${passStr})`;
-    } else {
-      passBtn.disabled = false;
-      passBtn.style.display = 'inline-block';
-      passBtn.textContent = `パス (${passStr})`;
+    if (p === 'p1') {
+      const passBtn = document.getElementById('btnPass');
+      if (passBtn) {
+        if (gameState.limits[p].pass === 0 || gameState.currentPlayer !== 'p1') {
+          passBtn.disabled = true;
+          passBtn.style.opacity = '0.5';
+          passBtn.style.pointerEvents = 'none';
+        } else {
+          passBtn.disabled = false;
+          passBtn.style.opacity = '1';
+          passBtn.style.pointerEvents = 'auto';
+        }
+      }
     }
   }
 
@@ -1129,28 +1119,13 @@ function updateUI() {
       }
 
       if (isLoseValue(gameState, val)) {
-        slot.classList.add('extinguished');
+        slot.classList.add('opacity-50', 'grayscale');
+        slot.classList.remove('card-active');
       } else {
-        slot.classList.remove('extinguished');
-      }
-
-      slot.classList.remove('special-win', 'special-lose');
-      if (isWinValue(gameState, val)) {
-        slot.classList.add('special-win');
-      }
-      if (isLoseValue(gameState, val)) {
-        slot.classList.add('special-lose');
+        slot.classList.remove('opacity-50', 'grayscale');
+        slot.classList.add('card-active');
       }
     }
-  }
-
-  // ターンクラスの割り当て
-  if (gameState.currentPlayer === 'p1') {
-    p1Section.classList.add('active-turn');
-    p2Section.classList.remove('active-turn');
-  } else {
-    p2Section.classList.add('active-turn');
-    p1Section.classList.remove('active-turn');
   }
 }
 
@@ -1185,6 +1160,9 @@ function addLog(speaker, text, type) {
   item.textContent = text;
   logList.appendChild(item);
   logList.scrollTop = logList.scrollHeight; // スクロールを一番下に
+  if (latestLogText) {
+    latestLogText.textContent = text;
+  }
 }
 
 // ==========================================
@@ -1624,10 +1602,10 @@ function saveUnlockedStage(stage) {
 }
 
 function showStageSelectScreen() {
-  setupScreen.classList.remove('active');
-  setupScreen.classList.add('hidden');
-  gameScreen.classList.remove('active');
-  gameScreen.classList.add('hidden');
+  titleScreen.classList.remove('active');
+  titleScreen.classList.add('hidden');
+  battleScreen.classList.remove('active');
+  battleScreen.classList.add('hidden');
   gameoverScreen.classList.remove('active');
   gameoverScreen.classList.add('hidden');
   stageSelectScreen.classList.remove('hidden');

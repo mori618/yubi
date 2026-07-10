@@ -17,53 +17,53 @@
             theme: {
                 extend: {
                     "colors": {
-                        "surface-container": "var(--color-surface-container)",
-                        "primary-fixed-dim": "var(--color-primary-fixed-dim)",
-                        "primary-container": "var(--color-primary-container)",
-                        "surface-container-low": "var(--color-surface-container-low)",
-                        "inverse-surface": "var(--color-inverse-surface)",
-                        "outline-variant": "var(--color-outline-variant)",
-                        "outline": "var(--color-outline)",
-                        "on-surface-variant": "var(--color-on-surface-variant)",
-                        "primary": "var(--color-primary)",
-                        "on-primary-fixed": "var(--color-on-primary-fixed)",
-                        "surface-dim": "var(--color-surface-dim)",
-                        "surface-tint": "var(--color-surface-tint)",
-                        "surface-bright": "var(--color-surface-bright)",
-                        "surface-container-highest": "var(--color-surface-container-highest)",
-                        "surface": "var(--color-surface)",
-                        "secondary-fixed": "var(--color-secondary-fixed)",
-                        "inverse-primary": "var(--color-inverse-primary)",
-                        "tertiary": "var(--color-tertiary)",
-                        "on-secondary-fixed-variant": "var(--color-on-secondary-fixed-variant)",
-                        "background": "var(--color-background)",
-                        "surface-container-lowest": "var(--color-surface-container-lowest)",
-                        "tertiary-fixed-dim": "var(--color-tertiary-fixed-dim)",
-                        "secondary": "var(--color-secondary)",
-                        "on-tertiary-container": "var(--color-on-tertiary-container)",
-                        "error-container": "var(--color-error-container)",
-                        "surface-container-high": "var(--color-surface-container-high)",
-                        "primary-fixed": "var(--color-primary-fixed)",
-                        "on-surface": "var(--color-on-surface)",
-                        "on-primary": "var(--color-on-primary)",
-                        "on-error": "var(--color-on-error)",
-                        "on-primary-fixed-variant": "var(--color-on-primary-fixed-variant)",
-                        "on-tertiary": "var(--color-on-tertiary)",
-                        "inverse-on-surface": "var(--color-inverse-on-surface)",
-                        "error": "var(--color-error)",
-                        "tertiary-container": "var(--color-tertiary-container)",
-                        "secondary-fixed-dim": "var(--color-secondary-fixed-dim)",
-                        "on-primary-container": "var(--color-on-primary-container)",
-                        "on-error-container": "var(--color-on-error-container)",
-                        "tertiary-fixed": "var(--color-tertiary-fixed)",
-                        "on-secondary-fixed": "var(--color-on-secondary-fixed)",
-                        "secondary-container": "var(--color-secondary-container)",
-                        "on-secondary-container": "var(--color-on-secondary-container)",
-                        "on-background": "var(--color-on-background)",
-                        "surface-variant": "var(--color-surface-variant)",
-                        "on-tertiary-fixed-variant": "var(--color-on-tertiary-fixed-variant)",
-                        "on-tertiary-fixed": "var(--color-on-tertiary-fixed)",
-                        "on-secondary": "var(--color-on-secondary)"
+                        "surface-container": "#f8eef8",
+                        "primary-fixed-dim": "#f0a0cc",
+                        "primary-container": "#f080c0",
+                        "surface-container-low": "#fbf2fb",
+                        "inverse-surface": "#2e1a28",
+                        "outline-variant": "#dcc8e0",
+                        "outline": "#907898",
+                        "on-surface-variant": "#604868",
+                        "primary": "#e040a0",
+                        "on-primary-fixed": "#3d0028",
+                        "surface-dim": "#e0d6e0",
+                        "surface-tint": "#e040a0",
+                        "surface-bright": "#fef7ff",
+                        "surface-container-highest": "#ece2ec",
+                        "surface": "#fef7ff",
+                        "secondary-fixed": "#eedcff",
+                        "inverse-primary": "#f0a0cc",
+                        "tertiary": "#0096cc",
+                        "on-secondary-fixed-variant": "#4a3068",
+                        "background": "#fef7ff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#80d0f0",
+                        "secondary": "#7c52aa",
+                        "on-tertiary-container": "#00334d",
+                        "error-container": "#ffe8e8",
+                        "surface-container-high": "#f2e8f2",
+                        "primary-fixed": "#ffd6ee",
+                        "on-surface": "#2e1a28",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#a02070",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#fef7ff",
+                        "error": "#e53e3e",
+                        "tertiary-container": "#40c0ee",
+                        "secondary-fixed-dim": "#c8a8e8",
+                        "on-primary-container": "#2e1a28",
+                        "on-error-container": "#9b1c1c",
+                        "tertiary-fixed": "#c8eaff",
+                        "on-secondary-fixed": "#1a1030",
+                        "secondary-container": "#eedcff",
+                        "on-secondary-container": "#2e2040",
+                        "on-background": "#2e1a28",
+                        "surface-variant": "#f2e8f2",
+                        "on-tertiary-fixed-variant": "#005580",
+                        "on-tertiary-fixed": "#001a33",
+                        "on-secondary": "#ffffff"
                     },
                     "borderRadius": {
                         "DEFAULT": "1rem",
@@ -131,7 +131,7 @@
 <!-- Menu Actions (Bento-ish Layout) -->
 <div class="w-full max-w-lg grid grid-cols-1 gap-4">
 <!-- Featured Button: Campaign -->
-<button id="btnCampaign" class="w-full group bg-primary text-on-primary rounded-full py-5 px-8 shadow-[0_8px_24px_rgba(224,64,160,0.3)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-between">
+<button class="w-full group bg-primary text-on-primary rounded-full py-5 px-8 shadow-[0_8px_24px_rgba(224,64,160,0.3)] hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center justify-between">
 <span class="flex items-center gap-4">
 <span class="material-symbols-outlined text-3xl">military_tech</span>
 <span class="font-headline font-bold text-2xl uppercase tracking-wide">Campaign Mode</span>
@@ -140,18 +140,18 @@
 </button>
 <div class="grid grid-cols-2 gap-4">
 <!-- Local 2P -->
-<button id="btnLocal" class="bg-surface-bright text-secondary border-4 border-secondary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(124,82,170,0.15)] hover:scale-[1.03] hover:bg-secondary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
+<button class="bg-surface-bright text-secondary border-4 border-secondary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(124,82,170,0.15)] hover:scale-[1.03] hover:bg-secondary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
 <span class="material-symbols-outlined text-4xl">group</span>
 <span class="font-label font-bold text-lg">Local 2P Battle</span>
 </button>
 <!-- VS CPU -->
-<button id="btnCpu" class="bg-surface-bright text-tertiary border-4 border-tertiary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(0,150,204,0.15)] hover:scale-[1.03] hover:bg-tertiary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
+<button class="bg-surface-bright text-tertiary border-4 border-tertiary-container rounded-full py-4 px-6 shadow-[0_4px_16px_rgba(0,150,204,0.15)] hover:scale-[1.03] hover:bg-tertiary-container active:scale-95 transition-all duration-300 flex flex-col items-center justify-center gap-2">
 <span class="material-symbols-outlined text-4xl">smart_toy</span>
 <span class="font-label font-bold text-lg">VS CPU</span>
 </button>
 </div>
 <!-- Settings & Rules -->
-<button id="btnSettings" class="w-full bg-surface-variant text-on-surface-variant rounded-full py-4 px-8 mt-2 hover:scale-[1.02] hover:bg-surface-dim active:scale-95 transition-all duration-300 flex items-center justify-center gap-3">
+<button class="w-full bg-surface-variant text-on-surface-variant rounded-full py-4 px-8 mt-2 hover:scale-[1.02] hover:bg-surface-dim active:scale-95 transition-all duration-300 flex items-center justify-center gap-3">
 <span class="material-symbols-outlined">settings</span>
 <span class="font-headline font-bold text-lg">Settings &amp; Rules</span>
 </button>
@@ -207,7 +207,7 @@
 <main class="flex-grow flex flex-col h-screen relative z-10 overflow-hidden bg-gradient-to-br from-surface to-surface-container-high">
 <!-- TopAppBar -->
 <header class="flex justify-between items-center px-6 py-4 w-full bg-surface dark:bg-surface shadow-[0_4px_0_0_rgba(220,200,224,1)] full-width top-0 z-30 shrink-0">
-<button id="btnBackToTitle" class="text-on-surface-variant hover:text-primary hover:scale-105 transition-transform duration-200 active:scale-95 flex items-center gap-2 font-medium bg-surface-container p-2 pr-4 rounded-full bouncy-hover">
+<button class="text-on-surface-variant hover:text-primary hover:scale-105 transition-transform duration-200 active:scale-95 flex items-center gap-2 font-medium bg-surface-container p-2 pr-4 rounded-full bouncy-hover">
 <span class="material-symbols-outlined">arrow_back</span>
 <span class="hidden sm:inline">Back to Title</span>
 </button>
@@ -526,32 +526,60 @@
 <img class="w-full h-full object-cover" data-alt="A playful, cartoony avatar of a cute, mischievous blue creature with big eyes, rendered in a bright, glossy 3D style suitable for a modern candy-themed mobile game. The lighting is soft and vibrant with a clean white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi3rCwJU9QwoXtNskxv6puJogLsPk50Os1HxE4T9sAHgNUo49vU5T3A_lYBZLxgZ-gq5MiJ9C58R8KUoXXDNOkp89lQJTeI1k4BJ3IloBoas6uZha38kZYbz2R8-HxdQLh1opKnNz0xDk75n31XsCGtuDP1Eel0v_Q245folGjfBXGOdc1xq0ivUuBIJevlOOW94PAP2SfutlPZvYovg5oF9oZQVau-wFLn9fzHf2F_h1RnkFD9NELB1ryXgwBsx5HeE_ave7ZFrU"/>
 </div>
 <div>
-<h2 id="p2-name-label" class="font-headline font-bold text-lg text-on-surface">Bot 9000</h2>
-<span id="p2-action-label" class="bg-secondary text-on-secondary text-xs px-2 py-1 rounded-full font-label" style="display:none;"></span>
+<h2 class="font-headline font-bold text-lg text-on-surface">Bot 9000</h2>
+<span class="bg-secondary text-on-secondary text-xs px-2 py-1 rounded-full font-label">2 Actions Left</span>
 </div>
 </div>
 </div>
-<!-- P2 Cards -->
-<div id="p2-area" class="flex justify-center gap-4 w-full">
-  <!-- JavaScript で動的生成 -->
+<!-- P2 Cards (Target State example) -->
+<div class="flex justify-center gap-4 w-full">
+<!-- Card 1 -->
+<div class="w-24 h-36 bg-surface rounded-xl shadow-md flex items-center justify-center relative">
+<span class="font-display font-black text-4xl text-outline-variant">?</span>
+</div>
+<!-- Card 2 (Target) -->
+<div class="w-24 h-36 bg-surface rounded-xl card-target shadow-md flex items-center justify-center relative transform rotate-180">
+<span class="font-display font-black text-4xl text-on-surface">7</span>
+</div>
+<!-- Card 3 -->
+<div class="w-24 h-36 bg-surface rounded-xl shadow-md flex items-center justify-center relative">
+<span class="font-display font-black text-4xl text-outline-variant">?</span>
+</div>
 </div>
 </section>
 <!-- ==================== CENTRAL HUD ==================== -->
 <div class="absolute top-1/2 left-0 w-full transform -translate-y-1/2 z-20 flex justify-between items-center px-4 pointer-events-none">
 <!-- Turn Indicator -->
-<div id="turn-indicator" class="bg-primary text-on-primary font-headline font-bold px-6 py-3 rounded-full shadow-[0_4px_16px_rgba(224,64,160,0.4)] pointer-events-auto pulse-text">
+<div class="bg-primary text-on-primary font-headline font-bold px-6 py-3 rounded-full shadow-[0_4px_16px_rgba(224,64,160,0.4)] pointer-events-auto pulse-text">
                 YOUR TURN
             </div>
-<!-- Menu Button (Instead of Pause) -->
-<button id="btnSettingsBattle" class="w-12 h-12 bg-surface text-primary rounded-full shadow-lg flex items-center justify-center bouncy-hover pointer-events-auto border-2 border-surface-container">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+<!-- Pause/Menu -->
+<button class="w-12 h-12 bg-surface text-primary rounded-full shadow-lg flex items-center justify-center bouncy-hover pointer-events-auto border-2 border-surface-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pause</span>
 </button>
 </div>
 <!-- ==================== PLAYER 1 AREA (BOTTOM - ACTIVE) ==================== -->
 <section class="h-3/5 w-full bg-surface-bright relative z-10 flex flex-col justify-start p-4 pt-12">
 <!-- P1 Cards -->
-<div id="p1-area" class="flex justify-center gap-4 w-full mb-8">
-  <!-- JavaScript で動的生成 -->
+<div class="flex justify-center gap-4 w-full mb-8">
+<!-- Card 1 (Bursted) -->
+<div class="w-28 h-40 bg-surface rounded-xl card-bursted shadow-md flex flex-col items-center justify-between p-2">
+<div class="self-start text-sm font-bold text-secondary">3</div>
+<span class="font-display font-black text-5xl text-secondary">3</span>
+<div class="self-end text-sm font-bold text-secondary rotate-180">3</div>
+</div>
+<!-- Card 2 (Active) -->
+<div class="w-28 h-40 bg-surface rounded-xl card-active flex flex-col items-center justify-between p-2 cursor-pointer transition-transform">
+<div class="self-start text-sm font-bold text-primary">8</div>
+<span class="font-display font-black text-5xl text-primary">8</span>
+<div class="self-end text-sm font-bold text-primary rotate-180">8</div>
+</div>
+<!-- Card 3 -->
+<div class="w-28 h-40 bg-surface rounded-xl shadow-md flex flex-col items-center justify-between p-2 cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="self-start text-sm font-bold text-tertiary">5</div>
+<span class="font-display font-black text-5xl text-tertiary">5</span>
+<div class="self-end text-sm font-bold text-tertiary rotate-180">5</div>
+</div>
 </div>
 <!-- P1 Info Bar & Actions -->
 <div class="flex justify-between items-end w-full max-w-4xl mx-auto mt-auto mb-4">
@@ -560,55 +588,26 @@
 <img class="w-full h-full object-cover" data-alt="A playful, cartoony avatar of a happy, energetic pink character with cool sunglasses, rendered in a bright, glossy 3D style matching a modern candy-themed mobile game. Vibrant lighting on a pristine white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp6UPLOX1Csmjvu0HkNB56GNLF_2IirczZzHE9AyHAT6FnISROsriDWLJxZtRSN7SCeI1bAGfNg8MKx-d45N3QvLPKA44X5M7IdGSeHu418qpnlGgD4CeBS59LGB0q9awt4bC7hGcmeK60t974I-plyGkP3ljRaaOLZWY926fFLDt2lVp-TzIQpABPtiL5fQaBLJgQFW8GlKumJNjt-m6YEUU-fFeduEyX1X4JI2P3PEBUbwks7l3TrCbaaIQKJ_2qnK3baqQCHLI"/>
 </div>
 <div>
-<h2 id="p1-name-label" class="font-headline font-bold text-xl text-on-surface">You</h2>
-<span id="p1-action-label" class="bg-primary-container text-on-primary-container text-sm px-3 py-1 rounded-full font-label font-bold" style="display:none;"></span>
+<h2 class="font-headline font-bold text-xl text-on-surface">You</h2>
+<span class="bg-primary-container text-on-primary-container text-sm px-3 py-1 rounded-full font-label font-bold">1 Action Left</span>
 </div>
 </div>
 <!-- Pass Button -->
-<button id="btnPass" class="bg-surface-variant text-on-surface-variant font-headline font-bold py-3 px-6 rounded-full bouncy-hover shadow-md border-2 border-outline-variant flex items-center gap-2">
+<button class="bg-surface-variant text-on-surface-variant font-headline font-bold py-3 px-6 rounded-full bouncy-hover shadow-md border-2 border-outline-variant flex items-center gap-2">
 <span class="material-symbols-outlined">skip_next</span>
                     PASS
                 </button>
 </div>
 <!-- Collapsible Action Log -->
-<div id="btnShowLog" class="w-full max-w-4xl mx-auto bg-surface-container rounded-t-xl p-3 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="w-full max-w-4xl mx-auto bg-surface-container rounded-t-xl p-3 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] cursor-pointer hover:bg-surface-container-high transition-colors">
 <div class="flex justify-between items-center text-on-surface-variant text-sm font-label">
-<span class="font-medium" id="latest-log-text">Click to view logs</span>
+<span class="font-medium">Bot 9000 played a 7.</span>
 <span class="material-symbols-outlined">expand_less</span>
 </div>
 </div>
 </section>
 </main>
 <!-- BottomNavBar - Suppressed for focus journey -->
-
-<!-- ==================== GAME OVER SCREEN ==================== -->
-<div id="gameover-screen" class="hidden absolute inset-0 z-50 flex items-center justify-center bg-surface/80 backdrop-blur-sm transition-opacity">
-  <div class="bg-surface-bright rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl flex flex-col items-center text-center">
-    <h2 class="font-headline font-black text-4xl text-primary mb-4">GAME OVER</h2>
-    <p id="winner-message" class="text-xl font-bold text-on-surface mb-8">Player 1 Wins!</p>
-    <div class="flex flex-col w-full gap-3">
-      <button id="btn-rematch" class="btn-primary w-full py-4 text-lg">REMATCH</button>
-      <button id="btn-restart" class="bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold py-4 rounded-full transition-colors w-full text-lg">MAIN MENU</button>
-      <button id="btn-next-stage" class="hidden btn-primary w-full py-4 text-lg">NEXT STAGE</button>
-      <button id="btn-back-to-select" class="hidden bg-surface-container hover:bg-surface-container-high text-on-surface font-headline font-bold py-4 rounded-full transition-colors w-full text-lg">STAGE SELECT</button>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== LOG MODAL ==================== -->
-<div id="log-modal" class="hidden absolute inset-0 z-40 bg-surface/80 backdrop-blur-sm flex flex-col items-center justify-end transition-opacity">
-  <div class="bg-surface-container w-full max-w-4xl rounded-t-3xl h-1/2 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-    <div class="flex justify-between items-center p-4 border-b border-outline-variant">
-      <h3 class="font-headline font-bold text-lg text-on-surface">Battle Log</h3>
-      <button id="btn-close-log" class="text-on-surface-variant hover:text-on-surface">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-    <div id="log-list" class="flex-1 overflow-y-auto p-4 space-y-2 font-label text-sm text-on-surface-variant">
-      <!-- Logs will be inserted here -->
-    </div>
-  </div>
-</div>
 
 </div>
 <script src="script.js"></script>
