@@ -90,7 +90,7 @@ const btnShowRules = document.getElementById('btn-show-rules');
 const btnCloseRules = document.getElementById('btn-close-rules');
 const btnShowLog = document.getElementById('btn-show-log');
 const btnCloseLog = document.getElementById('btn-close-log');
-const rulesModal = document.getElementById('rules-modal');
+const rulesScreen = document.getElementById('rules-screen');
 const logModal = document.getElementById('log-modal');
 
 const p1Section = document.getElementById('player1-section');
@@ -98,21 +98,24 @@ const p2Section = document.getElementById('player2-section');
 const p2Name = document.getElementById('p2-name');
 
 // ルール設定用要素
-const ruleCpuDifficulty = document.getElementById('rule-cpu-difficulty');
 const btnRandomizeRules = document.getElementById('btn-randomize-rules');
-const ruleInitMin = document.getElementById('rule-initial-value-min');
-const ruleInitMax = document.getElementById('rule-initial-value-max');
 const ruleMaxValue = document.getElementById('rule-max-value');
-const ruleCardCount = document.getElementById('rule-card-count');
-const ruleLoseCount = document.getElementById('rule-lose-count');
-const ruleZeroOnFive = document.getElementById('rule-zero-on-five');
-const rulePullLimit = document.getElementById('rule-pull-limit');
-const ruleTransferLimit = document.getElementById('rule-transfer-limit');
-const rulePassLimit = document.getElementById('rule-pass-limit');
-const ruleAttackHandRestriction = document.getElementById('rule-attack-hand-restriction');
-const rulePullTargetRestriction = document.getElementById('rule-pull-target-restriction');
 const ruleWinValues = document.getElementById('rule-win-values');
 const ruleLoseValues = document.getElementById('rule-lose-values');
+
+// セグメントボタンとトグルの値取得・設定用ヘルパー
+function getSegValue(id) {
+  const activeBtn = document.querySelector(`#${id} .seg-btn.active`);
+  return activeBtn ? activeBtn.dataset.value : null;
+}
+
+function setSegValue(id, value) {
+  const parent = document.getElementById(id);
+  if (!parent) return;
+  parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  const target = parent.querySelector(`.seg-btn[data-value="${value}"]`);
+  if (target) target.classList.add('active');
+}
 
 btnRandomizeRules.addEventListener('click', randomizeRules);
 
@@ -121,38 +124,37 @@ function getRandomItem(array) {
 }
 
 function randomizeRules() {
-  ruleCpuDifficulty.value = getRandomItem(['strong', 'normal']);
+  setSegValue('seg-cpu-difficulty', getRandomItem(['strong', 'normal']));
   
   const minVal = getRandomItem([1, 2, 3, 4]);
-  ruleInitMin.value = minVal;
+  setSegValue('seg-initial-min', minVal);
   
-  // maxValはminVal以上
   const validMaxVals = [1, 2, 3, 4].filter(v => v >= minVal);
-  ruleInitMax.value = getRandomItem(validMaxVals);
+  setSegValue('seg-initial-max', getRandomItem(validMaxVals));
   
   ruleMaxValue.value = Math.floor(Math.random() * (12 - 4 + 1)) + 4; // 4〜12
   
-  ruleCardCount.value = getRandomItem([2, 3, 4]);
+  setSegValue('seg-card-count', getRandomItem([2, 3, 4]));
   
-  // 敗北条件はカード数に応じて
-  const cCount = parseInt(ruleCardCount.value, 10);
+  const cCount = parseInt(getSegValue('seg-card-count'), 10);
   const loseOptions = ['all', '1', 'leader'];
   if (cCount >= 2) loseOptions.push('2');
   if (cCount >= 3) loseOptions.push('3');
-  ruleLoseCount.value = getRandomItem(loseOptions);
+  setSegValue('seg-lose-count', getRandomItem(loseOptions));
   
-  rulePullLimit.value = getRandomItem([-1, 0, 1, 2, 3]);
-  ruleTransferLimit.value = getRandomItem([-1, 0, 1, 2, 3]);
-  rulePassLimit.value = getRandomItem([-1, 0, 1, 2, 3]);
+  setSegValue('seg-pull-limit', getRandomItem([-1, 0, 1, 2, 3]));
+  setSegValue('seg-transfer-limit', getRandomItem([-1, 0, 1, 2, 3]));
+  setSegValue('seg-pass-limit', getRandomItem([-1, 0, 1, 2, 3]));
   
-  ruleZeroOnFive.checked = Math.random() < 0.5;
-  ruleAllowSelfAdd.checked = Math.random() < 0.5;
-  ruleBlindMode.checked = Math.random() < 0.5;
-  ruleReverseWin.checked = Math.random() < 0.5;
-  ruleMultiplyAttack.checked = Math.random() < 0.5;
-  ruleChainExplosion.checked = Math.random() < 0.5;
-  ruleAttackHandRestriction.value = getRandomItem(['none', 'min', 'max', 'alternate']);
-  rulePullTargetRestriction.value = getRandomItem(['none', 'min', 'max', 'alternate']);
+  document.getElementById('rule-zero-on-five').checked = Math.random() < 0.5;
+  document.getElementById('rule-allow-self-add').checked = Math.random() < 0.5;
+  document.getElementById('rule-blind-mode').checked = Math.random() < 0.5;
+  document.getElementById('rule-reverse-win').checked = Math.random() < 0.5;
+  document.getElementById('rule-multiply-attack').checked = Math.random() < 0.5;
+  document.getElementById('rule-chain-explosion').checked = Math.random() < 0.5;
+  
+  setSegValue('seg-attack-hand', getRandomItem(['none', 'min', 'max', 'alternate']));
+  setSegValue('seg-pull-target', getRandomItem(['none', 'min', 'max', 'alternate']));
   
   if (Math.random() < 0.3) {
     ruleWinValues.value = getRandomItem(['', '5', '10', '5, 10']);
@@ -178,12 +180,6 @@ function randomizeRules() {
 document.getElementById('p1-btn-pass').addEventListener('click', () => executePass('p1'));
 document.getElementById('p2-btn-pass').addEventListener('click', () => executePass('p2'));
 
-const ruleAllowSelfAdd = document.getElementById('rule-allow-self-add');
-const ruleBlindMode = document.getElementById('rule-blind-mode');
-const ruleReverseWin = document.getElementById('rule-reverse-win');
-const ruleMultiplyAttack = document.getElementById('rule-multiply-attack');
-const ruleChainExplosion = document.getElementById('rule-chain-explosion');
-
 const p1CardsContainer = document.getElementById('p1-cards-container');
 const p2CardsContainer = document.getElementById('p2-cards-container');
 
@@ -191,9 +187,9 @@ function syncRulesToUI() {
   const rules = gameState.customRules;
   const isCampaign = gameState.campaignStage !== null;
 
-  const setVal = (el, val, hideCondition = false) => {
-    el.value = val;
-    const container = el.closest('.setting-item');
+  const setSeg = (id, val, hideCondition = false) => {
+    setSegValue(id, val);
+    const container = document.getElementById(id).closest('.setting-item');
     if (container) {
       if (isCampaign && hideCondition) {
         container.classList.add('hidden');
@@ -203,9 +199,10 @@ function syncRulesToUI() {
     }
   };
 
-  const setCheck = (el, val, hideCondition = false) => {
-    el.checked = val;
-    const container = el.closest('.setting-item');
+  const setCheck = (id, val, hideCondition = false) => {
+    const el = document.getElementById(id);
+    if(el) el.checked = val;
+    const container = el ? el.closest('.setting-item') : null;
     if (container) {
       if (isCampaign && hideCondition) {
         container.classList.add('hidden');
@@ -215,39 +212,51 @@ function syncRulesToUI() {
     }
   };
 
-  setVal(ruleCpuDifficulty, rules.cpuDifficulty);
-  setVal(ruleInitMin, rules.initialValueMin);
-  setVal(ruleInitMax, rules.initialValueMax);
-  setVal(ruleMaxValue, rules.maxValue);
-  setVal(ruleCardCount, rules.cardCount);
-  setVal(ruleLoseCount, rules.loseCount);
+  setSeg('seg-cpu-difficulty', rules.cpuDifficulty);
+  setSeg('seg-initial-min', rules.initialValueMin);
+  setSeg('seg-initial-max', rules.initialValueMax);
+  ruleMaxValue.value = rules.maxValue;
+  setSeg('seg-card-count', rules.cardCount);
+  setSeg('seg-lose-count', rules.loseCount);
   
-  setCheck(ruleZeroOnFive, rules.zeroWhenFiveOrMore, !rules.zeroWhenFiveOrMore);
-  setVal(rulePullLimit, rules.pullLimit, rules.pullLimit == 0);
-  setVal(ruleTransferLimit, rules.transferLimit, rules.transferLimit == 0);
-  setVal(rulePassLimit, rules.passLimit, rules.passLimit == 0);
+  setCheck('rule-zero-on-five', rules.zeroWhenFiveOrMore, !rules.zeroWhenFiveOrMore);
+  setSeg('seg-pull-limit', rules.pullLimit, rules.pullLimit == 0);
+  setSeg('seg-transfer-limit', rules.transferLimit, rules.transferLimit == 0);
+  setSeg('seg-pass-limit', rules.passLimit, rules.passLimit == 0);
   
-  setVal(ruleAttackHandRestriction, rules.attackHandRestriction, rules.attackHandRestriction === 'none');
-  setVal(rulePullTargetRestriction, rules.pullTargetRestriction, rules.pullTargetRestriction === 'none');
+  setSeg('seg-attack-hand', rules.attackHandRestriction, rules.attackHandRestriction === 'none');
+  setSeg('seg-pull-target', rules.pullTargetRestriction, rules.pullTargetRestriction === 'none');
   
   const winValStr = rules.winValues ? rules.winValues.join(',') : '';
-  setVal(ruleWinValues, winValStr, winValStr === '');
+  ruleWinValues.value = winValStr;
   
   const loseValStr = rules.loseValues ? rules.loseValues.join(',') : '';
-  setVal(ruleLoseValues, loseValStr, loseValStr === '0' || loseValStr === '');
+  ruleLoseValues.value = loseValStr;
   
-  setCheck(ruleAllowSelfAdd, rules.allowSelfAdd, !rules.allowSelfAdd);
-  setCheck(ruleBlindMode, rules.blindMode, !rules.blindMode);
-  setCheck(ruleReverseWin, rules.reverseWin, !rules.reverseWin);
-  setCheck(ruleMultiplyAttack, rules.multiplyAttack, !rules.multiplyAttack);
-  setCheck(ruleChainExplosion, rules.chainExplosion, !rules.chainExplosion);
+  setCheck('rule-allow-self-add', rules.allowSelfAdd, !rules.allowSelfAdd);
+  setCheck('rule-blind-mode', rules.blindMode, !rules.blindMode);
+  setCheck('rule-reverse-win', rules.reverseWin, !rules.reverseWin);
+  setCheck('rule-multiply-attack', rules.multiplyAttack, !rules.multiplyAttack);
+  setCheck('rule-chain-explosion', rules.chainExplosion, !rules.chainExplosion);
 }
 
 function setRulesEditable(editable) {
-  const inputs = rulesModal.querySelectorAll('.settings-panel input, .settings-panel select');
+  const inputs = rulesScreen.querySelectorAll('.settings-panel input, .settings-panel select');
   inputs.forEach(input => {
     input.disabled = !editable;
   });
+  
+  const segBtns = rulesScreen.querySelectorAll('.seg-btn');
+  segBtns.forEach(btn => {
+    if (editable) {
+      btn.style.pointerEvents = 'auto';
+      btn.style.opacity = '1';
+    } else {
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
+    }
+  });
+
   btnRandomizeRules.style.display = editable ? '' : 'none';
 }
 
@@ -280,10 +289,53 @@ function init() {
   btnRestart.addEventListener('click', backToTitle);
   btnRematch.addEventListener('click', resetGame);
 
-  // モーダル制御
-  btnSetupRules.addEventListener('click', () => rulesModal.classList.add('active'));
-  btnShowRules.addEventListener('click', () => rulesModal.classList.add('active'));
-  btnCloseRules.addEventListener('click', () => rulesModal.classList.remove('active'));
+  // ルール画面制御
+  btnSetupRules.addEventListener('click', () => {
+    setupScreen.classList.remove('active');
+    setupScreen.classList.add('hidden');
+    rulesScreen.classList.remove('hidden');
+    rulesScreen.classList.add('active');
+  });
+  btnShowRules.addEventListener('click', () => {
+    gameScreen.classList.remove('active');
+    gameScreen.classList.add('hidden');
+    rulesScreen.classList.remove('hidden');
+    rulesScreen.classList.add('active');
+  });
+  btnCloseRules.addEventListener('click', () => {
+    rulesScreen.classList.remove('active');
+    rulesScreen.classList.add('hidden');
+    // どこから来たかで戻り先を変える
+    if (gameState.mode === null && gameState.campaignStage === null) {
+      setupScreen.classList.remove('hidden');
+      setupScreen.classList.add('active');
+    } else {
+      gameScreen.classList.remove('hidden');
+      gameScreen.classList.add('active');
+    }
+  });
+
+  // タブ切り替え
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const targetId = e.target.dataset.tab;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      e.target.classList.add('active');
+      document.getElementById(targetId).classList.add('active');
+    });
+  });
+
+  // セグメントボタン切り替え
+  document.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // 編集可能かチェック (opacityで判定)
+      if (e.target.style.pointerEvents === 'none') return;
+      const parent = e.target.closest('.segmented-control');
+      parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+    });
+  });
   
   btnShowLog.addEventListener('click', () => {
     logModal.classList.add('active');
@@ -297,28 +349,28 @@ function init() {
 function startGame(mode) {
   if (gameState.campaignStage === null) {
     // 設定を読み取る
-  gameState.customRules.cpuDifficulty = ruleCpuDifficulty.value;
-  gameState.customRules.initialValueMin = parseInt(ruleInitMin.value, 10);
-  gameState.customRules.initialValueMax = Math.max(gameState.customRules.initialValueMin, parseInt(ruleInitMax.value, 10));
-  gameState.customRules.maxValue = parseInt(ruleMaxValue.value, 10);
-  gameState.customRules.cardCount = parseInt(ruleCardCount.value, 10);
-  gameState.customRules.loseCount = ruleLoseCount.value;
-  gameState.customRules.zeroWhenFiveOrMore = ruleZeroOnFive.checked;
-  gameState.customRules.pullLimit = parseInt(rulePullLimit.value, 10);
-  gameState.customRules.transferLimit = parseInt(ruleTransferLimit.value, 10);
-  gameState.customRules.passLimit = parseInt(rulePassLimit.value, 10);
-  gameState.customRules.allowSelfAdd = ruleAllowSelfAdd.checked;
-  gameState.customRules.blindMode = ruleBlindMode.checked;
-  gameState.customRules.reverseWin = ruleReverseWin.checked;
-  gameState.customRules.multiplyAttack = ruleMultiplyAttack.checked;
-  gameState.customRules.chainExplosion = ruleChainExplosion.checked;
-  gameState.customRules.attackHandRestriction = ruleAttackHandRestriction.value;
-  gameState.customRules.pullTargetRestriction = rulePullTargetRestriction.value;
-  gameState.customRules.winValues = parseValues(ruleWinValues.value);
-  gameState.customRules.loseValues = parseValues(ruleLoseValues.value);
-  if (gameState.customRules.loseValues.length === 0) {
-    gameState.customRules.loseValues = [0]; // 最低限0は含めるか、空でも良いが基本ルールとして0をデフォルトにする
-  }
+    gameState.customRules.cpuDifficulty = getSegValue('seg-cpu-difficulty') || 'strong';
+    gameState.customRules.initialValueMin = parseInt(getSegValue('seg-initial-min') || '1', 10);
+    gameState.customRules.initialValueMax = Math.max(gameState.customRules.initialValueMin, parseInt(getSegValue('seg-initial-max') || '1', 10));
+    gameState.customRules.maxValue = parseInt(ruleMaxValue.value, 10);
+    gameState.customRules.cardCount = parseInt(getSegValue('seg-card-count') || '2', 10);
+    gameState.customRules.loseCount = getSegValue('seg-lose-count') || 'all';
+    gameState.customRules.zeroWhenFiveOrMore = document.getElementById('rule-zero-on-five').checked;
+    gameState.customRules.pullLimit = parseInt(getSegValue('seg-pull-limit') || '-1', 10);
+    gameState.customRules.transferLimit = parseInt(getSegValue('seg-transfer-limit') || '-1', 10);
+    gameState.customRules.passLimit = parseInt(getSegValue('seg-pass-limit') || '0', 10);
+    gameState.customRules.allowSelfAdd = document.getElementById('rule-allow-self-add').checked;
+    gameState.customRules.blindMode = document.getElementById('rule-blind-mode').checked;
+    gameState.customRules.reverseWin = document.getElementById('rule-reverse-win').checked;
+    gameState.customRules.multiplyAttack = document.getElementById('rule-multiply-attack').checked;
+    gameState.customRules.chainExplosion = document.getElementById('rule-chain-explosion').checked;
+    gameState.customRules.attackHandRestriction = getSegValue('seg-attack-hand') || 'none';
+    gameState.customRules.pullTargetRestriction = getSegValue('seg-pull-target') || 'none';
+    gameState.customRules.winValues = parseValues(ruleWinValues.value);
+    gameState.customRules.loseValues = parseValues(ruleLoseValues.value);
+    if (gameState.customRules.loseValues.length === 0) {
+      gameState.customRules.loseValues = [0]; 
+    }
   }
 
   gameState.mode = mode;

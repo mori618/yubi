@@ -113,186 +113,224 @@
       </div>
     </div>
 
-    <!-- ルールモーダル -->
-    <div id="rules-modal" class="modal-overlay">
-      <div class="modal-content" style="max-width: 600px; text-align: left; max-height: 90vh; overflow-y: auto;">
-        <h2 style="text-align: center; margin-bottom: 20px;">ゲームルール</h2>
+    <!-- ルール設定画面（独立した画面） -->
+    <div id="rules-screen" class="screen hidden">
+      <div class="setup-content rules-content-wrapper" style="max-width: 800px; width: 100%;">
+        <h2 style="text-align: center; margin-bottom: 20px;">ゲームルール設定</h2>
+        
         <div class="rules-summary" style="margin-bottom: 20px;">
+          <h3 style="margin-bottom: 10px;">基本ルール</h3>
           <ul>
-            <li>各プレイヤーは「左手」「右手」の2つのカード（初期状態は1）を持ちます。</li>
-            <li><strong>攻撃（相手へドラッグ）</strong>: 自分の数値を相手に加算。5以上なら5を引いた数が残ります。</li>
+            <li>各プレイヤーは「左手」「右手」の2つのカードを持ちます。</li>
+            <li><strong>攻撃（相手へドラッグ）</strong>: 自分の数値を相手に加算。最大値以上なら引かれた数が残ります。</li>
             <li><strong>譲渡（自分のもう一方へドラッグ）</strong>: 自分の数値を分配します。</li>
             <li><strong>引き込み（相手から自分へドラッグ）</strong>: 相手の数値を自分に加算します（相手は変化なし）。</li>
-            <li>先に相手の両手を「0」にした方の勝利です。</li>
+            <li>先に相手のカードをすべて消滅させた方の勝利です。</li>
           </ul>
         </div>
 
         <!-- ルールカスタマイズ設定 -->
         <div class="settings-panel">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 style="margin: 0;">ルール設定</h3>
-            <button id="btn-randomize-rules" class="btn btn-warning" style="padding: 5px 10px; font-size: 0.9rem;">🎲 ランダム設定</button>
+          <div class="settings-header">
+            <h3 style="margin: 0;">カスタム設定</h3>
+            <button id="btn-randomize-rules" class="btn btn-warning" style="padding: 6px 12px; font-size: 0.9rem;">ランダム設定</button>
+          </div>
+
+          <!-- タブナビゲーション -->
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-basic">基本設定</button>
+            <button class="tab-btn" data-tab="tab-limits">制限ルール</button>
+            <button class="tab-btn" data-tab="tab-special">特殊ルール</button>
           </div>
           
-          <div class="setting-item">
-            <label for="rule-cpu-difficulty">CPUの強さ</label>
-            <select id="rule-cpu-difficulty">
-              <option value="strong" selected>強い（最強AI）</option>
-              <option value="normal">普通（1手先だけ考える）</option>
-            </select>
+          <!-- タブコンテンツ: 基本設定 -->
+          <div id="tab-basic" class="tab-content active">
+            <div class="setting-item">
+              <label>CPUの強さ</label>
+              <div class="segmented-control" id="seg-cpu-difficulty">
+                <button class="seg-btn active" data-value="strong">強い（最強AI）</button>
+                <button class="seg-btn" data-value="normal">普通（1手先）</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>初期値（最小〜最大）</label>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="segmented-control" id="seg-initial-min">
+                  <button class="seg-btn active" data-value="1">1</button>
+                  <button class="seg-btn" data-value="2">2</button>
+                  <button class="seg-btn" data-value="3">3</button>
+                  <button class="seg-btn" data-value="4">4</button>
+                </div>
+                <span>〜</span>
+                <div class="segmented-control" id="seg-initial-max">
+                  <button class="seg-btn active" data-value="1">1</button>
+                  <button class="seg-btn" data-value="2">2</button>
+                  <button class="seg-btn" data-value="3">3</button>
+                  <button class="seg-btn" data-value="4">4</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label for="rule-max-value">最大値（消滅または引かれる値）</label>
+              <input type="number" id="rule-max-value" value="5" min="2" max="20" class="solid-input">
+            </div>
+
+            <div class="setting-item">
+              <label>カードの枚数</label>
+              <div class="segmented-control" id="seg-card-count">
+                <button class="seg-btn active" data-value="2">2枚</button>
+                <button class="seg-btn" data-value="3">3枚</button>
+                <button class="seg-btn" data-value="4">4枚</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>敗北条件（消滅したカード数）</label>
+              <div class="segmented-control" id="seg-lose-count" style="flex-wrap: wrap;">
+                <button class="seg-btn active" data-value="all">すべて</button>
+                <button class="seg-btn" data-value="1">1枚</button>
+                <button class="seg-btn" data-value="2">2枚</button>
+                <button class="seg-btn" data-value="3">3枚</button>
+                <button class="seg-btn" data-value="leader">リーダー(左端)</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label for="rule-win-values">勝ち（上がり）になる数字</label>
+              <input type="text" id="rule-win-values" placeholder="例: 5, 10" class="solid-input">
+            </div>
+
+            <div class="setting-item">
+              <label for="rule-lose-values">負け（消滅）になる数字</label>
+              <input type="text" id="rule-lose-values" placeholder="例: 0" value="0" class="solid-input">
+            </div>
           </div>
 
-          <div class="setting-item">
-            <label for="rule-initial-value-min">初期値（最小値）</label>
-            <select id="rule-initial-value-min">
-              <option value="1" selected>1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="setting-item">
-            <label for="rule-initial-value-max">初期値（最大値）</label>
-            <select id="rule-initial-value-max">
-              <option value="1" selected>1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
+          <!-- タブコンテンツ: 制限ルール -->
+          <div id="tab-limits" class="tab-content">
+            <div class="setting-item">
+              <label>引き込みの回数制限</label>
+              <div class="segmented-control" id="seg-pull-limit">
+                <button class="seg-btn active" data-value="-1">無制限</button>
+                <button class="seg-btn" data-value="0">禁止(0)</button>
+                <button class="seg-btn" data-value="1">1回</button>
+                <button class="seg-btn" data-value="2">2回</button>
+                <button class="seg-btn" data-value="3">3回</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>譲渡(分配)の回数制限</label>
+              <div class="segmented-control" id="seg-transfer-limit">
+                <button class="seg-btn active" data-value="-1">無制限</button>
+                <button class="seg-btn" data-value="0">禁止(0)</button>
+                <button class="seg-btn" data-value="1">1回</button>
+                <button class="seg-btn" data-value="2">2回</button>
+                <button class="seg-btn" data-value="3">3回</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>パスの回数制限</label>
+              <div class="segmented-control" id="seg-pass-limit">
+                <button class="seg-btn active" data-value="0">禁止(0)</button>
+                <button class="seg-btn" data-value="1">1回</button>
+                <button class="seg-btn" data-value="2">2回</button>
+                <button class="seg-btn" data-value="3">3回</button>
+                <button class="seg-btn" data-value="-1">無制限</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>動かす手の制限</label>
+              <div class="segmented-control" id="seg-attack-hand" style="flex-wrap: wrap;">
+                <button class="seg-btn active" data-value="none">制限なし</button>
+                <button class="seg-btn" data-value="min">小さい方のみ</button>
+                <button class="seg-btn" data-value="max">大きい方のみ</button>
+                <button class="seg-btn" data-value="alternate">大小交互</button>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>引き込み対象の制限</label>
+              <div class="segmented-control" id="seg-pull-target" style="flex-wrap: wrap;">
+                <button class="seg-btn active" data-value="none">制限なし</button>
+                <button class="seg-btn" data-value="min">小さい方のみ</button>
+                <button class="seg-btn" data-value="max">大きい方のみ</button>
+                <button class="seg-btn" data-value="alternate">大小交互</button>
+              </div>
+            </div>
           </div>
 
-          <div class="setting-item">
-            <label for="rule-max-value">最大値（消滅または引かれる値）</label>
-            <input type="number" id="rule-max-value" value="5" min="2" max="20" style="width: 60px; padding: 4px; border-radius: 4px;">
-          </div>
+          <!-- タブコンテンツ: 特殊ルール -->
+          <div id="tab-special" class="tab-content">
+            <div class="setting-item toggle-item">
+              <label class="toggle-label" for="rule-zero-on-five">
+                最大値以上になった場合は一律で「0」にする
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rule-zero-on-five">
+                <span class="slider"></span>
+              </label>
+            </div>
 
-          <div class="setting-item">
-            <label for="rule-card-count">カードの枚数</label>
-            <select id="rule-card-count">
-              <option value="2" selected>2枚</option>
-              <option value="3">3枚</option>
-              <option value="4">4枚</option>
-            </select>
-          </div>
+            <div class="setting-item toggle-item">
+              <label class="toggle-label" for="rule-allow-self-add">
+                自分のカード同士の「加算」を許可（元のカードは0になる）
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rule-allow-self-add">
+                <span class="slider"></span>
+              </label>
+            </div>
 
-          <div class="setting-item">
-            <label for="rule-lose-count">敗北条件（消滅したカード数）</label>
-            <select id="rule-lose-count">
-              <option value="all" selected>すべてのカード</option>
-              <option value="1">1枚でも消滅したら</option>
-              <option value="2">2枚消滅したら</option>
-              <option value="3">3枚消滅したら</option>
-              <option value="leader">リーダー（左手）が消滅したら</option>
-            </select>
-          </div>
-          
-          <div class="setting-item">
-            <label for="rule-win-values">勝ち（上がり）になる数字（カンマ区切りで複数指定可）</label>
-            <input type="text" id="rule-win-values" placeholder="例: 5, 10" style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
-          </div>
+            <div class="setting-item toggle-item">
+              <label class="toggle-label" for="rule-blind-mode">
+                ブラインドモード（相手のカードの数字が見えなくなる）
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rule-blind-mode">
+                <span class="slider"></span>
+              </label>
+            </div>
 
-          <div class="setting-item">
-            <label for="rule-lose-values">負け（消滅）になる数字（基本は0。カンマ区切りで複数指定可）</label>
-            <input type="text" id="rule-lose-values" placeholder="例: 0, 5" value="0" style="width: 120px; padding: 6px; border-radius: 6px; border: 1px solid #ccc;">
-          </div>
-          
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-zero-on-five">
-              最大値以上になった場合は一律で「0」にする
-            </label>
-          </div>
-          
-          <div class="setting-item">
-            <label for="rule-pull-limit">引き込みの回数制限</label>
-            <select id="rule-pull-limit">
-              <option value="-1" selected>無制限</option>
-              <option value="0">禁止（0回）</option>
-              <option value="1">1回まで</option>
-              <option value="2">2回まで</option>
-              <option value="3">3回まで</option>
-            </select>
-          </div>
-          
-          <div class="setting-item">
-            <label for="rule-transfer-limit">譲渡(分配)の回数制限</label>
-            <select id="rule-transfer-limit">
-              <option value="-1" selected>無制限</option>
-              <option value="0">禁止（0回）</option>
-              <option value="1">1回まで</option>
-              <option value="2">2回まで</option>
-              <option value="3">3回まで</option>
-            </select>
-          </div>
+            <div class="setting-item toggle-item">
+              <label class="toggle-label" for="rule-reverse-win">
+                勝利条件の逆転（自分が敗北条件を満たすと「勝ち」になる）
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rule-reverse-win">
+                <span class="slider"></span>
+              </label>
+            </div>
 
-          <div class="setting-item">
-            <label for="rule-attack-hand-restriction">動かす手の制限（攻撃・譲渡・引き込み元）</label>
-            <select id="rule-attack-hand-restriction">
-              <option value="none" selected>制限なし</option>
-              <option value="min">必ず小さい方を動かす</option>
-              <option value="max">必ず大きい方を動かす</option>
-              <option value="alternate">小さい方・大きい方を交互に動かす</option>
-            </select>
-          </div>
+            <div class="setting-item toggle-item">
+              <label class="toggle-label" for="rule-multiply-attack">
+                攻撃を「足し算」ではなく「掛け算」にする
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rule-multiply-attack">
+                <span class="slider"></span>
+              </label>
+            </div>
 
-          <div class="setting-item">
-            <label for="rule-pull-target-restriction">引き込み対象の制限</label>
-            <select id="rule-pull-target-restriction">
-              <option value="none" selected>相手のどちらでも引き込める</option>
-              <option value="min">相手の小さい方しか引き込めない</option>
-              <option value="max">相手の大きい方しか引き込めない</option>
-              <option value="alternate">相手の小さい方・大きい方を交互にしか引き込めない</option>
-            </select>
-          </div>
-
-          <div class="setting-item">
-            <label for="rule-pass-limit">パスの回数制限</label>
-            <select id="rule-pass-limit">
-              <option value="0" selected>禁止（0回）</option>
-              <option value="1">1回まで</option>
-              <option value="2">2回まで</option>
-              <option value="3">3回まで</option>
-              <option value="-1">無制限</option>
-            </select>
-          </div>
-
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-allow-self-add">
-              自分のカード同士の「加算」を許可（元のカードは0になる）
-            </label>
-          </div>
-
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-blind-mode">
-              ブラインドモード（相手のカードの数字が見えなくなる）
-            </label>
-          </div>
-
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-reverse-win">
-              勝利条件の逆転（自分が敗北条件を満たすと「勝ち」になるデスゲーム）
-            </label>
-          </div>
-
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-multiply-attack">
-              攻撃を「足し算」ではなく「掛け算」にする
-            </label>
-          </div>
-
-          <div class="setting-item checkbox-item">
-            <label>
-              <input type="checkbox" id="rule-chain-explosion">
-              連鎖爆発（誰かのカードが0になった瞬間、他の全員のカードに＋1）
-            </label>
+            <div class="setting-item toggle-item">
+              <label class="toggle-label" for="rule-chain-explosion">
+                連鎖爆発（誰かのカードが0になった瞬間、他の全員のカードに＋1）
+              </label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rule-chain-explosion">
+                <span class="slider"></span>
+              </label>
+            </div>
           </div>
         </div>
 
-        <button id="btn-close-rules" class="btn btn-primary" style="width: 100%;">閉じる</button>
+        <div style="text-align: center; margin-top: 20px;">
+          <button id="btn-close-rules" class="btn btn-primary" style="width: 200px;">閉じる</button>
+        </div>
       </div>
     </div>
 

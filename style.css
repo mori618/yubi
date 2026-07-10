@@ -3,31 +3,31 @@
    ========================================== */
 
 :root {
-  /* 共通カラー定義 */
-  --bg-color: #f8fafc;
-  --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  --panel-bg: rgba(255, 255, 255, 0.85);
-  --panel-border: rgba(0, 0, 0, 0.1);
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
+  /* ソリッドなミニマルデザイン */
+  --bg-color: #f3f4f6; /* 薄いグレー */
+  --bg-gradient: var(--bg-color); /* グラデーション廃止 */
+  --panel-bg: #ffffff; /* 純白 */
+  --panel-border: transparent; /* 枠線なし */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
   
-  /* プレイヤー1 (ブルー) */
-  --p1-primary: #0284c7;
-  --p1-secondary: #0369a1;
-  --p1-glow: rgba(2, 132, 199, 0.4);
-  --p1-bg: rgba(2, 132, 199, 0.08);
+  /* プレイヤー1 (ソリッドブルー) */
+  --p1-primary: #2563eb;
+  --p1-secondary: #1d4ed8;
+  --p1-glow: transparent;
+  --p1-bg: #eff6ff;
 
-  /* プレイヤー2 / CPU (マゼンタ・ピンク) */
-  --p2-primary: #db2777;
-  --p2-secondary: #be185d;
-  --p2-glow: rgba(219, 39, 119, 0.4);
-  --p2-bg: rgba(219, 39, 119, 0.08);
+  /* プレイヤー2 / CPU (ソリッドレッド) */
+  --p2-primary: #e11d48;
+  --p2-secondary: #be123c;
+  --p2-glow: transparent;
+  --p2-bg: #fff1f2;
 
   /* システム・警告 */
-  --color-danger: #ef4444;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --glow-danger: rgba(239, 68, 68, 0.4);
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --glow-danger: transparent;
 }
 
 /* 基本リセット & 共通スタイル */
@@ -91,54 +91,167 @@ body {
 }
 
 .settings-panel {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--panel-bg);
   border-radius: 12px;
   padding: 20px;
   margin: 20px 0;
   text-align: left;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.settings-panel h3 {
-  font-size: 1.2rem;
-  margin-bottom: 16px;
-  color: var(--text-primary);
-  text-align: center;
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .setting-item {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.setting-item.checkbox-item {
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .setting-item label {
   font-size: 0.95rem;
   color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-weight: 500;
 }
 
-.setting-item select {
-  padding: 6px 12px;
+/* 新規UI: タブ */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+.tab-btn {
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  color: var(--text-secondary);
+  cursor: pointer;
+  position: relative;
+}
+.tab-btn.active {
+  color: var(--p1-primary);
+}
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--p1-primary);
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 新規UI: セグメントコントロール */
+.segmented-control {
+  display: flex;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+.seg-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: bold;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.seg-btn.active {
+  background: var(--panel-bg);
+  color: var(--p1-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* 新規UI: トグルスイッチ */
+.toggle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  width: 100%;
+}
+.toggle-label {
+  flex: 1;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d1d5db;
+  transition: .2s;
+  border-radius: 28px;
+}
+.toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.toggle-switch input:checked + .slider {
+  background-color: var(--p1-primary);
+}
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* 新規UI: 入力フォーム */
+.solid-input {
+  padding: 8px 12px;
   border-radius: 6px;
   border: none;
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary);
-  font-family: inherit;
+  background: #f3f4f6;
   font-size: 1rem;
-  cursor: pointer;
+  color: var(--text-primary);
   outline: none;
+  width: 100px;
 }
-
-.setting-item select:focus {
-  background: rgba(0, 0, 0, 0.1);
+.solid-input:focus {
+  background: #e5e7eb;
 }
 
 /* 画面制御 */
@@ -340,7 +453,7 @@ body {
 }
 
 /* ==========================================
-   サイバーネオンカードのスタイリング
+   フラット・ソリッドカードのスタイリング
    ========================================== */
 .card-slot {
   width: 120px;
@@ -348,33 +461,40 @@ body {
   position: relative;
   border-radius: 12px;
   cursor: default;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
   user-select: none;
-  background: rgba(0, 0, 0, 0.05);
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  background: var(--panel-bg);
+  border: none;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 [data-player="p1"].card-slot {
-  border-color: rgba(2, 132, 199, 0.3);
+  /* border-color: rgba(2, 132, 199, 0.3); 削除 */
 }
 
 [data-player="p2"].card-slot {
-  border-color: rgba(219, 39, 119, 0.3);}
+  /* border-color: rgba(219, 39, 119, 0.3); 削除 */
+}
 
 /* ターンプレイヤーかつ数値が1以上の時にドラッグ可能 */
 .active-turn .card-slot:not(.extinguished) {
   cursor: grab;
 }
 .active-turn [data-player="p1"].card-slot:not(.extinguished):hover {
-  background: rgba(2, 132, 199, 0.1);
+  background: var(--p1-bg);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
 }
 .active-turn [data-player="p2"].card-slot:not(.extinguished):hover {
-  background: rgba(219, 39, 119, 0.1);
+  background: var(--p2-bg);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
 }
 
 .card-slot:active:not(.extinguished) {
   cursor: grabbing;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .card-inner {
@@ -487,77 +607,36 @@ body {
 }
 
 /* ==========================================
-   ドラッグオーバー時のサークルハイライトエフェクト
+   ドラッグオーバー時のフラットハイライトエフェクト
    ========================================== */
 
-/* 攻撃対象へのドラッグオーバー（赤ネオンサークル + パルス） */
-.card-slot.drop-target-attack .card-inner::before {
-  background: rgba(255, 0, 127, 0.12);
-  border: 2px solid var(--p2-primary);
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 0 15px var(--p2-glow);
-  opacity: 1;
-}
-.card-slot.drop-target-attack .card-value {
-  animation: neon-pulse-value-p2 1.2s infinite ease-in-out;
+/* 攻撃対象へのドラッグオーバー */
+.card-slot.drop-target-attack .card-inner {
+  background: var(--p2-bg);
+  box-shadow: inset 0 0 0 3px var(--p2-primary);
+  border-radius: 12px;
 }
 
-/* 譲渡対象へのドラッグオーバー（青ネオンサークル + 数字パルス） */
-.card-slot.drop-target-transfer .card-inner::before {
-  background: rgba(0, 240, 255, 0.12);
-  border: 2px solid var(--p1-primary);
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 0 15px var(--p1-glow);
-  opacity: 1;
-}
-.card-slot.drop-target-transfer .card-value {
-  animation: neon-pulse-value-p1 1.2s infinite ease-in-out;
+/* 譲渡対象へのドラッグオーバー */
+.card-slot.drop-target-transfer .card-inner {
+  background: var(--p1-bg);
+  box-shadow: inset 0 0 0 3px var(--p1-primary);
+  border-radius: 12px;
 }
 
-/* アクション不可へのドラッグオーバー警告（赤の極薄） */
-.card-slot.drop-target-invalid .card-inner::before {
-  background: rgba(255, 59, 48, 0.05);
-  border: 2px dashed var(--color-danger);
-  transform: translate(-50%, -50%) scale(1.0);
-  opacity: 1;
+/* アクション不可へのドラッグオーバー警告 */
+.card-slot.drop-target-invalid .card-inner {
+  background: #fee2e2;
+  box-shadow: inset 0 0 0 3px var(--color-danger);
+  border-radius: 12px;
   cursor: no-drop;
 }
-.card-slot.drop-target-invalid .card-value {
-  animation: neon-pulse-value-danger 1.2s infinite ease-in-out;
-}
 
-/* 引き込み対象へのドラッグオーバー（黄ネオンサークル + 数字パルス） */
-.card-slot.drop-target-pull .card-inner::before {
-  background: rgba(255, 204, 0, 0.12);
-  border: 2px solid var(--color-warning);
-  transform: translate(-50%, -50%) scale(1.15);
-  box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
-  opacity: 1;
-}
-.card-slot.drop-target-pull .card-value {
-  animation: neon-pulse-value-warning 1.2s infinite ease-in-out;
-}
-
-/* ネオン数値パルスアニメーションの定義 */
-@keyframes neon-pulse-value-p1 {
-  0% { text-shadow: 0 0 10px var(--p1-glow), 0 0 20px var(--p1-glow); }
-  50% { text-shadow: 0 0 20px var(--p1-primary), 0 0 40px var(--p1-primary); }
-  100% { text-shadow: 0 0 10px var(--p1-glow), 0 0 20px var(--p1-glow); }
-}
-@keyframes neon-pulse-value-p2 {
-  0% { text-shadow: 0 0 10px var(--p2-glow), 0 0 20px var(--p2-glow); }
-  50% { text-shadow: 0 0 20px var(--p2-primary), 0 0 40px var(--p2-primary); }
-  100% { text-shadow: 0 0 10px var(--p2-glow), 0 0 20px var(--p2-glow); }
-}
-@keyframes neon-pulse-value-warning {
-  0% { text-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
-  50% { text-shadow: 0 0 20px rgba(255, 204, 0, 0.8), 0 0 40px rgba(255, 204, 0, 0.8); }
-  100% { text-shadow: 0 0 10px rgba(255, 204, 0, 0.4); }
-}
-@keyframes neon-pulse-value-danger {
-  0% { text-shadow: 0 0 10px var(--glow-danger); }
-  50% { text-shadow: 0 0 20px var(--color-danger), 0 0 40px var(--color-danger); }
-  100% { text-shadow: 0 0 10px var(--glow-danger); }
+/* 引き込み対象へのドラッグオーバー */
+.card-slot.drop-target-pull .card-inner {
+  background: #fef3c7;
+  box-shadow: inset 0 0 0 3px var(--color-warning);
+  border-radius: 12px;
 }
 
 /* VSの境界線 */
