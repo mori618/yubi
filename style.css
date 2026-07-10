@@ -4,28 +4,90 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap");
 
-:root {
-  /* モダン・カラーパレット */
-  --bg-color: #F8FAFC; /* Slate 50 */
-  --panel-bg: #FFFFFF;
-  --text-primary: #0F172A; /* Slate 900 */
-  --text-secondary: #64748B; /* Slate 500 */
-  
-  --p1-primary: #2563EB; /* Blue 600 */
-  --p1-secondary: #1D4ED8; /* Blue 700 */
-  --p1-bg: #EFF6FF; /* Blue 50 */
-  --p1-border: #BFDBFE; /* Blue 200 */
+/* テーマ変数の定義 */
+:root, [data-theme="oceanic_professional"] {
+  --bg-color: #f9f9ff;
+  --panel-bg: #f9f9ff;
+  --text-primary: #001a42;
+  --text-secondary: #404850;
+  --p1-primary: #005d90;
+  --p1-secondary: #004b74;
+  --p1-bg: #e9edff;
+  --p1-border: #bfc7d1;
+  --p2-primary: #006878;
+  --p2-secondary: #004e5b;
+  --p2-bg: #e7fbff;
+  --p2-border: #bfc7d1;
+  --color-danger: #ba1a1a;
+  --color-success: #00626f;
+  --color-warning: #F59E0B;
+  --border-color: #bfc7d1;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+}
 
-  --p2-primary: #E11D48; /* Rose 600 */
-  --p2-secondary: #BE123C; /* Rose 700 */
-  --p2-bg: #FFF1F2; /* Rose 50 */
-  --p2-border: #FECDD3; /* Rose 200 */
+[data-theme="midnight_tech"] {
+  --bg-color: #0b1326;
+  --panel-bg: #111a30;
+  --text-primary: #dae2fd;
+  --text-secondary: #bbc9cd;
+  --p1-primary: #8aebff;
+  --p1-secondary: #58d6f1;
+  --p1-bg: #004e5a;
+  --p1-border: #3c494c;
+  --p2-primary: #d0bcff;
+  --p2-secondary: #a980ff;
+  --p2-bg: #571bc1;
+  --p2-border: #3c494c;
+  --color-danger: #ffb4ab;
+  --color-success: #ffd2d3;
+  --color-warning: #F59E0B;
+  --border-color: #3c494c;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+}
 
-  --color-danger: #EF4444; /* Red 500 */
-  --color-success: #10B981; /* Emerald 500 */
-  --color-warning: #F59E0B; /* Amber 500 */
-  
-  --border-color: #E2E8F0; /* Slate 200 */
+[data-theme="candy"] {
+  --bg-color: #fff8f8;
+  --panel-bg: #ffffff;
+  --text-primary: #2a0014;
+  --text-secondary: #5f4a51;
+  --p1-primary: #006874;
+  --p1-secondary: #004f58;
+  --p1-bg: #97f0ff;
+  --p1-border: #d2c8cb;
+  --p2-primary: #984061;
+  --p2-secondary: #7b2949;
+  --p2-bg: #ffd9e2;
+  --p2-border: #d2c8cb;
+  --color-danger: #ba1a1a;
+  --color-success: #006874;
+  --color-warning: #f59e0b;
+  --border-color: #d2c8cb;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+}
+
+[data-theme="terra"] {
+  --bg-color: #fcfdf6;
+  --panel-bg: #ffffff;
+  --text-primary: #1a1c19;
+  --text-secondary: #424940;
+  --p1-primary: #386a20;
+  --p1-secondary: #274e14;
+  --p1-bg: #b8f397;
+  --p1-border: #c2c9bd;
+  --p2-primary: #55624c;
+  --p2-secondary: #3e4a36;
+  --p2-bg: #d8e7cb;
+  --p2-border: #c2c9bd;
+  --color-danger: #ba1a1a;
+  --color-success: #386a20;
+  --color-warning: #f59e0b;
+  --border-color: #c2c9bd;
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;
@@ -38,7 +100,7 @@
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Montserrat", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-primary);
   min-height: 100vh;
@@ -46,6 +108,7 @@ body {
   justify-content: center;
   align-items: center;
   padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .game-container {
@@ -84,7 +147,11 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 24px;
-  
+}
+
+.setup-content {
+  width: 100%;
+  max-width: 450px;
 }
 
 .settings-panel {

@@ -334,6 +334,13 @@ function init() {
       const parent = e.target.closest('.segmented-control');
       parent.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
+
+      // テーマ選択の場合
+      if (parent.id === 'seg-color-theme') {
+        const theme = e.target.dataset.value;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('number-crush-theme', theme);
+      }
     });
   });
   
@@ -1701,6 +1708,25 @@ function startCampaignStage(stageNum) {
 
   startGame('cpu');
 }
+
+// テーマの初期化
+function initTheme() {
+  const savedTheme = localStorage.getItem('number-crush-theme') || 'oceanic_professional';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  
+  // UIのセグメントボタンの状態を更新
+  setTimeout(() => {
+    const themeSeg = document.getElementById('seg-color-theme');
+    if (themeSeg) {
+      themeSeg.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      const targetBtn = themeSeg.querySelector(`.seg-btn[data-value="${savedTheme}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+  }, 100);
+}
+
+// 実行
+initTheme();
 
 // テスト用のエクスポート（Node.js環境でのみ実行される）
 if (typeof module !== 'undefined' && module.exports) {

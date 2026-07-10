@@ -138,14 +138,24 @@
 
           <!-- タブナビゲーション -->
           <div class="tabs">
-            <button class="tab-btn active" data-tab="tab-basic">基本設定</button>
+            <button class="tab-btn active" data-tab="tab-settings">基本設定</button>
             <button class="tab-btn" data-tab="tab-limits">制限ルール</button>
             <button class="tab-btn" data-tab="tab-special">特殊ルール</button>
           </div>
           
           <!-- タブコンテンツ: 基本設定 -->
-          <div id="tab-basic" class="tab-content active">
+          <div id="tab-settings" class="tab-content active">
             <div class="setting-item">
+              <label>カラーテーマ</label>
+              <div class="segmented-control" id="seg-color-theme" style="flex-wrap: wrap;">
+                <button class="seg-btn active" data-value="oceanic_professional">Oceanic</button>
+                <button class="seg-btn" data-value="midnight_tech">Midnight</button>
+                <button class="seg-btn" data-value="candy">Candy</button>
+                <button class="seg-btn" data-value="terra">Terra</button>
+              </div>
+            </div>
+
+            <div class="setting-item" id="cpu-diff-setting" style="display: none;">
               <label>CPUの強さ</label>
               <div class="segmented-control" id="seg-cpu-difficulty">
                 <button class="seg-btn active" data-value="strong">強い（最強AI）</button>
