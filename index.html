@@ -96,6 +96,12 @@
         }
         .floating-num:nth-child(2n) { animation-delay: -2s; animation-duration: 7s; }
         .floating-num:nth-child(3n) { animation-delay: -4s; animation-duration: 5s; }
+
+        /* Gentle bounce for title */
+        @keyframes gentle-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
     </style>
 <style>
     body {
@@ -122,7 +128,7 @@
 <!-- Main Container -->
 <main class="flex-grow flex flex-col items-center justify-center p-6 z-10 relative">
 <!-- Logo Section -->
-<div class="mb-16 text-center animate-[bounce_2s_ease-in-out_infinite]">
+<div class="mb-16 text-center animate-[gentle-bounce_3s_ease-in-out_infinite]">
 <h1 class="font-display font-black text-6xl md:text-8xl tracking-wider text-primary drop-shadow-[0_8px_0_rgba(224,64,160,0.3)]">
                 NUMBER<br/>CRUSH
             </h1>
