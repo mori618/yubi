@@ -276,6 +276,90 @@ function setRulesEditable(editable) {
   }
 }
 
+// ==========================================
+// チュートリアル（ルール解説）管理
+// ==========================================
+const tutorialModal = document.getElementById('tutorial-modal');
+const tutorialTitle = document.getElementById('tutorial-title');
+const tutorialContent = document.getElementById('tutorial-content');
+const btnCloseTutorial = document.getElementById('btn-close-tutorial');
+const btnTutorialOk = document.getElementById('btn-tutorial-ok');
+const tutorialList = document.getElementById('tutorial-list');
+
+function getSeenTutorials() {
+  const data = localStorage.getItem('numberCrush_seenTutorials');
+  return data ? JSON.parse(data) : [];
+}
+
+function markTutorialAsSeen(tutorialId) {
+  const seen = getSeenTutorials();
+  if (!seen.includes(tutorialId)) {
+    seen.push(tutorialId);
+    localStorage.setItem('numberCrush_seenTutorials', JSON.stringify(seen));
+  }
+}
+
+function showTutorialModal(tutorial) {
+  if (!tutorialModal) return;
+  tutorialTitle.textContent = tutorial.title;
+  tutorialContent.innerHTML = tutorial.text;
+  tutorialModal.classList.remove('hidden');
+  // 少し遅れてopacityを1にしてアニメーション
+  setTimeout(() => {
+    tutorialModal.classList.remove('opacity-0');
+    tutorialModal.firstElementChild.classList.remove('scale-95');
+    tutorialModal.firstElementChild.classList.add('scale-100');
+  }, 10);
+  
+  if (tutorial.id) {
+    markTutorialAsSeen(tutorial.id);
+  }
+}
+
+function closeTutorialModal() {
+  if (!tutorialModal) return;
+  tutorialModal.classList.add('opacity-0');
+  tutorialModal.firstElementChild.classList.remove('scale-100');
+  tutorialModal.firstElementChild.classList.add('scale-95');
+  setTimeout(() => {
+    tutorialModal.classList.add('hidden');
+  }, 300);
+}
+
+if (btnCloseTutorial) btnCloseTutorial.addEventListener('click', closeTutorialModal);
+if (btnTutorialOk) btnTutorialOk.addEventListener('click', closeTutorialModal);
+
+function renderTutorialList() {
+  if (!tutorialList) return;
+  tutorialList.innerHTML = '';
+  
+  const allTutorials = [];
+  CAMPAIGN_STAGES.forEach(stage => {
+    if (stage.tutorial) {
+      allTutorials.push(stage.tutorial);
+    }
+  });
+  
+  allTutorials.forEach((tut, index) => {
+    const btn = document.createElement('button');
+    btn.className = 'bg-surface hover:bg-surface-variant text-on-surface p-4 rounded-2xl shadow-sm border-2 border-surface-dim hover:border-primary transition-all text-left group overflow-hidden relative flex flex-col justify-center min-h-[5rem]';
+    btn.innerHTML = `
+      <div class="absolute inset-0 bg-gradient-to-r from-primary-container/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      <div class="flex items-center gap-3 relative z-10 w-full">
+        <div class="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center font-black flex-shrink-0">
+          ${index + 1}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-lg text-secondary truncate">${tut.title}</div>
+        </div>
+        <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform flex-shrink-0">chevron_right</span>
+      </div>
+    `;
+    btn.onclick = () => showTutorialModal(tut);
+    tutorialList.appendChild(btn);
+  });
+}
+
 // 全カードスロットの取得
 let cardSlots = [];
 
@@ -283,6 +367,8 @@ let cardSlots = [];
 // 初期化・イベント設定
 // ==========================================
 function init() {
+  renderTutorialList();
+  
   if (btnCampaign) btnCampaign.addEventListener('click', showStageSelectScreen);
   if (btnBackToTitle) {
     btnBackToTitle.addEventListener('click', () => {
@@ -532,20 +618,20 @@ function createCardsDOM() {
 
     gameState.cards.p1[cardId] = p1Init;
     const p1Card = `
-      <div class="card-slot w-28 h-40 bg-surface rounded-xl shadow-md flex flex-col items-center justify-between p-2 cursor-pointer transition-transform hover:-translate-y-2 card-active" id="p1-card-${cardId}" data-player="p1" data-card-id="${cardId}">
-        <div class="self-start text-sm font-bold text-primary card-label">${handLabel}</div>
-        <span class="font-display font-black text-5xl text-primary card-value">${p1Init}</span>
-        <div class="self-end text-sm font-bold text-primary rotate-180 card-label">${handLabel}</div>
+      <div class="card-slot w-28 h-40 bg-surface rounded-[2rem] shadow-md flex flex-col items-center justify-between py-6 px-4 cursor-pointer transition-transform hover:-translate-y-2 card-active relative" id="p1-card-${cardId}" data-player="p1" data-card-id="${cardId}">
+        <div class="self-start text-xs font-bold text-primary card-label z-10 break-keep whitespace-nowrap">${handLabel}</div>
+        <span class="font-display font-black text-5xl text-primary card-value z-10">${p1Init}</span>
+        <div class="self-end text-xs font-bold text-primary rotate-180 card-label z-10 break-keep whitespace-nowrap">${handLabel}</div>
       </div>
     `;
     p1CardsContainer.insertAdjacentHTML('beforeend', p1Card);
 
     gameState.cards.p2[cardId] = p2Init;
     const p2Card = `
-      <div class="card-slot w-24 h-36 bg-surface rounded-xl shadow-md flex flex-col items-center justify-between p-2 relative transform rotate-180" id="p2-card-${cardId}" data-player="p2" data-card-id="${cardId}">
-        <div class="self-start text-xs font-bold text-secondary card-label">${handLabel}</div>
-        <span class="font-display font-black text-4xl text-secondary card-value">${p2Init}</span>
-        <div class="self-end text-xs font-bold text-secondary rotate-180 card-label">${handLabel}</div>
+      <div class="card-slot w-24 h-36 bg-surface rounded-[2rem] shadow-md flex flex-col items-center justify-between py-5 px-3 relative transform rotate-180" id="p2-card-${cardId}" data-player="p2" data-card-id="${cardId}">
+        <div class="self-start text-[10px] font-bold text-secondary card-label z-10 break-keep whitespace-nowrap">${handLabel}</div>
+        <span class="font-display font-black text-4xl text-secondary card-value z-10">${p2Init}</span>
+        <div class="self-end text-[10px] font-bold text-secondary rotate-180 card-label z-10 break-keep whitespace-nowrap">${handLabel}</div>
       </div>
     `;
     p2CardsContainer.insertAdjacentHTML('beforeend', p2Card);
@@ -1150,7 +1236,13 @@ function updateUI() {
     const actionLabel = document.getElementById(`${p}-action-label`);
     if (actionLabel) {
       actionLabel.style.display = 'inline-block';
-      actionLabel.textContent = `P: ${passStr} | T: ${transStr} | L: ${pullStr}`;
+      actionLabel.innerHTML = `
+        <span class="inline-flex items-center gap-1" title="パス"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">skip_next</span>${passStr}</span>
+        <span class="opacity-50 mx-1">|</span>
+        <span class="inline-flex items-center gap-1" title="譲渡"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">swap_horiz</span>${transStr}</span>
+        <span class="opacity-50 mx-1">|</span>
+        <span class="inline-flex items-center gap-1" title="奪取"><span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">front_hand</span>${pullStr}</span>
+      `;
     }
     
     if (p === 'p1') {
@@ -1631,23 +1723,23 @@ window.onload = init;
 // ==========================================
 const CAMPAIGN_STAGES = [
   // 第1エリア: 基礎訓練
-  { title: "Stage 1: 基本のキ", desc: "相手の手を5以上にして消そう。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, firstPlayer: 'p2' } },
-  { title: "Stage 2: 移動の極意", desc: "自分の手から手へ数値を移動して調整しよう。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, transferLimit: -1, firstPlayer: 'p2' } },
-  { title: "Stage 3: あふれる力", desc: "5以上になると「5を引いた余り」になるぞ。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, zeroWhenFiveOrMore: true, firstPlayer: 'p2' } },
-  { title: "Stage 4: 奪取の技", desc: "相手の手の数値を自分に引き込めるぞ。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, pullLimit: -1 } },
+  { title: "Stage 1: 基本のキ", desc: "相手の手を5以上にして消そう。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, firstPlayer: 'p2' }, tutorial: { id: 'tut_basic', title: '基本ルール', text: '自分のターンに、自分の手の数字を相手の手に足して攻撃します。<br>足した結果が上限（5）以上になると、その手は消滅します。<br>相手の全ての手を消滅させれば勝利です！' } },
+  { title: "Stage 2: 移動の極意", desc: "自分の手から手へ数値を移動して調整しよう。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, transferLimit: -1, firstPlayer: 'p2' }, tutorial: { id: 'tut_transfer', title: '譲渡 (Transfer)', text: '自分の手から、もう片方の自分の手へ数字を移すことができます。<br>数字を調整したり、消滅した手を復活（分割）させるのに便利です。' } },
+  { title: "Stage 3: あふれる力", desc: "5以上になると「5を引いた余り」になるぞ。 (CPU先手)", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, zeroWhenFiveOrMore: true, firstPlayer: 'p2' }, tutorial: { id: 'tut_overflow', title: '5以上の処理', text: '足した結果が「5以上」になった場合、消滅せずに「5を引いた余り」の数字に戻る特殊ルールです。<br>例えば「3」に「3」を足すと「6」になり、5を引いて「1」になります。' } },
+  { title: "Stage 4: 奪取の技", desc: "相手の手の数値を自分に引き込めるぞ。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, pullLimit: -1 }, tutorial: { id: 'tut_pull', title: '奪取 (Pull)', text: '相手の手の数字を奪い、自分の手に足すことができます。<br>相手の数字を減らしつつ自分の数字を増やせる強力なアクションです。' } },
   { title: "Stage 5: 三つ巴", desc: "お互いに手が3本に増加！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1 } },
   // 第2エリア: 変則数値
   { title: "Stage 6: ギリギリの戦い", desc: "お互い初期値が4の状態でスタート。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 4, initialValueMax: 4 } },
-  { title: "Stage 7: デス・ナンバー", desc: "「3」を作ってしまったらその手は消滅する！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, loseValues: [3], zeroWhenFiveOrMore: true } },
+  { title: "Stage 7: デス・ナンバー", desc: "「3」を作ってしまったらその手は消滅する！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, loseValues: [3], zeroWhenFiveOrMore: true }, tutorial: { id: 'tut_death', title: 'デス・ナンバー', text: '特定の数字（今回は「3」）を作ってしまうと、その手は即座に消滅してしまいます。<br>相手をその数字に追い込むか、自分がならないように注意しましょう。' } },
   { title: "Stage 8: イレブン", desc: "上限が11に拡張。長期戦を制覇しろ。", rules: { cardCount: 2, maxValue: 11, initialValueMin: 1, initialValueMax: 1 } },
   { title: "Stage 9: ダブル・ゼロ", desc: "5以上の超過は「0」になり即消滅！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, zeroWhenFiveOrMore: true, loseValues: [0] } },
-  { title: "Stage 10: パスゲーム", desc: "パスが3回まで使える。どう押し付けるか？", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, passLimit: 3 } },
+  { title: "Stage 10: パスゲーム", desc: "パスが3回まで使える。どう押し付けるか？", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, passLimit: 3 }, tutorial: { id: 'tut_pass', title: 'パス (Pass)', text: '何もせず、相手にターンを回すことができます。<br>制限回数があるため使い所を見極めましょう。' } },
   // 第3エリア: 特殊ルール
-  { title: "Stage 11: 王将戦", desc: "左手が消滅した時点で負けになる！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseCount: 'leader' } },
-  { title: "Stage 12: 暗闇の戦い", desc: "相手の手が見えない。推測して戦え。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, blindMode: true, transferLimit: -1 } },
-  { title: "Stage 13: インフレーション", desc: "攻撃が掛け算に！一気に上限突破を狙え。", rules: { cardCount: 2, maxValue: 10, initialValueMin: 1, initialValueMax: 2, multiplyAttack: true } },
-  { title: "Stage 14: 逆転の世界", desc: "「自分が全滅したら勝ち」のデスゲーム！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, reverseWin: true } },
-  { title: "Stage 15: 連鎖の恐怖", desc: "手が消滅すると他の手にもダメージが飛ぶ！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 2, chainExplosion: true } },
+  { title: "Stage 11: 王将戦", desc: "左手が消滅した時点で負けになる！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseCount: 'leader' }, tutorial: { id: 'tut_leader', title: '王将戦', text: '王冠マーク(👑)のついた手（一番左の手）が消滅した時点で、他の手が残っていても即敗北となります。<br>王将を死守しつつ相手の王将を狙いましょう。' } },
+  { title: "Stage 12: 暗闇の戦い", desc: "相手の手が見えない。推測して戦え。", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 2, blindMode: true, transferLimit: -1 }, tutorial: { id: 'tut_blind', title: '暗闇モード', text: '相手の手の数字が「？」になり見えなくなります。<br>自分が何のアクションをしたか、何を受け取ったかを元に数字を推測して戦いましょう。' } },
+  { title: "Stage 13: インフレーション", desc: "攻撃が掛け算に！一気に上限突破を狙え。", rules: { cardCount: 2, maxValue: 10, initialValueMin: 1, initialValueMax: 2, multiplyAttack: true }, tutorial: { id: 'tut_multi', title: '掛け算攻撃', text: '攻撃（相手に足す行動）が、足し算ではなく「掛け算」になります。<br>数字が一気に爆発する超攻撃的なモードです。' } },
+  { title: "Stage 14: 逆転の世界", desc: "「自分が全滅したら勝ち」のデスゲーム！", rules: { cardCount: 2, maxValue: 5, initialValueMin: 1, initialValueMax: 1, reverseWin: true }, tutorial: { id: 'tut_reverse', title: '逆転の世界', text: '通常とは逆に、「自分の手がすべて消滅したら勝利」となる特殊ルールです。<br>いかに自分の数字を増やして爆発させるかが鍵となります。' } },
+  { title: "Stage 15: 連鎖の恐怖", desc: "手が消滅すると他の手にもダメージが飛ぶ！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 2, chainExplosion: true }, tutorial: { id: 'tut_chain', title: '連鎖爆発', text: 'いずれかの手が爆発して消滅したとき、隣接する他の手にもダメージ（数字の増加）が連鎖します。<br>一気に全滅する危険とチャンスが潜んでいます。' } },
   // 第4エリア: 複合と極限
   { title: "Stage 16: 見えない王将", desc: "王将戦 ＋ ブラインドモード！", rules: { cardCount: 3, maxValue: 5, initialValueMin: 1, initialValueMax: 1, loseCount: 'leader', blindMode: true } },
   { title: "Stage 17: デス・スパイラル", desc: "連鎖爆発 ＋ 0戻り ＋ 掛け算！", rules: { cardCount: 2, maxValue: 10, initialValueMin: 1, initialValueMax: 2, chainExplosion: true, zeroWhenFiveOrMore: true, multiplyAttack: true } },
@@ -1751,6 +1843,14 @@ function startCampaignStage(stageNum) {
   if (stageInfoBar) stageInfoBar.classList.remove('hidden');
 
   startGame('cpu');
+
+  // チュートリアルがある場合、未読なら表示する
+  if (stageData.tutorial) {
+    const seen = getSeenTutorials();
+    if (!seen.includes(stageData.tutorial.id)) {
+      showTutorialModal(stageData.tutorial);
+    }
+  }
 }
 
 // テーマの初期化
